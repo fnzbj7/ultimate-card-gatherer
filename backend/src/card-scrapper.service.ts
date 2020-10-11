@@ -2,37 +2,46 @@ import {Injectable, Logger} from "@nestjs/common";
 import fs = require("fs");
 import https = require("https");
 import puppeteer = require('puppeteer');
+import {DownloadImgDto} from "./dto/download-img.dto";
 
 @Injectable()
 export class CardScrapperService {
     private logger = new Logger(CardScrapperService.name);
 
-    async scrapeCardsFromMain() {
+    async scrapeCardsFromMain(downloadImgDto: DownloadImgDto): Promise<{src: string, name: string}[]> {
 
-        let ext = 'ZNR';
-        //let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising?src=znr_highlights';
-        let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising-variants';
+        const {imgUrls, jsonName} = downloadImgDto;
 
-        let cardNameArray = CardScrapperService.readCardJson(ext);
+        // let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising?src=znr_highlights';
+        // let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising-variants';
+
+        let cardNameArray = CardScrapperService.readCardJson(jsonName);
 
         const browser = await puppeteer.launch({headless: true});
         const page = await browser.newPage();
 
-        await page.goto(cards_url);
+        const datas: {src: string, name: string}[] = [];
+
+        for(let link of imgUrls) {
+            await page.goto(link);
+
+            const tmpData = await page.evaluate(() => {
+
+                const images: NodeListOf<HTMLImageElement> = document.querySelectorAll('.rtecenter img');
+
+                return Array.from(images).map( (v) => {
+                    return {src: v.src, name: v.alt};
+                });
+            });
+
+            datas.push(...tmpData);
+        }
 
         await page.waitForSelector('.rtecenter', {
             visible: true
         });
 
-        const data = await page.evaluate(() => {
 
-            const images: NodeListOf<HTMLImageElement> = document.querySelectorAll('.rtecenter img');
-
-            return Array.from(images).map( (v) => {
-                return {src: v.src, name: v.alt};
-            });
-
-        });
 
         await browser.close();
 
@@ -42,22 +51,24 @@ export class CardScrapperService {
         }
 
         let num = 1;
-        for (let i = 0; i < data.length; i++) {
-            let cal_index = num; // customIndex(i);
-            num++;
-            let foundCard = cardNameArray.find(card => card.num > 280 && (card.name === data[i].name || card.name2 === data[i].name));
+        for (let i = 0; i < datas.length; i++) {
+
+            let foundCard = cardNameArray.find(card => (card.name === datas[i].name || card.name2 === datas[i].name));
 
             if (foundCard) {
-                console.log(`download ${data[i].name}`);
-                let cardName = `../newimg/${ext}_${pad(foundCard.num, 3)}`;
-                cardName += foundCard.name === data[i].name ? `.png` : '_F.png';
-                await this.download(data[i].src, cardName);
+                this.logger.log(`download ${datas[i].name}`)
+                let isNormal = foundCard.name === datas[i].name;
+
+                let cardName = `../img/${jsonName}/raw/${pad(isNormal ? num : num-1, 3)}`;
+                cardName += isNormal ? `.png` : '_F.png';
+                await this.download(datas[i].src, cardName);
+                if(isNormal) num++;
             } else {
-                console.log(`Nem talált hozzá számot: ${data[i].name}`);
+                this.logger.log(`Nem talált hozzá számot: ${datas[i].name}`);
             }
         }
 
-        return data;
+        return datas;
     }
 
     private async download(url, destination): Promise<void> {
@@ -79,10 +90,10 @@ export class CardScrapperService {
         });
     }
 
-    private static readCardJson(cardSet) {
-        let rawData = fs.readFileSync(`../cardjson/${cardSet}.json`, 'utf8');
+    private static readCardJson(jsonName) {
+        let rawData = fs.readFileSync(`../cardjson/${jsonName}.json`, 'utf8');
         let cards = JSON.parse(rawData);
-        let cardArray = cards.cards;
+        let cardArray = cards.data !== undefined ? cards.data.cards : cards.cards;
         let cardNameArray = cardArray.map(card => {
             return {name: card.name.split(' // ')[0], name2: card.name.split(' // ')[1], num: card.number}
         });
@@ -91,8 +102,9 @@ export class CardScrapperService {
         return cardNameArray;
     }
 
-    deleteAndCreateDirectory(directory: string) {
-        const dir = `../img/${directory}`;
+    deleteAndCreateDirectory(downloadImgDto: DownloadImgDto) {
+        const {jsonName} = downloadImgDto;
+        const dir = `../img/${jsonName}`;
 
         fs.rmdir(dir, { recursive: true }, (err) => {
             if (err) {throw err;}

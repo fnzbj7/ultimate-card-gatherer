@@ -13,6 +13,7 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "https": "^1.0.0",
+    "mongodb": "^3.6.2",
     "mtgsdk": "^0.4.3",
     "puppeteer": "^5.3.0"
   }

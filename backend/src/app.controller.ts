@@ -1,7 +1,8 @@
-import {Controller, Delete, Get} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Put} from '@nestjs/common';
 import { AppService } from './app.service';
 import fs = require('fs');
 import {CardScrapperService} from "./card-scrapper.service";
+import {DownloadImgDto} from "./dto/download-img.dto";
 
 @Controller()
 export class AppController {
@@ -13,17 +14,26 @@ export class AppController {
   }
 
   @Get('/json')
-  async getJsonFiles(): Promise<string[]> {
+  getJsonFiles(): string[] {
     // Read all files in a directory
     const files = fs.readdirSync('../cardjson/');
     console.log(files);
-    await this.cardScrapperService.scrapeCardsFromMain();
+
     return files;
+  }
+
+  @Put('/download')
+  async downloadImages(@Body() downloadImgDto: DownloadImgDto): Promise<{src: string, name: string}[]> {
+    // string[] urls
+    // json file (lehet ez nem kell)
+    this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
+    return await this.cardScrapperService.scrapeCardsFromMain(downloadImgDto);
+    // return képek nevét és számát
   }
 
   @Delete('/img')
   deleteFolder() {
-    this.cardScrapperService.deleteAndCreateDirectory('ZNR');
+
   }
 
   /*
