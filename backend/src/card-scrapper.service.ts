@@ -3,19 +3,17 @@ import fs = require("fs");
 import https = require("https");
 import puppeteer = require('puppeteer');
 import {DownloadImgDto} from "./dto/download-img.dto";
+import {RenameDto} from "./dto/rename.dto";
 
 @Injectable()
 export class CardScrapperService {
     private logger = new Logger(CardScrapperService.name);
 
-    async scrapeCardsFromMain(downloadImgDto: DownloadImgDto): Promise<{src: string, name: string}[]> {
+    async scrapeCardsFromMain(downloadImgDto: DownloadImgDto): Promise<any> {
 
         const {imgUrls, jsonName} = downloadImgDto;
 
-        // let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising?src=znr_highlights';
-        // let cards_url = 'https://magic.wizards.com/en/articles/archive/card-image-gallery/zendikar-rising-variants';
-
-        let cardNameArray = CardScrapperService.readCardJson(jsonName);
+        let cardNameArray: {name, name2, num}[] = CardScrapperService.readCardJson(jsonName);
 
         const browser = await puppeteer.launch({headless: true});
         const page = await browser.newPage();
@@ -41,16 +39,11 @@ export class CardScrapperService {
             visible: true
         });
 
-
-
         await browser.close();
 
-        const pad = (num, size) => {
-            let s = "000" + num;
-            return s.substr(s.length - size);
-        }
-
         let num = 1;
+        let cardArray: {imgName:string,cardName:string,isFlip:boolean}[] = []
+        let actualCard: {imgName:string,cardName:string,isFlip:boolean};
         for (let i = 0; i < datas.length; i++) {
 
             let foundCard = cardNameArray.find(card => (card.name === datas[i].name || card.name2 === datas[i].name));
@@ -59,16 +52,47 @@ export class CardScrapperService {
                 this.logger.log(`download ${datas[i].name}`)
                 let isNormal = foundCard.name === datas[i].name;
 
-                let cardName = `../img/${jsonName}/raw/${pad(isNormal ? num : num-1, 3)}`;
+
+                let cardName = `${this.pad(isNormal ? num : num-1, 3)}`;
                 cardName += isNormal ? `.png` : '_F.png';
-                await this.download(datas[i].src, cardName);
+                if(isNormal) {
+                    actualCard = {imgName:cardName,cardName: foundCard.name,isFlip: false};
+                    cardArray.push(actualCard);
+                } else {
+                    actualCard.isFlip = true;
+                }
+                let cardNameWithPath = `../img/${jsonName}/raw/` + cardName;
+                // TODO kikommentelni ha tényleg tölteni akarok
+                // await this.download(datas[i].src, cardNameWithPath);
                 if(isNormal) num++;
             } else {
                 this.logger.log(`Nem talált hozzá számot: ${datas[i].name}`);
             }
         }
 
-        return datas;
+        let reducedCardArray = cardNameArray.reduce((reduce,actual) => {
+            // ha reduce tartalmazza
+            // akkor adni a numot
+            // külöünben új objektum hozzáadása a számmal
+            let foundElement = reduce.find(find => find.name === actual.name);
+            if(foundElement) {
+                if (!foundElement.nums.some(x => x===actual.num)) {
+                    foundElement.nums.push(actual.num);
+                }
+            } else {
+                reduce.push({name: actual.name, nums: [actual.num]});
+            }
+
+            return reduce;
+        }, []);
+
+
+        return {cardArray, reducedCardArray};
+    }
+
+    private pad(num, size) {
+        let s = "000" + num;
+        return s.substr(s.length - size);
     }
 
     private async download(url, destination): Promise<void> {
@@ -90,14 +114,14 @@ export class CardScrapperService {
         });
     }
 
-    private static readCardJson(jsonName) {
+    private static readCardJson(jsonName): {name, name2, num}[] {
         let rawData = fs.readFileSync(`../cardjson/${jsonName}.json`, 'utf8');
         let cards = JSON.parse(rawData);
         let cardArray = cards.data !== undefined ? cards.data.cards : cards.cards;
         let cardNameArray = cardArray.map(card => {
             return {name: card.name.split(' // ')[0], name2: card.name.split(' // ')[1], num: card.number}
         });
-        // console.log(cardNameArray);
+
         cardNameArray.sort((a, b) => a.num - b.num);
         return cardNameArray;
     }
@@ -106,14 +130,34 @@ export class CardScrapperService {
         const {jsonName} = downloadImgDto;
         const dir = `../img/${jsonName}`;
 
-        fs.rmdir(dir, { recursive: true }, (err) => {
-            if (err) {throw err;}
-            this.logger.log(`${dir} is deleted!`);
-        });
+        fs.rmdirSync(dir, { recursive: true });
+        this.logger.log(`${dir} is deleted!`);
+        fs.mkdirSync(dir + '/raw',{recursive: true});
+        this.logger.log(`${dir} is created!`);
+    }
 
-        fs.mkdir(dir + '/raw',{recursive: true}, (err) => {
-            if (err) {throw err;}
-            this.logger.log(`${dir} is created!`);
-        });
+    renameCards(renameDto: RenameDto) {
+        const {jsonName, setName, cards} = renameDto;
+
+        // Elkészíteni a mappát
+        const dir = `../img/${jsonName}`;
+        fs.mkdirSync(dir + '/rename',{recursive: true});
+        this.logger.log(`${dir} is created!`);
+
+        // let cardNameWithPath = ;
+
+        renameDto.cards.forEach( renameCard => {
+            fs.copyFileSync(`../img/${jsonName}/raw/` + renameCard.imgName,
+                `../img/${jsonName}/rename/${setName}_${this.pad(renameCard.newNumber, 3)}.png`);
+            if(renameCard.isFlip) {
+                fs.copyFileSync(`../img/${jsonName}/raw/` + renameCard.flipName,
+                    `../img/${jsonName}/rename/${setName}_${this.pad(renameCard.newNumber, 3)}_F.png`);
+            }
+        })
+
+
+
+
+
     }
 }

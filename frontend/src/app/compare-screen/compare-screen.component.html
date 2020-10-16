@@ -1,0 +1,22 @@
+Comperen vagy he
+<div class="container mx-auto">
+  <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
+    <div *ngFor="let card of compareList.cardArray">
+      <div class="d-inline-block" [ngClass]="{'filp-div': card.isFlip, 'normal-div': !card.isFlip}">
+        <img alt="" src="http://localhost:3000/{{jsonName}}/raw/{{card.imgName}}">
+        <img alt="" *ngIf="card.isFlip" src="http://localhost:3000/{{jsonName}}/raw/{{card.imgName.split('.png')[0]}}_F.png">
+      </div>
+      <div class="d-inline-block ml-3">
+        <ng-container *ngFor="let cardNum of findPossibleCardNumbers(card.cardName)">
+          <input class="mr-1" type="radio" formControlName="{{card.imgName}}" name="{{card.imgName}}" value="{{cardNum}}" id="{{cardNum + card.imgName}}">
+          <label for="{{cardNum + card.imgName}}">{{cardNum}}</label>
+          <br>
+        </ng-container>
+      </div>
+    </div>
+    <input type="submit" value="save"/>
+  </form>
+</div>
+
+
+

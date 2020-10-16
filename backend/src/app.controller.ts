@@ -1,8 +1,9 @@
-import {Body, Controller, Delete, Get, Put} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Post, Put} from '@nestjs/common';
 import { AppService } from './app.service';
 import fs = require('fs');
 import {CardScrapperService} from "./card-scrapper.service";
 import {DownloadImgDto} from "./dto/download-img.dto";
+import {RenameDto} from "./dto/rename.dto";
 
 @Controller()
 export class AppController {
@@ -16,7 +17,8 @@ export class AppController {
   @Get('/json')
   getJsonFiles(): string[] {
     // Read all files in a directory
-    const files = fs.readdirSync('../cardjson/');
+    let files: string[] = fs.readdirSync('../cardjson/');
+    files = files.map(jsonName => jsonName.split('.')[0]);
     console.log(files);
 
     return files;
@@ -24,11 +26,14 @@ export class AppController {
 
   @Put('/download')
   async downloadImages(@Body() downloadImgDto: DownloadImgDto): Promise<{src: string, name: string}[]> {
-    // string[] urls
-    // json file (lehet ez nem kell)
-    this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
+    // this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
     return await this.cardScrapperService.scrapeCardsFromMain(downloadImgDto);
-    // return képek nevét és számát
+  }
+
+  @Post('/rename')
+  async renameImg(@Body() renameDto: RenameDto) {
+    // this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
+    this.cardScrapperService.renameCards(renameDto);
   }
 
   @Delete('/img')

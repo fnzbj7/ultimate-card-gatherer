@@ -1,0 +1,23 @@
+
+<div class="container mx-auto">
+  <h1>Json list:</h1>
+  <ol>
+    <li *ngFor="let json of jsonList">
+      <p class="d-inline-block" style="width: 100px;">{{json}}</p><button class="btn btn-primary" (click)="onSelectJson(json)">select</button>
+    </li>
+  </ol>
+  <div *ngIf="jsonName">
+    <p>Selected Set: <span class="font-weight-bold">{{jsonName}}</span></p>
+  </div>
+
+  <h1  class="mt-5">Adding Url</h1>
+  <input [(ngModel)]="url">
+  <button class="btn btn-primary" (click)="onAddingUrl()">Adding Url</button>
+  <hr>
+  <div *ngFor="let url of urlList">
+    <p style="display:inline-block">{{url}}</p><button class="btn btn-danger" (click)="onDeleteUrl(url)" style="margin-left:10px">Delete</button>
+  </div>
+
+  <button [disabled]="jsonName === undefined || this.urlList.length === 0" class="btn btn-primary mt-4" (click)="onSendToBackend()">Send To Backend</button>
+  <div *ngIf="isLoading">Töltődik</div>
+</div>
