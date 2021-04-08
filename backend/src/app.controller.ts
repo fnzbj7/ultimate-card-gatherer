@@ -1,12 +1,14 @@
-import {Body, Controller, Delete, Get, Post, Put} from '@nestjs/common';
-import { AppService } from './app.service';
-import fs = require('fs');
+import {Body, Controller, Delete, Get, Logger, Post, Put} from '@nestjs/common';
+import {AppService} from './app.service';
 import {CardScrapperService} from "./card-scrapper.service";
 import {DownloadImgDto} from "./dto/download-img.dto";
 import {RenameDto} from "./dto/rename.dto";
+import fs = require('fs');
 
 @Controller()
 export class AppController {
+  private logger = new Logger(AppController.name);
+
   constructor(private readonly appService: AppService, private readonly cardScrapperService: CardScrapperService) {}
 
   @Get()
@@ -19,7 +21,7 @@ export class AppController {
     // Read all files in a directory
     let files: string[] = fs.readdirSync('../cardjson/');
     files = files.map(jsonName => jsonName.split('.')[0]);
-    console.log(files);
+    this.logger.log(`Found json files: ${files.join(", ")}`);
 
     return files;
   }
@@ -36,9 +38,9 @@ export class AppController {
   }
 
   @Post('/resize')
-  async resize(@Body() jsonNameDto: {jsonName: string}) {
-    const {jsonName} = jsonNameDto;
-    await this.cardScrapperService.resizeImgs(jsonName);
+  async resize(@Body() jsonNameDto: {jsonName: string, quality: string}): Promise<string[]> {
+    const {jsonName, quality} = jsonNameDto;
+    return await this.cardScrapperService.resizeImgs(jsonName, quality);
   }
 
   @Post('/webp')

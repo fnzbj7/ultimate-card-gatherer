@@ -14,7 +14,9 @@ export class CompareScreenComponent implements OnInit {
 
   myFormGroup: FormGroup;
   compareList: CompareCardDto;
-  jsonName: string
+  jsonName: string;
+  quality = '65-80';
+  errArr: string[];
   isRenameFinised = false;
   isResizeDone = false;
   isConvertWebpDone = false;
@@ -71,7 +73,8 @@ export class CompareScreenComponent implements OnInit {
   }
 
   onResize() {
-    this.cardUltimateService.resizeCard(this.jsonName).subscribe(() => {
+    this.cardUltimateService.resizeCard(this.jsonName, this.quality).subscribe(errArr => {
+      this.errArr = errArr;
       console.log('végzett RESIZE');
       this.isResizeDone = true;
     });

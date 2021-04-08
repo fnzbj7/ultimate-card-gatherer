@@ -144,8 +144,8 @@ export class CardScrapperService {
         const {jsonName, setName} = renameDto;
 
         // Elkészíteni a mappát
-        const dir = `../img/${jsonName}`;
-        fs.mkdirSync(dir + '/rename',{recursive: true});
+        const dir = `../img/${jsonName}/rename`;
+        fs.mkdirSync(dir ,{recursive: true});
         this.logger.log(`${dir} is created!`);
 
         renameDto.cards.forEach( renameCard => {
@@ -158,11 +158,11 @@ export class CardScrapperService {
         })
     }
 
-    async resizeImgs(jsonName) {
+    async resizeImgs(jsonName: string, quality: string): Promise<string[]> {
 
         // Elkészíteni a mappát
-        const dir = `../img/${jsonName}`;
-        fs.mkdirSync(dir + '/resized',{recursive: true});
+        const dir = `../img/${jsonName}/resized`;
+        fs.mkdirSync(dir,{recursive: true});
         this.logger.log(`${dir} is created!`);
 
         const { compress } = require('compress-images/promise');
@@ -176,7 +176,7 @@ export class CardScrapperService {
             destination: outPath,
             enginesSetup: {
                 jpg: { engine: 'mozjpeg', command: ['-quality', '60']},
-                png: { engine: 'pngquant', command: ['--quality=65-80', '-o']},
+                png: { engine: 'pngquant', command: [`--quality=${quality}`, '-o']}, // 65-80
             },
             onProgress: (error) => {
                 if(error) {
@@ -191,6 +191,7 @@ export class CardScrapperService {
             this.logger.error(`Problems with the following images: ${errArr.join(", ")}`);
         }
 
+        return errArr;
     }
 
 

@@ -19,6 +19,12 @@ Comperen vagy he
   </form>
   <div *ngIf="isRenameFinised">
     <button class="btn my-4" [ngClass]="isRenameFinised && !isResizeDone ? 'btn-primary' : 'btn-warning'" (click)="onResize()">Start Resize</button>
+    <input [(ngModel)]="quality">
+    <ng-container *ngIf="errArr">
+      <p>
+        <span *ngFor="let err of errArr">{{err}}</span>
+      </p>
+    </ng-container>
     <p *ngIf="isResizeDone">A képek átméretezése megtörtént, következő léps az <b>Convert webp</b></p>
   </div>
   <div *ngIf="isResizeDone">
