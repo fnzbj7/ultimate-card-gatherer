@@ -59,11 +59,12 @@ export class CardScrapperService {
                     actualCard = {imgName:cardName,cardName: foundCard.name,isFlip: false};
                     cardArray.push(actualCard);
                 } else {
-                    actualCard.isFlip = true;
+                    if(actualCard) {
+                        actualCard.isFlip = true;
+                    }
                 }
                 let cardNameWithPath = `../img/${jsonName}/raw/` + cardName;
-                // TODO kikommentelni ha tényleg tölteni akarok
-                // await this.download(datas[i].src, cardNameWithPath);
+                await this.download(datas[i].src, cardNameWithPath);
                 if(isNormal) num++;
             } else {
                 this.logger.log(`Nem talált hozzá számot: ${datas[i].name}`);
@@ -130,21 +131,22 @@ export class CardScrapperService {
         const {jsonName} = downloadImgDto;
         const dir = `../img/${jsonName}`;
 
-        fs.rmdirSync(dir, { recursive: true });
-        this.logger.log(`${dir} is deleted!`);
-        fs.mkdirSync(dir + '/raw',{recursive: true});
-        this.logger.log(`${dir} is created!`);
+        const exist = fs.existsSync(dir);
+        if(exist) {
+            fs.rmdirSync(dir, { recursive: true });
+            this.logger.log(`${dir} is deleted!`);
+        }
+        fs.mkdirSync(`${dir}/raw`,{recursive: true});
+        this.logger.log(`${dir}/raw is created!`);
     }
 
     renameCards(renameDto: RenameDto) {
-        const {jsonName, setName, cards} = renameDto;
+        const {jsonName, setName} = renameDto;
 
         // Elkészíteni a mappát
         const dir = `../img/${jsonName}`;
         fs.mkdirSync(dir + '/rename',{recursive: true});
         this.logger.log(`${dir} is created!`);
-
-        // let cardNameWithPath = ;
 
         renameDto.cards.forEach( renameCard => {
             fs.copyFileSync(`../img/${jsonName}/raw/` + renameCard.imgName,
@@ -154,10 +156,64 @@ export class CardScrapperService {
                     `../img/${jsonName}/rename/${setName}_${this.pad(renameCard.newNumber, 3)}_F.png`);
             }
         })
+    }
 
+    async resizeImgs(jsonName) {
 
+        // Elkészíteni a mappát
+        const dir = `../img/${jsonName}`;
+        fs.mkdirSync(dir + '/resized',{recursive: true});
+        this.logger.log(`${dir} is created!`);
 
+        const { compress } = require('compress-images/promise');
 
+        const inPath = `../img/${jsonName}/rename/*.png`;
+        const outPath = `../img/${jsonName}/resized/`;
+
+        const errArr: string[] = [];
+        await compress({
+            source: inPath,
+            destination: outPath,
+            enginesSetup: {
+                jpg: { engine: 'mozjpeg', command: ['-quality', '60']},
+                png: { engine: 'pngquant', command: ['--quality=65-80', '-o']},
+            },
+            onProgress: (error) => {
+                if(error) {
+                    const splt = error.input.split();
+                    errArr.push(splt[splt.length-1]);
+                }
+            },
+        });
+        if(errArr.length == 0) {
+            this.logger.log("The image resizing Finished!");
+        } else {
+            this.logger.error(`Problems with the following images: ${errArr.join(", ")}`);
+        }
 
     }
+
+
+    async createWebp(jsonName) {
+        // Elkészíteni a mappát
+        const dir = `../img/${jsonName}/webp`;
+        fs.mkdirSync( `${dir}`,{recursive: true});
+        this.logger.log(`${dir} is created!`);
+
+        const imagemin = require('imagemin');
+        const imageminWebp = require('imagemin-webp');
+
+        const inPath = `../img/${jsonName}/resized/*.png`;
+        const outPath = `../img/${jsonName}/webp`;
+
+        await imagemin([inPath], {
+            destination: outPath,
+            plugins: [
+                imageminWebp({quality: 65})
+            ]
+        });
+        this.logger.log('Images converted from png to webp');
+
+    }
+
 }

@@ -21,4 +21,12 @@ export class CardUltimateService {
   sendRenameCards(renameDto: RenameDto): Observable<void> {
     return this.http.post<void>("http://localhost:3000/rename", renameDto);
   }
+
+  resizeCard(jsonName: string): Observable<void> {
+    return this.http.post<void>("http://localhost:3000/resize", {jsonName});
+  }
+
+  convertToWebp(jsonName: string): Observable<void> {
+    return this.http.post<void>("http://localhost:3000/webp", {jsonName});
+  }
 }

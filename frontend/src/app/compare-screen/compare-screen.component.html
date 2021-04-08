@@ -14,8 +14,16 @@ Comperen vagy he
         </ng-container>
       </div>
     </div>
-    <input type="submit" value="save"/>
+    <input class="btn btn-primary my-4" [ngClass]="!isRenameFinised? 'btn-primary' : 'btn-warning'" type="submit" value="save"/>
+    <p *ngIf="isRenameFinised">A képek átnevezése megtörtént, következő léps az <b>Resize</b></p>
   </form>
+  <div *ngIf="isRenameFinised">
+    <button class="btn my-4" [ngClass]="isRenameFinised && !isResizeDone ? 'btn-primary' : 'btn-warning'" (click)="onResize()">Start Resize</button>
+    <p *ngIf="isResizeDone">A képek átméretezése megtörtént, következő léps az <b>Convert webp</b></p>
+  </div>
+  <div *ngIf="isResizeDone">
+    <button class="btn my-4" [ngClass]="isResizeDone && !isConvertWebpDone ? 'btn-primary' : 'btn-warning'" (click)="onConvertToWebp()">Start Convert webp</button>
+  </div>
 </div>
 
 

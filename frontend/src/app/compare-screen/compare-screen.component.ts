@@ -15,6 +15,9 @@ export class CompareScreenComponent implements OnInit {
   myFormGroup: FormGroup;
   compareList: CompareCardDto;
   jsonName: string
+  isRenameFinised = false;
+  isResizeDone = false;
+  isConvertWebpDone = false;
 
   constructor(private compareCardService: CompareCardService,
               private cardUltimateService: CardUltimateService) {
@@ -62,7 +65,22 @@ export class CompareScreenComponent implements OnInit {
     }
 
     this.cardUltimateService.sendRenameCards(renameDto).subscribe(() => {
-      console.log('végzett');
+      console.log('végzett a rename');
+      this.isRenameFinised = true;
+    });
+  }
+
+  onResize() {
+    this.cardUltimateService.resizeCard(this.jsonName).subscribe(() => {
+      console.log('végzett RESIZE');
+      this.isResizeDone = true;
+    });
+  }
+
+  onConvertToWebp() {
+    this.cardUltimateService.convertToWebp(this.jsonName).subscribe(() => {
+      console.log('végzett webp');
+      this.isConvertWebpDone = true;
     });
   }
 }

@@ -26,19 +26,30 @@ export class AppController {
 
   @Put('/download')
   async downloadImages(@Body() downloadImgDto: DownloadImgDto): Promise<{src: string, name: string}[]> {
-    // this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
+    this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
     return await this.cardScrapperService.scrapeCardsFromMain(downloadImgDto);
   }
 
   @Post('/rename')
-  async renameImg(@Body() renameDto: RenameDto) {
-    // this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
+  renameImg(@Body() renameDto: RenameDto) {
     this.cardScrapperService.renameCards(renameDto);
+  }
+
+  @Post('/resize')
+  async resize(@Body() jsonNameDto: {jsonName: string}) {
+    const {jsonName} = jsonNameDto;
+    await this.cardScrapperService.resizeImgs(jsonName);
+  }
+
+  @Post('/webp')
+  async createWebp(@Body() jsonNameDto: {jsonName: string}) {
+    const {jsonName} = jsonNameDto;
+    await this.cardScrapperService.createWebp(jsonName);
   }
 
   @Delete('/img')
   deleteFolder() {
-
+    // Unused
   }
 
   /*
