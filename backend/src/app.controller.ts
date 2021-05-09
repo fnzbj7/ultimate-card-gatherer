@@ -4,12 +4,15 @@ import {CardScrapperService} from "./card-scrapper.service";
 import {DownloadImgDto} from "./dto/download-img.dto";
 import {RenameDto} from "./dto/rename.dto";
 import fs = require('fs');
+import {AwsCardUploadService} from "./services/aws-card-upload.service";
 
 @Controller()
 export class AppController {
   private logger = new Logger(AppController.name);
 
-  constructor(private readonly appService: AppService, private readonly cardScrapperService: CardScrapperService) {}
+  constructor(private readonly appService: AppService,
+              private readonly cardScrapperService: CardScrapperService,
+              private readonly awsCardUploadService: AwsCardUploadService) {}
 
   @Get()
   getHello(): string {
@@ -52,6 +55,15 @@ export class AppController {
   @Delete('/img')
   deleteFolder() {
     // Unused
+  }
+
+  /**
+   *
+   * @param set
+   */
+  @Post('/upload')
+  async startAwsUpload(@Body() set: {setName: string}) {
+    await this.awsCardUploadService.startAwsUpload(set.setName);
   }
 
   /*

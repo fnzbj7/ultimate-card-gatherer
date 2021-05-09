@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-cli-js": "^2.2.2",
     "fs": "0.0.1-security",
     "https": "^1.0.0",
     "mongodb": "^3.6.2",

@@ -131,8 +131,7 @@ export class CardScrapperService {
         const {jsonName} = downloadImgDto;
         const dir = `../img/${jsonName}`;
 
-        const exist = fs.existsSync(dir);
-        if(exist) {
+        if(fs.existsSync(dir)) {
             fs.rmdirSync(dir, { recursive: true });
             this.logger.log(`${dir} is deleted!`);
         }
@@ -168,7 +167,7 @@ export class CardScrapperService {
         const { compress } = require('compress-images/promise');
 
         const inPath = `../img/${jsonName}/rename/*.png`;
-        const outPath = `../img/${jsonName}/resized/`;
+        const outPath = `../img/${jsonName}/png/`;
 
         const errArr: string[] = [];
         await compress({
@@ -204,7 +203,7 @@ export class CardScrapperService {
         const imagemin = require('imagemin');
         const imageminWebp = require('imagemin-webp');
 
-        const inPath = `../img/${jsonName}/resized/*.png`;
+        const inPath = `../img/${jsonName}/png/*.png`;
         const outPath = `../img/${jsonName}/webp`;
 
         await imagemin([inPath], {
