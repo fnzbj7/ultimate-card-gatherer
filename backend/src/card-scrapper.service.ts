@@ -21,7 +21,7 @@ export class CardScrapperService {
             num: number;
         }[] = CardScrapperService.readCardJson(jsonName);
 
-        const datas: {
+        const cardNameWithUrl: {
             src: string;
             name: string;
         }[] = await this.getImgDataFromHtmlPage(imgUrls);
@@ -30,30 +30,31 @@ export class CardScrapperService {
             imgName: string;
             cardName: string;
             isFlip: boolean;
-        }[] = await this.getDownloadedCardsData(datas, cardNameArray, jsonName);
+        }[] = await this.getDownloadedCardsData(cardNameWithUrl, cardNameArray, jsonName);
 
-        const reducedCardArray = cardNameArray.reduce((reduce, actual) => {
-            // ha reduce tartalmazza
-            // akkor adni a numot
+        const init: {name: string, nums: number[]}[] = [];
+        const reducedCardArray = cardNameArray.reduce((uniqueCardWithNums, actual) => {
+            // ha uniqueFoundCard tartalmazza
+            // akkor pusholni `num`-al a tömbbe
             // különben új objektum hozzáadása a számmal
-            const foundElement = reduce.find(find => find.name === actual.name);
-            if (foundElement) {
-                if (!foundElement.nums.some(x => x === actual.num)) {
-                    foundElement.nums.push(actual.num);
+            const uniqueFoundCard = uniqueCardWithNums.find(find => find.name === actual.name);
+            if (uniqueFoundCard) {
+                if (!uniqueFoundCard.nums.some(x => x === actual.num)) {
+                    uniqueFoundCard.nums.push(actual.num);
                 }
             } else {
-                reduce.push({ name: actual.name, nums: [actual.num] });
+                uniqueCardWithNums.push({ name: actual.name, nums: [actual.num] });
             }
 
-            return reduce;
-        }, []);
+            return uniqueCardWithNums;
+        }, init);
 
-        this.logger.log(`The download for ${jsonName} is completed`);
+        this.logger.log(`--- The download for ${jsonName} is completed ---`);
 
         return { cardArray, reducedCardArray };
     }
 
-    async getDownloadedCardsData(datas: {src: string;name: string;}[], cardNameArray, jsonName): Promise<{ imgName: string; cardName: string; isFlip: boolean; }[]> {
+    async getDownloadedCardsData(cardNameWithUrl: {src: string;name: string}[], cardNameArray, jsonName: string): Promise<{ imgName: string; cardName: string; isFlip: boolean; }[]> {
         const cardArray: {
             imgName: string;
             cardName: string;
@@ -61,37 +62,38 @@ export class CardScrapperService {
         }[] = [];
         let num = 1;
         let actualCard: { imgName: string; cardName: string; isFlip: boolean };
-        for (let i = 0; i < datas.length; i++) {
+        for (let i = 0; i < cardNameWithUrl.length; i++) {
             const foundCard = cardNameArray.find(
                 card =>
-                    card.name === datas[i].name || card.name2 === datas[i].name,
+                    card.name === cardNameWithUrl[i].name || card.name2 === cardNameWithUrl[i].name,
             );
 
             if (!foundCard) {
-                this.logger.warn(`Nem talált hozzá számot: ${datas[i].name}`);
+                this.logger.warn(`Nem talált hozzá számot: ${cardNameWithUrl[i].name}`);
                 continue;
             }
 
-            this.logger.log(`download ${datas[i].name} url: ${datas[i].src}`);
-            const isNormal = foundCard.name === datas[i].name;
+            this.logger.log(`download ${cardNameWithUrl[i].name} url: ${cardNameWithUrl[i].src}`);
+            const isNormal = foundCard.name === cardNameWithUrl[i].name;
 
-            let cardName = '' + (isNormal ? num : num - 1);
-            cardName = cardName.padStart(3, '0');
-            cardName += isNormal ? `.png` : '_F.png';
+            let imgName = '' + (isNormal ? num : num - 1);
+            imgName = imgName.padStart(3, '0');
+            imgName += isNormal ? `.png` : '_F.png';
             if (isNormal) {
                 actualCard = {
-                    imgName: cardName,
+                    imgName: imgName,
                     cardName: foundCard.name,
                     isFlip: false,
                 };
                 cardArray.push(actualCard);
             } else {
                 if (actualCard) {
-                    actualCard.isFlip = true;
+                    // Change for the previous card (i-1)
+                    actualCard.isFlip = true; 
                 }
             }
-            const cardNameWithPath = `../img/${jsonName}/raw/` + cardName;
-            await this.download(datas[i].src, cardNameWithPath);
+            const imgPath = `../img/${jsonName}/raw/${imgName}`;
+            await this.download(cardNameWithUrl[i].src, imgPath);
             if (isNormal) num++;
         }
 
@@ -99,7 +101,7 @@ export class CardScrapperService {
     }
 
     async getImgDataFromHtmlPage(
-        imgUrls: string,
+        imgUrls: string[],
     ): Promise<{ src: string; name: string }[]> {
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
@@ -172,16 +174,16 @@ export class CardScrapperService {
             });
     }
 
-    private static readCardJson(jsonName): { name; name2; num }[] {
+    private static readCardJson(jsonName): { name: string; name2: string; num: number }[] {
         const rawData = fs.readFileSync(`../cardjson/${jsonName}.json`, 'utf8');
         const cards = JSON.parse(rawData);
         const cardArray =
             cards.data !== undefined ? cards.data.cards : cards.cards;
         const cardNameArray = cardArray.map(card => {
             return {
-                name: card.name.split(' // ')[0],
-                name2: card.name.split(' // ')[1],
-                num: card.number,
+                name: <string>card.name.split(' // ')[0],
+                name2: <string>card.name.split(' // ')[1],
+                num: <number>card.number,
             };
         });
 

@@ -4,5 +4,4 @@ import {CompareCardDto} from "../dto/compare-card.dto";
 @Injectable({providedIn: 'root'})
 export class CompareCardService {
   compareList: CompareCardDto;
-  jsonName: string;
 }

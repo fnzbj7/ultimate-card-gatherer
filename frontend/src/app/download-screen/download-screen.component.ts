@@ -35,13 +35,11 @@ export class DownloadScreenComponent implements OnInit  {
 
   onSendToBackend() {
     this.isLoading = true;
-    this.cardUltimateService.sendJsonToDownload(this.jsonName, this.urlList).subscribe(x => {
+    this.cardUltimateService.sendJsonToDownload(this.jsonName, this.urlList).subscribe(compareList => {
       this.isLoading = false;
-      this.compareCardService.compareList = x;
-      this.compareCardService.jsonName = this.jsonName;
-      console.log(x);
-      // TODO feltölteni a service-t
-      this.router.navigate(['compare']);
+      this.compareCardService.compareList = compareList;
+      console.log(compareList);
+      this.router.navigate(['compare', this.jsonName]);
     })
   }
 }

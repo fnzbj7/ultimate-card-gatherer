@@ -1,6 +1,26 @@
 Comperen vagy he
-<div class="container mx-auto">
-  <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
+<div *ngIf="!compareList">
+  <p>Sajnos nem volt `compareList`, lépj vissza 1 oldalt :)</p>
+  <button class="btn btn-primary" [routerLink]="'/'">Vissza</button>
+</div>
+
+<div *ngIf="compareList" class="container mx-auto">
+  <div *ngIf="isRenameFinised">
+    <button class="btn my-4" [ngClass]="isRenameFinised && !isResizeDone ? 'btn-primary' : 'btn-warning'" (click)="onResize()">Start Resize</button>
+    <input [(ngModel)]="quality">
+    <ng-container *ngIf="errArr">
+      <p>
+        <span *ngFor="let err of errArr">{{err}}</span>
+      </p>
+    </ng-container>
+    <p *ngIf="isResizeDone">A képek átméretezése megtörtént, következő léps az <b>Convert webp</b></p>
+  </div>
+  <div *ngIf="isResizeDone">
+    <button class="btn my-4" [ngClass]="isResizeDone && !isConvertWebpDone ? 'btn-primary' : 'btn-warning'" (click)="onConvertToWebp()">Start Convert webp</button>
+  </div>
+  <form *ngIf="compareList?.cardArray" [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
+    <input class="btn btn-primary my-4" [ngClass]="!isRenameFinised? 'btn-primary' : 'btn-warning'" type="submit" value="save"/>
+    <p *ngIf="isRenameFinised">A képek átnevezése megtörtént, következő léps az <b>Resize</b></p>
     <div *ngFor="let card of compareList.cardArray">
       <div class="d-inline-block" [ngClass]="{'filp-div': card.isFlip, 'normal-div': !card.isFlip}">
         <img alt="" src="http://localhost:3000/{{jsonName}}/raw/{{card.imgName}}">

@@ -5,7 +5,7 @@ import {CompareScreenComponent} from "./compare-screen/compare-screen.component"
 
 const routes: Routes = [
   {path: '', component: DownloadScreenComponent },
-  {path: 'compare', component: CompareScreenComponent}
+  {path: 'compare/:jsonName', component: CompareScreenComponent}
   ];
 
 @NgModule({
