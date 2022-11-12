@@ -25,7 +25,7 @@ export class AwsCardUploadService {
     for (const imgFile of imgArr) {
       const destPath = `${setName}/${imgType}/${imgFile}`;
       this.log.log(`upload start for ${destPath}`);
-      const imgPath = `c:\\Projects\\magic\\ultimate-card-gatherer\\img\\${setName}\\${imgType}\\${imgFile}`;
+      const imgPath = `d:\\Projects\\magic\\ultimate-card-gatherer\\img\\${setName}\\${imgType}\\${imgFile}`;
       await this.awsCli.command(
         `s3api put-object --bucket magiccollection --key ${destPath} ` +
           `--body ${imgPath} ` +

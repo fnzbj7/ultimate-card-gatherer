@@ -27,11 +27,15 @@ Comperen vagy he
         <img alt="" *ngIf="card.isFlip" src="http://localhost:3000/{{jsonName}}/raw/{{card.imgName.split('.png')[0]}}_F.png">
       </div>
       <div class="d-inline-block ml-3">
+        <label>{{card.imgName}}</label>
         <ng-container *ngFor="let cardNum of findPossibleCardNumbers(card.cardName)">
           <input class="mr-1" type="radio" formControlName="{{card.imgName}}" name="{{card.imgName}}" value="{{cardNum}}" id="{{cardNum + card.imgName}}">
           <label for="{{cardNum + card.imgName}}">{{cardNum}}</label>
           <br>
         </ng-container>
+        <input class="mr-1" type="radio" formControlName="{{card.imgName}}" name="{{card.imgName}}" value="{{null}}" id="{{'nope' + card.imgName}}">
+          <label for="{{'nope' + card.imgName}}">Nope</label>
+          <br>
       </div>
     </div>
     <input class="btn btn-primary my-4" [ngClass]="!isRenameFinised? 'btn-primary' : 'btn-warning'" type="submit" value="save"/>

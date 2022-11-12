@@ -110,24 +110,21 @@ export class CardScrapperService {
 
         for (const link of imgUrls) {
             await page.goto(link, { timeout: 0 });
+            await page.waitForSelector('magic-card', {
+                visible: true,
+            });
 
             const tmpData = await page.evaluate(() => {
-                const images: NodeListOf<HTMLImageElement> = document.querySelectorAll(
-                    '.rtecenter img',
-                );
-
-                return Array.from(images).map(v => {
-                    return { src: v.src, name: v.alt.trim() };
+                const immages = document.querySelectorAll('magic-card');
+                return Array.from(immages).map(mc => {
+                    return {src: (<any>mc).face, name: (<any>mc).caption ?? (<any>mc).faceAlt};
                 });
             });
 
             datas.push(...tmpData);
         }
 
-        // TODO kideríteni ez miért van itt. Bent már evaluálja a rectangle-t
-        await page.waitForSelector('.rtecenter', {
-            visible: true,
-        });
+        
 
         await browser.close();
 
@@ -212,6 +209,13 @@ export class CardScrapperService {
         this.logger.log(`${dir} is created!`);
 
         renameDto.cards.forEach(renameCard => {
+            if(renameCard.newNumber === "") {
+                return
+            }
+            if(!renameCard.newNumber) {
+                this.logger.warn(`Was not newNumber set:${JSON.stringify(renameCard)}`);
+                return;
+            }
             fs.copyFileSync(
                 `../img/${jsonName}/raw/` + renameCard.imgName,
                 `../img/${jsonName}/rename/${setName}_${renameCard.newNumber.padStart(
