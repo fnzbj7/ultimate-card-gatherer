@@ -18,6 +18,10 @@ export class CardUltimateService {
     return this.http.put<CompareCardDto>("http://localhost:3000/download", {imgUrls, jsonName});
   }
 
+  getCachedDownload(jsonName: string): Observable<CompareCardDto> {
+    return this.http.get<CompareCardDto>(`http://localhost:3000/cached-download?json=${jsonName}`);
+  }
+
   sendRenameCards(renameDto: RenameDto): Observable<void> {
     return this.http.post<void>("http://localhost:3000/rename", renameDto);
   }

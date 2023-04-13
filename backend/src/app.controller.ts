@@ -6,13 +6,18 @@ import {
   Logger,
   Post,
   Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CardScrapperService } from './card-scrapper.service';
+import { CardScrapperService, ScrapeCardsDto } from './services/card-scrapper.service';
 import { DownloadImgDto } from './dto/download-img.dto';
 import { RenameDto } from './dto/rename.dto';
 import fs = require('fs');
 import { AwsCardUploadService } from './services/aws-card-upload.service';
+import { TryJsonSaveService } from './services/try-json-save.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller()
 export class AppController {
@@ -22,12 +27,27 @@ export class AppController {
     private readonly appService: AppService,
     private readonly cardScrapperService: CardScrapperService,
     private readonly awsCardUploadService: AwsCardUploadService,
+    private readonly tryJsonSaveService: TryJsonSaveService,
   ) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async getHello() {
+    // return await this.tryJsonSaveService.trySave();
+    return 'Almafa';
   }
+
+  
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+
+    
+    return await this.tryJsonSaveService.trySave(
+      file.filename,
+      JSON.parse(file.buffer.toString())
+    );
+  }
+
 
   @Get('/json')
   getJsonFiles(): string[] {
@@ -42,9 +62,16 @@ export class AppController {
   @Put('/download')
   async downloadImages(
     @Body() downloadImgDto: DownloadImgDto,
-  ): Promise<{ src: string; name: string }[]> {
+  ): Promise<ScrapeCardsDto> {
     this.cardScrapperService.deleteAndCreateDirectory(downloadImgDto);
     return await this.cardScrapperService.scrapeCardsFromMain(downloadImgDto);
+  }
+
+  @Get('/cached-download')
+  cachedDownload(
+    @Query('json') json: string
+  ): ScrapeCardsDto | undefined {
+    return this.cardScrapperService.getCachedDownload(json);
   }
 
   @Post('/rename')
@@ -80,13 +107,4 @@ export class AppController {
     await this.awsCardUploadService.startAwsUpload(set.setName);
   }
 
-  /*
-  @Get('/json')
-  getJsonFiles(): string[] {
-    // Read all files in a directory
-    const files = fs.readdirSync('../cardjson/');
-    console.log(files);
-
-    return files;
-  }*/
 }

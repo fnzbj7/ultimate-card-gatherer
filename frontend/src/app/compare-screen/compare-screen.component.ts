@@ -31,21 +31,39 @@ export class CompareScreenComponent implements OnInit {
     this.compareList = this.compareCardService.compareList;
     this.jsonName = this.route.snapshot.params.jsonName;
 
-    if(!this.compareList)  return; // Skip
-
-    let group = {};
-    let bestNum = {};
-    this.compareList.cardArray.forEach((input_template) => {
-      if (!bestNum[input_template.cardName]) {
-        bestNum[input_template.cardName] = 0;
-      }
-      group[input_template.imgName] = new FormControl(
-        this.findPossibleCardNumbers(input_template.cardName)[
-          bestNum[input_template.cardName]++
-        ]
-      );
-    });
-    this.myFormGroup = new FormGroup(group);
+    if(this.compareList) {
+      let group = {};
+      let bestNum = {};
+      this.compareList.cardArray.forEach((input_template) => {
+        if (!bestNum[input_template.cardName]) {
+          bestNum[input_template.cardName] = 0;
+        }
+        group[input_template.imgName] = new FormControl(
+          this.findPossibleCardNumbers(input_template.cardName)[
+            bestNum[input_template.cardName]++
+          ]
+        );
+      });
+      this.myFormGroup = new FormGroup(group);
+    } else {
+      this.cardUltimateService.getCachedDownload(this.jsonName).subscribe(compareCardDto => {
+        this.compareList = compareCardDto;
+        let group = {};
+        let bestNum = {};
+        this.compareList.cardArray.forEach((input_template) => {
+          if (!bestNum[input_template.cardName]) {
+            bestNum[input_template.cardName] = 0;
+          }
+          group[input_template.imgName] = new FormControl(
+            this.findPossibleCardNumbers(input_template.cardName)[
+              bestNum[input_template.cardName]++
+            ]
+          );
+        });
+        this.myFormGroup = new FormGroup(group);
+      
+      });
+    }
   }
 
   findPossibleCardNumbers(cardName: string): number[] {
