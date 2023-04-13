@@ -2,18 +2,27 @@ import { Injectable, Logger } from '@nestjs/common';
 import fs = require('fs');
 import https = require('https');
 import puppeteer = require('puppeteer');
-import { DownloadImgDto } from './dto/download-img.dto';
-import { RenameDto } from './dto/rename.dto';
+import { DownloadImgDto } from '../dto/download-img.dto';
+import { RenameDto } from '../dto/rename.dto';
 import { compress } from 'compress-images/promise';
 import imagemin = require('imagemin');
 import imageminWebp = require('imagemin-webp');
 
+export interface ScrapeCardsDto {
+    cardArray: {
+        imgName: string;
+        cardName: string;
+        isFlip: boolean;
+    }[];
+    reducedCardArray: { name: string, nums: number[] }[];
+}
+
 @Injectable()
 export class CardScrapperService {
     private logger = new Logger(CardScrapperService.name);
+    private lastScrapeMap = new Map<string, ScrapeCardsDto>();
 
-    async scrapeCardsFromMain(downloadImgDto: DownloadImgDto): Promise<any> {
-        const { imgUrls, jsonName } = downloadImgDto;
+    async scrapeCardsFromMain({ imgUrls, jsonName }: DownloadImgDto): Promise<ScrapeCardsDto> {
 
         const cardNameArray: {
             name: string;
@@ -21,7 +30,7 @@ export class CardScrapperService {
             num: number;
         }[] = CardScrapperService.readCardJson(jsonName);
 
-        const cardNameWithUrl: {
+        const cardNameWithSrc: {
             src: string;
             name: string;
         }[] = await this.getImgDataFromHtmlPage(imgUrls);
@@ -30,7 +39,7 @@ export class CardScrapperService {
             imgName: string;
             cardName: string;
             isFlip: boolean;
-        }[] = await this.getDownloadedCardsData(cardNameWithUrl, cardNameArray, jsonName);
+        }[] = await this.getDownloadedCardsData(cardNameWithSrc, cardNameArray, jsonName);
 
         const init: {name: string, nums: number[]}[] = [];
         const reducedCardArray = cardNameArray.reduce((uniqueCardWithNums, actual) => {
@@ -51,7 +60,12 @@ export class CardScrapperService {
 
         this.logger.log(`--- The download for ${jsonName} is completed ---`);
 
+        this.lastScrapeMap.set(jsonName, { cardArray, reducedCardArray })
         return { cardArray, reducedCardArray };
+    }
+
+    getCachedDownload(json: string) : ScrapeCardsDto | undefined  {
+        return this.lastScrapeMap.get(json);
     }
 
     async getDownloadedCardsData(cardNameWithUrl: {src: string;name: string}[], cardNameArray, jsonName: string): Promise<{ imgName: string; cardName: string; isFlip: boolean; }[]> {

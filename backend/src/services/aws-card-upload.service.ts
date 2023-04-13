@@ -14,7 +14,7 @@ export class AwsCardUploadService {
   }
 
   async startAwsUpload(setName: string) {
-    await this.uploadImages(setName, 'png');
+    // await this.uploadImages(setName, 'png');
     await this.uploadImages(setName, 'webp');
   }
 
