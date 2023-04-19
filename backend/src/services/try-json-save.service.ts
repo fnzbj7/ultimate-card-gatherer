@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { JsonBase } from 'src/entities/entities/json-base.entity';
+import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
 import fs = require('fs');
 
 
@@ -13,17 +13,20 @@ export class TryJsonSaveService {
         private entityRepository: Repository<JsonBase>
     ) {}
 
-    async trySave(fileName, fileContent) {
-        // const rawData = JSON.parse(fs.readFileSync(`./src/json/MUL.json`, 'utf8'));
+    async trySave( fileContent: MtgJson) {
         const a = {
-            genericField: '',
-            otherInfo: fileContent
+            setCode: fileContent.data.code,
+            version: fileContent.meta.version,
+            mtgJson: fileContent
         }
 
         await this.entityRepository.save(a);
-
-        
-
-        return await this.entityRepository.find();
+        return await this.getJsonBase();
     }
+
+    async getJsonBase() {
+        return await this.entityRepository.find({select: {id: true, setCode: true, version: true}});
+    }
+
+
 }

@@ -6,14 +6,37 @@ export class JsonBase {
     id: number;
 
     @Column()
-    genericField: string;
+    setCode: string;
+
+    @Column()
+    version: string;
 
     // Column with JSON data type
     @Column('simple-json', {nullable: true})
-    otherInfo: {
-        description: string;
-        freeShipping: boolean;
-        weight: number;
-        color: string;
-    };
+    mtgJson: MtgJson;
+}
+
+
+export interface MtgJson {
+    meta: {
+        date: string,
+        version: string
+    },
+    data: {
+        baseSetSize: number,
+        cards: {
+            name: string,
+            number: number,
+            rarity: string,
+            types: string[],
+            colors: string[],
+            layout: string
+            side?: string
+        }[]
+        code: string,
+        name: string,
+        totalSetSize: number,
+        releaseDate: string
+        /* And there is a lot more, but i will not use them, so i did not put them here */
+    }
 }

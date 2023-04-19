@@ -7,12 +7,14 @@ import {HttpClientModule} from "@angular/common/http";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DownloadScreenComponent} from "./download-screen/download-screen.component";
 import {CompareScreenComponent} from "./compare-screen/compare-screen.component";
+import { NewUploadComponent } from './new-upload/new-upload.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DownloadScreenComponent,
-    CompareScreenComponent
+    CompareScreenComponent,
+    NewUploadComponent
   ],
     imports: [
         BrowserModule,

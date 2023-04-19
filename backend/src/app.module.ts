@@ -8,6 +8,7 @@ import { EntitiesModule } from './entities/entities.module';
 import { GenericEntity2 } from './entities/entities/entity.entity';
 import { JsonBase } from './entities/entities/json-base.entity';
 import { TryJsonSaveService } from './services/try-json-save.service';
+import { CardMigrationService } from './services/card-migration.service';
 
 @Module({
   imports: [
@@ -21,6 +22,12 @@ import { TryJsonSaveService } from './services/try-json-save.service';
     TypeOrmModule.forFeature([GenericEntity2, JsonBase]),
   ],
   controllers: [AppController],
-  providers: [AppService, CardScrapperService, AwsCardUploadService, TryJsonSaveService],
+  providers: [
+    AppService,
+    CardScrapperService,
+    AwsCardUploadService,
+    TryJsonSaveService,
+    CardMigrationService
+  ],
 })
 export class AppModule {}

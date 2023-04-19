@@ -20,4 +20,5 @@
 
   <button [disabled]="jsonName === undefined || this.urlList.length === 0" class="btn btn-primary mt-4" (click)="onSendToBackend()">Send To Backend</button>
   <div *ngIf="isLoading">Töltődik</div>
+  <button [routerLink]="['new-upload']">Át az újra</button>
 </div>

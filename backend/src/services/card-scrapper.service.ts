@@ -89,7 +89,7 @@ export class CardScrapperService {
 
             this.logger.log(`download ${cardNameWithUrl[i].name} url: ${cardNameWithUrl[i].src}`);
             const isNormal = foundCard.name === cardNameWithUrl[i].name;
-
+            
             let imgName = '' + (isNormal ? num : num - 1);
             imgName = imgName.padStart(3, '0');
             imgName += isNormal ? `.png` : '_F.png';
@@ -128,11 +128,19 @@ export class CardScrapperService {
                 visible: true,
             });
 
+            
             const tmpData = await page.evaluate(() => {
                 const immages = document.querySelectorAll('magic-card');
-                return Array.from(immages).map(mc => {
-                    return {src: (<any>mc).face, name: (<any>mc).caption ?? (<any>mc).faceAlt};
-                });
+                const initVal: {src: string, name: string}[] = [];
+                return Array.from(immages).reduce((prevVal, mc) => {
+                    if((<any>mc).faceAlt) {
+                        prevVal.push({src: (<any>mc).face, name: (<any>mc).faceAlt});
+                        prevVal.push({src: (<any>mc).back, name: (<any>mc).backAlt});
+                    } else {
+                        prevVal.push({src: (<any>mc).face, name: (<any>mc).caption});
+                    }
+                    return prevVal;
+                }, initVal);
             });
 
             datas.push(...tmpData);
@@ -207,7 +215,7 @@ export class CardScrapperService {
         const dir = `../img/${jsonName}`;
 
         if (fs.existsSync(dir)) {
-            fs.rmdirSync(dir, { recursive: true });
+            fs.rmSync(dir, { recursive: true });
             this.logger.log(`${dir} is deleted!`);
         }
         fs.mkdirSync(`${dir}/raw`, { recursive: true });
@@ -288,6 +296,7 @@ export class CardScrapperService {
     }
 
     async createWebp(jsonName) {
+        this.logger.log(`--START-- ${jsonName}Images convert from png to webp`);
         // Elkészíteni a mappát
         const dir = `../img/${jsonName}/webp`;
         fs.mkdirSync(`${dir}`, { recursive: true });
@@ -300,6 +309,6 @@ export class CardScrapperService {
             destination: outPath,
             plugins: [imageminWebp({ quality: 65 })],
         });
-        this.logger.log('Images converted from png to webp');
+        this.logger.log(`--END-- ${jsonName} Images converted from png to webp`);
     }
 }
