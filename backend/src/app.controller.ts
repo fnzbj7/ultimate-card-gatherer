@@ -3,10 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Logger,
   Post,
   Put,
   Query,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +20,10 @@ import fs = require('fs');
 import { AwsCardUploadService } from './services/aws-card-upload.service';
 import { TryJsonSaveService } from './services/try-json-save.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JsonBase } from './entities/entities/json-base.entity';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { CardMigrationService } from './services/card-migration.service';
 
 @Controller()
 export class AppController {
@@ -28,6 +34,7 @@ export class AppController {
     private readonly cardScrapperService: CardScrapperService,
     private readonly awsCardUploadService: AwsCardUploadService,
     private readonly tryJsonSaveService: TryJsonSaveService,
+    private readonly cardMigrationService: CardMigrationService,
   ) {}
 
   @Get()
@@ -40,14 +47,34 @@ export class AppController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-
-    
     return await this.tryJsonSaveService.trySave(
-      file.filename,
       JSON.parse(file.buffer.toString())
     );
   }
 
+  @Post('upload-and-process')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFileAndProcess(@UploadedFile() file: Express.Multer.File) {
+    return this.cardMigrationService.createMigration(JSON.parse(file.buffer.toString()))
+  }
+
+  @Get('/json-base')
+  async getJsonBases(): Promise<JsonBase[]> {
+    return await this.tryJsonSaveService.getJsonBase();
+  }
+
+  @Get('/get-file')
+  @Header('Content-Type', 'application/json')
+  @Header('Content-Disposition', 'attachment; filename="package.json"')
+  getStaticFile(): StreamableFile {
+    const file = createReadStream(join(process.cwd(), 'package.json'));
+    return new StreamableFile(file);
+  }
+
+  @Post('/update-urls')
+  async updateUrls(UpdateUrls: {}) {
+    await this.tryJsonSaveService.getJsonBase();
+  }
 
   @Get('/json')
   getJsonFiles(): string[] {
@@ -102,7 +129,7 @@ export class AppController {
    *
    * @param set
    */
-  @Post('/upload')
+  @Post('/upload-aws')
   async startAwsUpload(@Body() set: { setName: string }) {
     await this.awsCardUploadService.startAwsUpload(set.setName);
   }
