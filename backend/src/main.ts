@@ -4,9 +4,9 @@ import * as express from 'express';
 import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(express.static(join(process.cwd(), '../img/')));
-  app.enableCors();
-  await app.listen(3000);
+    const app = await NestFactory.create(AppModule);
+    app.use(express.static(join(process.cwd(), '../img/')));
+    app.enableCors();
+    await app.listen(5004);
 }
 bootstrap();

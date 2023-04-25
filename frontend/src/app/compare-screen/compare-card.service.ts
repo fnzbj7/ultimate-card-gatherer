@@ -1,7 +1,11 @@
 import {Injectable} from "@angular/core";
-import {CompareCardDto} from "../dto/compare-card.dto";
 
 @Injectable({providedIn: 'root'})
 export class CompareCardService {
-  compareList: CompareCardDto;
+  compareList?: CompareCardDto;
+}
+
+export interface CompareCardDto {
+  cardArray: {imgName: string, cardName: string, isFlip: boolean}[];
+  reducedCardArray: {name: string, nums: number[]}[];
 }

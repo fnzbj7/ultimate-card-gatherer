@@ -1,0 +1,12 @@
+Ez lett választva {{setCode}}
+
+<h1  class="mt-5">Adding Url</h1>
+  <input [(ngModel)]="url">
+  <button class="btn btn-primary" (click)="onAddingUrl()">Adding Url</button>
+  <hr>
+  <div *ngFor="let url of urlList">
+    <p style="display:inline-block">{{url}}</p><button class="btn btn-danger" (click)="onDeleteUrl(url)" style="margin-left:10px">Delete</button>
+  </div>
+
+  <button [disabled]="setCode === undefined || this.urlList.length === 0" class="btn btn-primary mt-4" (click)="onSendToBackend()">Send To Backend</button>
+  <div *ngIf="isLoading">Töltődik</div>

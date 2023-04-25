@@ -11,23 +11,23 @@ import { TryJsonSaveService } from './services/try-json-save.service';
 import { CardMigrationService } from './services/card-migration.service';
 
 @Module({
-  imports: [
-    EntitiesModule,
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'db/db',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-    }),
-    TypeOrmModule.forFeature([GenericEntity2, JsonBase]),
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    CardScrapperService,
-    AwsCardUploadService,
-    TryJsonSaveService,
-    CardMigrationService
-  ],
+    imports: [
+        EntitiesModule,
+        TypeOrmModule.forRoot({
+            type: 'sqlite',
+            database: 'db/db',
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            synchronize: true,
+        }),
+        TypeOrmModule.forFeature([GenericEntity2, JsonBase]),
+    ],
+    controllers: [AppController],
+    providers: [
+        AppService,
+        CardScrapperService,
+        AwsCardUploadService,
+        TryJsonSaveService,
+        CardMigrationService,
+    ],
 })
 export class AppModule {}
