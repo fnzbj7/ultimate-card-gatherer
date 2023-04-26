@@ -7,12 +7,14 @@ import { LandingScreenComponent } from './landing-screen/landing-screen.componen
 import { HttpClientModule } from '@angular/common/http';
 import { UrlUploadComponent } from './url-upload/url-upload.component';
 import { FormsModule } from '@angular/forms';
+import { HubComponent } from './hub/hub.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LandingScreenComponent,
-    UrlUploadComponent
+    UrlUploadComponent,
+    HubComponent
   ],
   imports: [
     BrowserModule,

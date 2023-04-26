@@ -5,7 +5,8 @@ import { HttpClient } from "@angular/common/http";
 
 @Component({
     selector: 'app-url-upload',
-    templateUrl: 'url-upload.component.html'
+    templateUrl: 'url-upload.component.html',
+    styleUrls: ['url-upload.component.scss']
 })
 export class UrlUploadComponent implements OnInit {
 
