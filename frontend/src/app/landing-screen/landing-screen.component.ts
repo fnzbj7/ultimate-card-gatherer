@@ -16,14 +16,24 @@ interface UploadAndProcess {
 
 @Component({
     selector: 'app-landing-screen',
-    templateUrl: 'landing-screen.component.html'
+    templateUrl: 'landing-screen.component.html',
+    styleUrls: ['landing-screen.component.scss']
 })
-export class LandingScreenComponent {
+export class LandingScreenComponent implements OnInit {
+
+    a!: {id: number, setCode: string, version: string}[];
 
     constructor(
         private http: HttpClient,
         private appService: AppService,
         private router: Router) {}
+
+    ngOnInit(): void {
+        this.http.get<{id: number, setCode: string, version: string}[]>('/api/updated-urls').subscribe((x) => {
+            this.a = x;
+            console.log({x})
+        })
+    }
 
     onFileSelected(event: Event) {
         const input = event.target as HTMLInputElement;

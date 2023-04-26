@@ -77,9 +77,9 @@ export class AppController {
         return new StreamableFile(file);
     }
 
-    @Post('/update-urls')
+    @Get('/updated-urls')
     async updateUrls() {
-        await this.tryJsonSaveService.getJsonBase();
+        return await this.tryJsonSaveService.getJsonBase();
     }
 
     @Get('/json')
