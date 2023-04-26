@@ -4,7 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import * as parserTypeScript from "prettier/parser-typescript";
-import * as prettier from "prettier/standalone";
+import { format } from "prettier/standalone";
 import { AppService } from "../app.service";
 
 interface UploadAndProcess {
@@ -59,7 +59,7 @@ export class LandingScreenComponent implements OnInit {
 
         const upload$ = this.http.post<UploadAndProcess>("/api/upload-and-process", formData).subscribe((x) => {
 
-            let fileContent = prettier.format(x.text, {
+            let fileContent = format(x.text, {
                 parser: "typescript",
                 plugins: [parserTypeScript],
             });
