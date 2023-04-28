@@ -9,11 +9,13 @@
     <p class="self-center text-sm mt-2">Search for json <a href="https://mtgjson.com/downloads/all-sets/" target=”_blank” class="text-blue-600 dark:text-blue-500 hover:underline">here</a></p>
 </section>
 <section class="mt-10 container flex justify-center mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
-    <ng-container *ngIf="a">
-        <div *ngFor="let aa of a" class="parent hover:bg-blue-500 w-64 flex flex-col items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer  hover:text-white">
-            <img class="set-svg" src="/assets/mom.svg">
-            <span class="mt-2 text-base leading-normal">{{ aa.setCode }}</span>
-        </div>
+    <ng-container *ngIf="jsonArr">
+        <a [href]="'/hub/' + aa.id" (click)="onGoToHub($event, aa)" *ngFor="let aa of jsonArr">
+            <div class="parent hover:bg-blue-500 w-64 flex flex-col items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer  hover:text-white">
+                <img class="set-svg" src="/assets/mom.svg">
+                <span class="mt-2 text-base leading-normal">{{ aa.setCode }}</span>
+            </div>
+        </a>
     </ng-container>
-
+    {{fullMsg}}
 </section>

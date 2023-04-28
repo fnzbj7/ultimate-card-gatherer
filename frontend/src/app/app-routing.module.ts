@@ -7,7 +7,7 @@ import { HubComponent } from './hub/hub.component';
 const routes: Routes = [
   {path: '', component: LandingScreenComponent },
   {path: 'url-upload', component: UrlUploadComponent },
-  {path: 'hub', component: HubComponent },
+  {path: 'hub/:id', component: HubComponent },
 ];
 
 @NgModule({

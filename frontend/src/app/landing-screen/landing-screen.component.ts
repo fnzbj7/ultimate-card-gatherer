@@ -1,17 +1,25 @@
 
 
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import * as parserTypeScript from "prettier/parser-typescript";
 import { format } from "prettier/standalone";
 import { AppService } from "../app.service";
+import { Observable } from 'rxjs';
+import { SseService } from '../sse/sse.service';
 
 interface UploadAndProcess {
     text: string,
     fileName: string,
     cardService: string
 }
+
+export interface MessageData {
+    status: string;
+    message: string;
+    a: number;
+  }
 
 
 @Component({
@@ -21,18 +29,27 @@ interface UploadAndProcess {
 })
 export class LandingScreenComponent implements OnInit {
 
-    a!: {id: number, setCode: string, version: string}[];
+    jsonArr!: {id: number, setCode: string, version: string}[];
+
+    fullMsg: string = 'START: ';
 
     constructor(
         private http: HttpClient,
         private appService: AppService,
-        private router: Router) {}
+        private router: Router,
+        private _zone: NgZone,
+        private sseService: SseService) {}
 
     ngOnInit(): void {
         this.http.get<{id: number, setCode: string, version: string}[]>('/api/updated-urls').subscribe((x) => {
-            this.a = x;
+            this.jsonArr = x;
             console.log({x})
-        })
+        });
+
+        this.sseService.createEventSource<MessageData>('/api/ssev2', (messageData) => {
+            this.fullMsg += ' ' + messageData.a;
+        });
+
     }
 
     onFileSelected(event: Event) {
@@ -73,6 +90,11 @@ export class LandingScreenComponent implements OnInit {
         });
     }
 
+    onGoToHub(event: MouseEvent, json: {id: number, setCode: string, version: string}) {
+        event.preventDefault()
+        this.appService.id = json.id;
+        this.appService.setCode = json.setCode;
+        this.router.navigate(['hub', json.id])
+    }
+
 }
-
-
