@@ -9,6 +9,7 @@ import { GenericEntity2 } from './entities/entities/entity.entity';
 import { JsonBase } from './entities/entities/json-base.entity';
 import { TryJsonSaveService } from './services/try-json-save.service';
 import { CardMigrationService } from './services/card-migration.service';
+import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { CardMigrationService } from './services/card-migration.service';
     providers: [
         AppService,
         CardScrapperService,
+        CardScrapperSseService,
         AwsCardUploadService,
         TryJsonSaveService,
         CardMigrationService,
