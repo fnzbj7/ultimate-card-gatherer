@@ -8,6 +8,7 @@ import {
     Post,
     Put,
     Query,
+    Sse,
     StreamableFile,
     UploadedFile,
     UseInterceptors,
@@ -30,6 +31,7 @@ import { JsonBase } from './entities/entities/json-base.entity';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { CardMigrationService } from './services/card-migration.service';
+import { Observable, interval, map } from 'rxjs';
 
 @Controller('/api')
 export class AppController {
@@ -67,6 +69,32 @@ export class AppController {
     @Get('/json-base')
     async getJsonBases(): Promise<JsonBase[]> {
         return await this.tryJsonSaveService.getJsonBase();
+    }
+
+    @Sse('sse')
+    sse(): Observable<MessageEvent> {
+        return interval(1000).pipe(
+            map((_) => ({ data: { hello: 'world' } } as MessageEvent)),
+        );
+    }
+
+    @Sse('ssev2')
+    ssev2(): Observable<MessageEvent> {
+        return new Observable((subscriber) => {
+            subscriber.next(({ data: { a: 1 } } as MessageEvent));
+            subscriber.next(({ data: { a: 2 } } as MessageEvent));
+            subscriber.next(({ data: { a: 3 } } as MessageEvent));
+            subscriber.next(({ data: { a: 4 } } as MessageEvent));
+            subscriber.next(({ data: { a: 5 } } as MessageEvent));
+            subscriber.next(({ data: { a: 6 } } as MessageEvent));
+            setTimeout(() => {
+                subscriber.next(({ data: { a: 7 } } as MessageEvent));
+            }, 1000);
+            setTimeout(() => {
+                subscriber.next(({ data: { a: 8 } } as MessageEvent));
+                subscriber.complete();
+            }, 3000);
+            });
     }
 
     @Get('/get-file')
