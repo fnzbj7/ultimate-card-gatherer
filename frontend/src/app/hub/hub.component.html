@@ -3,7 +3,7 @@
 </section>
 
 <section>
-    Upload Urls <a routerLink="/url-upload">TODO id GO</a>
+    Upload Urls <a [routerLink]="['/','url-upload', id]"><button class="btn-primary">TODO id GO</button></a>
     Start download
 </section>
 
@@ -23,4 +23,6 @@
     Upload to AWS
 </section>
 
-go <a routerLink="/">back</a> to to the list 
+<footer>
+    go <a routerLink="/"><button class="btn-primary">back</button></a> to to the list 
+</footer>

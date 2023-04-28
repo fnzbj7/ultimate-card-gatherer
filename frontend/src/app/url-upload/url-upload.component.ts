@@ -35,9 +35,7 @@ export class UrlUploadComponent implements OnInit {
         this.isLoading = true;
         this.http.post("/api/upload-url-list", {id: this.appService.id, urlList: this.urlList}).subscribe(() => {
             this.isLoading = false;
-
         });
-
     }
 
     onDeleteUrl(url: string) {

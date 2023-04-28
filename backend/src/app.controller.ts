@@ -5,6 +5,7 @@ import {
     Get,
     Header,
     Logger,
+    Param,
     Post,
     Put,
     Query,
@@ -32,6 +33,7 @@ import { join } from 'path';
 import { createReadStream } from 'fs';
 import { CardMigrationService } from './services/card-migration.service';
 import { Observable, interval, map } from 'rxjs';
+import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 
 @Controller('/api')
 export class AppController {
@@ -43,6 +45,7 @@ export class AppController {
         private readonly awsCardUploadService: AwsCardUploadService,
         private readonly tryJsonSaveService: TryJsonSaveService,
         private readonly cardMigrationService: CardMigrationService,
+        private readonly cardScrapperSseService: CardScrapperSseService,
     ) {}
 
     @Post('/upload')
@@ -56,6 +59,15 @@ export class AppController {
     @Post('/upload-url-list')
     async uploadUrlLists(@Body() x: SaveUrlLists) {
         this.tryJsonSaveService.saveUrlList(x);
+    }
+
+    @Sse('image-download')
+    async uploadUrlLis(@Query('id') id: number) {
+        //
+        return new Observable<{data: string}>((subscriber) => {
+            this.cardScrapperSseService.startImageDownload(id, subscriber);
+            // sdas
+        });
     }
 
     @Post('/upload-and-process')
@@ -81,20 +93,20 @@ export class AppController {
     @Sse('ssev2')
     ssev2(): Observable<MessageEvent> {
         return new Observable((subscriber) => {
-            subscriber.next(({ data: { a: 1 } } as MessageEvent));
-            subscriber.next(({ data: { a: 2 } } as MessageEvent));
-            subscriber.next(({ data: { a: 3 } } as MessageEvent));
-            subscriber.next(({ data: { a: 4 } } as MessageEvent));
-            subscriber.next(({ data: { a: 5 } } as MessageEvent));
-            subscriber.next(({ data: { a: 6 } } as MessageEvent));
+            subscriber.next({ data: { a: 1 } } as MessageEvent);
+            subscriber.next({ data: { a: 2 } } as MessageEvent);
+            subscriber.next({ data: { a: 3 } } as MessageEvent);
+            subscriber.next({ data: { a: 4 } } as MessageEvent);
+            subscriber.next({ data: { a: 5 } } as MessageEvent);
+            subscriber.next({ data: { a: 6 } } as MessageEvent);
             setTimeout(() => {
-                subscriber.next(({ data: { a: 7 } } as MessageEvent));
+                subscriber.next({ data: { a: 7 } } as MessageEvent);
             }, 1000);
             setTimeout(() => {
-                subscriber.next(({ data: { a: 8 } } as MessageEvent));
+                subscriber.next({ data: { a: 8 } } as MessageEvent);
                 subscriber.complete();
             }, 3000);
-            });
+        });
     }
 
     @Get('/get-file')
