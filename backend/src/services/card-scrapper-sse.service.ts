@@ -22,6 +22,14 @@ export interface ScrapeCardsDto {
     reducedCardArray: { name: string; nums: number[] }[];
 }
 
+interface MagicCardElement extends Element {
+    face: string;
+    faceAlt: string;
+    back: string;
+    backAlt: string;
+    caption: string;
+}
+
 @Injectable()
 export class CardScrapperSseService {
     private logger = new Logger(CardScrapperSseService.name);
@@ -49,14 +57,19 @@ export class CardScrapperSseService {
         this.logger.log({imgUrls});
         this.logger.log('Start')
         subscriber.next({data: 'Start'})
-        const cardNameArray: {
-            name: string;
-            name2: string;
-            num: number;
-        }[] = this.readCardJson(json);
+        // const cardNameArray: {
+        //     name: string;
+        //     name2: string;
+        //     num: number;
+        // }[] = this.readCardJson(json);
 
         this.logger.log('getImages')
         subscriber.next({data: 'getImages'})
+
+
+        // TODO jól elnevezni őket
+
+        const cardMapping: {img: string, name: string, }[] = await this.downloadImages(subscriber, imgUrls, json.data.code)
 
         const cardNameWithSrc: {
             src: string;
@@ -108,6 +121,74 @@ export class CardScrapperSseService {
 
         // this.lastScrapeMap.set(json.data.code, { cardArray, reducedCardArray });
         // return { cardArray, reducedCardArray };
+    }
+
+    async downloadImages(subscriber: Subscriber<{data: string}>, imgUrls: string[], code: string): Promise<{ img: string; name: string; }[]> {
+
+        const result: { img: string; name: string; }[] = [];
+
+        const browser = await puppeteer.launch({headless: true});
+        const page = await browser.newPage();
+        let working = new Map();
+        let counter = 0;
+        // DOWNLOAD IMG
+        const dir = `../img-new/${code}/raw`;
+        if(!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        page.on('response', async (response) => {
+            const matches = /.*\.(jpg|png|svg|gif)$/.exec(response.url());
+            if (matches && (matches.length === 2)) {
+              
+              const extension = matches[1];
+              const buffer = await response.buffer();
+              const name = 'image-' + (''+counter).padStart(3, '0') + '.' + extension;
+              working.set(response.url(), name);
+            
+              fs.writeFileSync(`${dir}/${name}`, buffer, 'base64');
+              subscriber.next({data: ''+counter})
+              counter += 1;
+            }
+        });
+
+        // DOCUMENT CARD NAME PROCESS
+        imgUrls.forEach(async (url) => {
+            await page.goto(url, { timeout: 0 });
+
+            const cardNamesUrls = await page.evaluate(() => {
+                const immages = document.querySelectorAll<MagicCardElement>('magic-card');
+                const initVal: {src: string, name: string}[] = [];
+                const s = Array.from(immages);
+                return Array.from(immages).reduce((prevVal, mc) => {
+                  if ((mc).faceAlt) {
+                      prevVal.push({
+                          src: (mc).face,
+                          name: (mc).faceAlt,
+                      });
+                      prevVal.push({
+                          src: (mc).back,
+                          name: (mc).backAlt,
+                      });
+                  } else {
+                      prevVal.push({
+                          src: (mc).face,
+                          name: (mc).caption,
+                      });
+                  }
+                  return prevVal;
+              }, initVal);
+            });
+
+            cardNamesUrls.forEach(cnu => {
+                let w = working.get(cnu.src);
+                if(w) {
+                    result.push({name: cnu.name, img: w})
+                }
+            })
+        
+        });
+
+        return result;
     }
 
     getCachedDownload(json: string): ScrapeCardsDto | undefined {
