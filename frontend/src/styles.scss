@@ -11,6 +11,10 @@ button {
     @apply font-bold py-2 px-4 rounded;
 }
 
+a {
+    @apply text-blue-600 dark:text-blue-500 hover:underline
+}
+
 
 .btn-primary {
     @apply bg-blue-500 text-white;

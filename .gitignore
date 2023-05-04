@@ -79,5 +79,6 @@ build/Release
 node_modules
 
 img/
+img-new/
 dist/
 cardjson/
