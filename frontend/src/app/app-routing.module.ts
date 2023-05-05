@@ -4,12 +4,14 @@ import { LandingScreenComponent } from './landing-screen/landing-screen.componen
 import { UrlUploadComponent } from './url-upload/url-upload.component';
 import { HubComponent } from './hub/hub.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
+import { IconUploadComponent } from './icon-upload/icon-upload.component';
 
 const routes: Routes = [
   {path: '', component: LandingScreenComponent },
+  {path: 'hub/:id', component: HubComponent },
   {path: 'url-upload/:id', component: UrlUploadComponent },
   {path: 'image-download/:id', component: ImageDownloadComponent },
-  {path: 'hub/:id', component: HubComponent },
+  {path: 'icon-upload/:id', component: IconUploadComponent },
 ];
 
 @NgModule({

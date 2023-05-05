@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { AppService } from "../app.service";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
 
 @Component({
@@ -15,15 +15,31 @@ export class UrlUploadComponent implements OnInit {
     url: string = "";
     urlList: string[] = [];
 
+    searchTerm = '';
+
     isLoading = false;
 
     constructor(
         private appService: AppService,
-        private router: Router,
+        private route: ActivatedRoute,
         private http: HttpClient) {}
 
     ngOnInit(): void {
         this.setCode = this.appService.getSetCode();
+        const id = this.route.snapshot.params['id'];
+        this.http.get<{fullName: string}>(`/api/entity/json-base/${id}/full-name`).subscribe(resp => {
+            // ?search=Multiverse+Legends
+            if(resp) {
+                this.searchTerm = resp.fullName.replaceAll(' ', '+')
+            }
+        });
+
+        this.http.get<{urls: string}>(`/api/entity/json-base/${id}/full`).subscribe(resp => {
+            // ?search=Multiverse+Legends
+            if(resp && resp.urls) {
+                this.urlList = resp.urls.split(',')
+            }
+        })
     }
 
     onAddingUrl() {

@@ -1,0 +1,20 @@
+.loading-bar-light-beam {
+    position: absolute;
+    height: 100%;
+    background-image: linear-gradient(to right, rgba(255,255,255,0) 42%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 58%);
+    animation: light-beam 1.5s linear infinite;
+  }
+  
+@keyframes light-beam {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.loading-bar-progress {
+    height: 100%;
+    transition: width 0.2s ease-out;
+  }
