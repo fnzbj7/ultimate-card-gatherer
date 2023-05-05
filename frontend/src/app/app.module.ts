@@ -9,6 +9,8 @@ import { UrlUploadComponent } from './url-upload/url-upload.component';
 import { FormsModule } from '@angular/forms';
 import { HubComponent } from './hub/hub.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
+import { LoadingBarComponent } from './ui/loading-bar/loading-bar.conponent';
+import { IconUploadComponent } from './icon-upload/icon-upload.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { ImageDownloadComponent } from './image-download/image-download.componen
     LandingScreenComponent,
     UrlUploadComponent,
     ImageDownloadComponent,
-    HubComponent
+    HubComponent,
+    LoadingBarComponent,
+    IconUploadComponent
   ],
   imports: [
     BrowserModule,

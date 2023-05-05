@@ -20,6 +20,9 @@ export class JsonBase {
 
     @Column({ nullable: true })
     urls: string;
+
+    @Column({ nullable: true })
+    icon: string;
 }
 
 export interface MtgJson {

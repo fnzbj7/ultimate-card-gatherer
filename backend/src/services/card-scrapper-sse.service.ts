@@ -40,29 +40,32 @@ export class CardScrapperSseService {
         private entityRepository: Repository<JsonBase>,
     ) {}
 
-    async startImageDownload(id: number, subscriber: Subscriber<{data: string;}>) {
-        this.logger.log({id});
+    async startImageDownload(
+        id: number,
+        subscriber: Subscriber<{ data: string }>,
+    ) {
+        this.logger.log({ id });
         const jsonBase = await this.entityRepository.findOneBy({ id });
-        
+
         this.scrapeCardsFromMain(jsonBase, subscriber);
     }
 
     private async scrapeCardsFromMain(
         jsonBase: JsonBase,
-        subscriber: Subscriber<{data: string;}>
-    //): Promise<ScrapeCardsDto> { TODO kikommentezni
+        subscriber: Subscriber<{ data: string }>,
+        //): Promise<ScrapeCardsDto> { TODO kikommentezni
     ) {
         const imgUrls = jsonBase.urls.split(',');
         const json = jsonBase.mtgJson;
-        this.logger.log({imgUrls});
+        this.logger.log({ imgUrls });
 
-        this.logger.log('getImages')
-        subscriber.next({data: 'getImages'})
-
+        this.logger.log('getImages');
+        // subscriber.next({ data: JSON.stringify({finishedProcess: 0, maxProcess: 0}) });
 
         // TODO jól elnevezni őket
 
-        const cardMapping: {img: string, name: string, }[] = await this.downloadImages2(subscriber, imgUrls, json.data.code)
+        const cardMapping: { img: string; name: string }[] =
+            await this.downloadImages2(subscriber, imgUrls, json.data.code);
 
         jsonBase.cardMapping = cardMapping;
 
@@ -75,7 +78,6 @@ export class CardScrapperSseService {
 
         // this.logger.log(JSON.stringify(cardNameWithSrc))
         // subscriber.next({data: JSON.stringify(cardNameWithSrc)});
-        
 
         subscriber.complete();
 
@@ -120,39 +122,45 @@ export class CardScrapperSseService {
         // return { cardArray, reducedCardArray };
     }
 
-    async downloadImages2(subscriber: Subscriber<{data: string}>, imgUrls: string[], code: string): Promise<{ img: string; name: string; }[]> {
-        const browser = await puppeteer.launch({headless: true});
+    async downloadImages2(
+        subscriber: Subscriber<{ data: string }>,
+        imgUrls: string[],
+        code: string,
+    ): Promise<{ img: string; name: string }[]> {
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
-        
-        page.on('response', async (response) => {
 
-        });
+        page.on('response', async (response) => {});
 
-        const result: { img: string; name: string; }[] = [];
-        let images: {src: string, name: string}[] = [];
-        for(let i=0; i<imgUrls.length; i++) {
+        const result: { img: string; name: string }[] = [];
+        let images: { src: string; name: string }[] = [];
+        for (let i = 0; i < imgUrls.length; i++) {
             await page.goto(imgUrls[i], { timeout: 0 });
             await page.waitForSelector('magic-card', {
                 visible: true,
             });
-            
+
             // Get the src attribute of all images on the page
-            const imgSrcs = await page.$$eval<'magic-card',[],(imgs: MagicCardElement[])=>{src: string, name: string}[]>('magic-card', imgs => {
-                const initVal: {src: string, name: string}[] = [];
+            const imgSrcs = await page.$$eval<
+                'magic-card',
+                [],
+                (imgs: MagicCardElement[]) => { src: string; name: string }[]
+            >('magic-card', (imgs) => {
+                const initVal: { src: string; name: string }[] = [];
                 return imgs.reduce((prevVal, mc) => {
-                    if ((mc).faceAlt) {
+                    if (mc.faceAlt) {
                         prevVal.push({
-                            src: (mc).face,
-                            name: (mc).faceAlt,
+                            src: mc.face,
+                            name: mc.faceAlt,
                         });
                         prevVal.push({
-                            src: (mc).back,
-                            name: (mc).backAlt,
+                            src: mc.back,
+                            name: mc.backAlt,
                         });
                     } else {
                         prevVal.push({
-                            src: (mc).face,
-                            name: (mc).caption,
+                            src: mc.face,
+                            name: mc.caption,
                         });
                     }
                     return prevVal;
@@ -163,16 +171,19 @@ export class CardScrapperSseService {
         }
 
         const dir = `../img-new/${code}/raw`;
-        if(!fs.existsSync(dir)) {
+        if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
         // Download each image and save it to a file
         for (let i = 0; i < images.length; i++) {
-            const imageBuffer = await page.goto(images[i].src).then(response => response.buffer());
-            const img = 'image-' + (''+ i+1).padStart(3, '0') + '.png';
+            const imageBuffer = await page
+                .goto(images[i].src)
+                .then((response) => response.buffer());
+            const img = 'image-' + (i + 1 + '').padStart(3, '0') + '.png';
             fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
-            subscriber.next({data: `${i+1}/${images.length}`});
-            result.push({img, name: images[i].name});
+            subscriber.next({ data: JSON.stringify({finishedProcess: i + 1, maxProcess: images.length})});
+            this.logger.log({finishedProcess: i + 1, maxProcess: images.length});
+            result.push({ img, name: images[i].name });
         }
 
         await browser.close();
@@ -180,31 +191,37 @@ export class CardScrapperSseService {
         return result;
     }
 
-    async downloadImages(subscriber: Subscriber<{data: string}>, imgUrls: string[], code: string): Promise<{ img: string; name: string; }[]> {
+    async downloadImages(
+        subscriber: Subscriber<{ data: string }>,
+        imgUrls: string[],
+        code: string,
+    ): Promise<{ img: string; name: string }[]> {
+        const result: { img: string; name: string }[] = [];
 
-        const result: { img: string; name: string; }[] = [];
-
-        const browser = await puppeteer.launch({headless: true});
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         let working = new Map();
         let counter = 0;
         // DOWNLOAD IMG
         const dir = `../img-new/${code}/raw`;
-        if(!fs.existsSync(dir)) {
+        if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
         page.on('response', async (response) => {
             const matches = /.*\.(jpg|png|svg|gif)$/.exec(response.url());
-            if (matches && (matches.length === 2)) {
-              
-              const extension = matches[1];
-              const buffer = await response.buffer();
-              const name = 'image-' + (''+counter).padStart(3, '0') + '.' + extension;
-              working.set(response.url(), name);
-            
-              fs.writeFileSync(`${dir}/${name}`, buffer, 'base64');
-              subscriber.next({data: ''+counter})
-              counter += 1;
+            if (matches && matches.length === 2) {
+                const extension = matches[1];
+                const buffer = await response.buffer();
+                const name =
+                    'image-' +
+                    ('' + counter).padStart(3, '0') +
+                    '.' +
+                    extension;
+                working.set(response.url(), name);
+
+                fs.writeFileSync(`${dir}/${name}`, buffer, 'base64');
+                subscriber.next({ data: '' + counter });
+                counter += 1;
             }
         });
 
@@ -213,36 +230,36 @@ export class CardScrapperSseService {
             await page.goto(url, { timeout: 0 });
 
             const cardNamesUrls = await page.evaluate(() => {
-                const immages = document.querySelectorAll<MagicCardElement>('magic-card');
-                const initVal: {src: string, name: string}[] = [];
+                const immages =
+                    document.querySelectorAll<MagicCardElement>('magic-card');
+                const initVal: { src: string; name: string }[] = [];
                 const s = Array.from(immages);
                 return Array.from(immages).reduce((prevVal, mc) => {
-                  if ((mc).faceAlt) {
-                      prevVal.push({
-                          src: (mc).face,
-                          name: (mc).faceAlt,
-                      });
-                      prevVal.push({
-                          src: (mc).back,
-                          name: (mc).backAlt,
-                      });
-                  } else {
-                      prevVal.push({
-                          src: (mc).face,
-                          name: (mc).caption,
-                      });
-                  }
-                  return prevVal;
-              }, initVal);
+                    if (mc.faceAlt) {
+                        prevVal.push({
+                            src: mc.face,
+                            name: mc.faceAlt,
+                        });
+                        prevVal.push({
+                            src: mc.back,
+                            name: mc.backAlt,
+                        });
+                    } else {
+                        prevVal.push({
+                            src: mc.face,
+                            name: mc.caption,
+                        });
+                    }
+                    return prevVal;
+                }, initVal);
             });
 
-            cardNamesUrls.forEach(cnu => {
+            cardNamesUrls.forEach((cnu) => {
                 let w = working.get(cnu.src);
-                if(w) {
-                    result.push({name: cnu.name, img: w})
+                if (w) {
+                    result.push({ name: cnu.name, img: w });
                 }
-            })
-        
+            });
         });
 
         return result;
@@ -266,7 +283,7 @@ export class CardScrapperSseService {
         let actualCard: { imgName: string; cardName: string; isFlip: boolean };
         for (let i = 0; i < cardNameWithUrl.length; i++) {
             const foundCard = cardNameArray.find(
-                (card: { name: string; name2: string; }) =>
+                (card: { name: string; name2: string }) =>
                     card.name === cardNameWithUrl[i].name ||
                     card.name2 === cardNameWithUrl[i].name,
             );
@@ -321,7 +338,7 @@ export class CardScrapperSseService {
                 visible: true,
             });
 
-            this.logger.log('magic-card megtalalva')
+            this.logger.log('magic-card megtalalva');
 
             const tmpData = await page.evaluate(() => {
                 const immages = document.querySelectorAll('magic-card');
@@ -354,7 +371,10 @@ export class CardScrapperSseService {
         return datas;
     }
 
-    private async download(url: string | https.RequestOptions | URL, destination: fs.PathLike): Promise<void> {
+    private async download(
+        url: string | https.RequestOptions | URL,
+        destination: fs.PathLike,
+    ): Promise<void> {
         return new Promise((resolve, _reject) => {
             const file = fs.createWriteStream(destination);
 
@@ -374,7 +394,12 @@ export class CardScrapperSseService {
         });
     }
 
-    private async redownload(url: string | https.RequestOptions | URL, destination: fs.PathLike, file: fs.WriteStream, resolve: { (value: void | PromiseLike<void>): void; (): void; }) {
+    private async redownload(
+        url: string | https.RequestOptions | URL,
+        destination: fs.PathLike,
+        file: fs.WriteStream,
+        resolve: { (value: void | PromiseLike<void>): void; (): void },
+    ) {
         https
             .get(url, (response) => {
                 response.pipe(file);
@@ -397,18 +422,21 @@ export class CardScrapperSseService {
     private readCardJson(
         json: any,
     ): { name: string; name2: string; num: number }[] {
-
         const cardArray =
-        json.data !== undefined ? json.data.cards : json.cards;
-        const cardNameArray = cardArray.map((card: { name: string; number: number; }) => {
-            return {
-                name: <string>card.name.split(' // ')[0],
-                name2: <string>card.name.split(' // ')[1],
-                num: <number>card.number,
-            };
-        });
+            json.data !== undefined ? json.data.cards : json.cards;
+        const cardNameArray = cardArray.map(
+            (card: { name: string; number: number }) => {
+                return {
+                    name: <string>card.name.split(' // ')[0],
+                    name2: <string>card.name.split(' // ')[1],
+                    num: <number>card.number,
+                };
+            },
+        );
 
-        cardNameArray.sort((a: { num: number; }, b: { num: number; }) => a.num - b.num);
+        cardNameArray.sort(
+            (a: { num: number }, b: { num: number }) => a.num - b.num,
+        );
         return cardNameArray;
     }
 
@@ -481,7 +509,7 @@ export class CardScrapperSseService {
                     command: [`--quality=${quality}`, '-o'],
                 }, // 65-80
             },
-            onProgress: (error: { input: { split: () => any; }; }) => {
+            onProgress: (error: { input: { split: () => any } }) => {
                 if (error) {
                     const splt = error.input.split();
                     errArr.push(splt[splt.length - 1]);

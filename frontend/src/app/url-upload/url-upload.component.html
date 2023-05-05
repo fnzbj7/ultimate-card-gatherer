@@ -1,6 +1,6 @@
 Ez lett választva {{setCode}}
 <section class="">
-  Ha nincs meg a link, <a href="https://magic.wizards.com/en/news/card-image-gallery" target=”_blank”>itt</a> keressed 
+  Ha nincs meg a link, <a [href]="'https://magic.wizards.com/en/news/card-image-gallery?search=' + searchTerm" target=”_blank”>itt</a> keressed 
   <div>
     <label for="small-input" class="block mb-2 text-sm font-medium text-gray-900">Adding Url</label>
     <input class="input" [(ngModel)]="url">
