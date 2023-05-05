@@ -13,7 +13,7 @@ export class JsonBaseRepository {
 
 
     async getAllJsonBase()  {
-        return await this.entityRepository.find({select: ['id', 'setCode', 'version', 'urls']});
+        return await this.entityRepository.find({select: ['id', 'setCode', 'version', 'urls', 'cardMapping']});
     }
 
 }

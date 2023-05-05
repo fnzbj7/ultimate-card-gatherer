@@ -14,6 +14,9 @@ export class JsonBase {
     // Column with JSON data type
     @Column('simple-json', { nullable: true })
     mtgJson: MtgJson;
+    
+    @Column('simple-json', { nullable: true })
+    cardMapping: CardMapping[];
 
     @Column({ nullable: true })
     urls: string;
@@ -41,4 +44,9 @@ export interface MtgJson {
         releaseDate: string;
         /* And there is a lot more, but i will not use them, so i did not put them here */
     };
+}
+
+export interface CardMapping {
+    img: string;
+    name: string;
 }
