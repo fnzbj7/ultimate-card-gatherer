@@ -43,25 +43,18 @@ export class CardScrapperSseService {
     async startImageDownload(id: number, subscriber: Subscriber<{data: string;}>) {
         this.logger.log({id});
         const jsonBase = await this.entityRepository.findOneBy({ id });
-        const imgUrls = jsonBase.urls.split(',');
-        const json = jsonBase.mtgJson;
-        this.scrapeCardsFromMain(imgUrls, json, subscriber);
+        
+        this.scrapeCardsFromMain(jsonBase, subscriber);
     }
 
     private async scrapeCardsFromMain(
-        imgUrls: string[],
-        json: MtgJson,
+        jsonBase: JsonBase,
         subscriber: Subscriber<{data: string;}>
     //): Promise<ScrapeCardsDto> { TODO kikommentezni
     ) {
+        const imgUrls = jsonBase.urls.split(',');
+        const json = jsonBase.mtgJson;
         this.logger.log({imgUrls});
-        this.logger.log('Start')
-        subscriber.next({data: 'Start'})
-        // const cardNameArray: {
-        //     name: string;
-        //     name2: string;
-        //     num: number;
-        // }[] = this.readCardJson(json);
 
         this.logger.log('getImages')
         subscriber.next({data: 'getImages'})
@@ -69,15 +62,19 @@ export class CardScrapperSseService {
 
         // TODO jól elnevezni őket
 
-        const cardMapping: {img: string, name: string, }[] = await this.downloadImages(subscriber, imgUrls, json.data.code)
+        const cardMapping: {img: string, name: string, }[] = await this.downloadImages2(subscriber, imgUrls, json.data.code)
 
-        const cardNameWithSrc: {
-            src: string;
-            name: string;
-        }[] = await this.getImgDataFromHtmlPage(imgUrls);
+        jsonBase.cardMapping = cardMapping;
 
-        this.logger.log(JSON.stringify(cardNameWithSrc))
-        subscriber.next({data: JSON.stringify(cardNameWithSrc)});
+        this.entityRepository.save(jsonBase);
+
+        // const cardNameWithSrc: {
+        //     src: string;
+        //     name: string;
+        // }[] = await this.getImgDataFromHtmlPage(imgUrls);
+
+        // this.logger.log(JSON.stringify(cardNameWithSrc))
+        // subscriber.next({data: JSON.stringify(cardNameWithSrc)});
         
 
         subscriber.complete();
@@ -121,6 +118,66 @@ export class CardScrapperSseService {
 
         // this.lastScrapeMap.set(json.data.code, { cardArray, reducedCardArray });
         // return { cardArray, reducedCardArray };
+    }
+
+    async downloadImages2(subscriber: Subscriber<{data: string}>, imgUrls: string[], code: string): Promise<{ img: string; name: string; }[]> {
+        const browser = await puppeteer.launch({headless: true});
+        const page = await browser.newPage();
+        
+        page.on('response', async (response) => {
+
+        });
+
+        const result: { img: string; name: string; }[] = [];
+        let images: {src: string, name: string}[] = [];
+        for(let i=0; i<imgUrls.length; i++) {
+            await page.goto(imgUrls[i], { timeout: 0 });
+            await page.waitForSelector('magic-card', {
+                visible: true,
+            });
+            
+            // Get the src attribute of all images on the page
+            const imgSrcs = await page.$$eval<'magic-card',[],(imgs: MagicCardElement[])=>{src: string, name: string}[]>('magic-card', imgs => {
+                const initVal: {src: string, name: string}[] = [];
+                return imgs.reduce((prevVal, mc) => {
+                    if ((mc).faceAlt) {
+                        prevVal.push({
+                            src: (mc).face,
+                            name: (mc).faceAlt,
+                        });
+                        prevVal.push({
+                            src: (mc).back,
+                            name: (mc).backAlt,
+                        });
+                    } else {
+                        prevVal.push({
+                            src: (mc).face,
+                            name: (mc).caption,
+                        });
+                    }
+                    return prevVal;
+                }, initVal);
+            });
+
+            images = [...images, ...imgSrcs];
+        }
+
+        const dir = `../img-new/${code}/raw`;
+        if(!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        // Download each image and save it to a file
+        for (let i = 0; i < images.length; i++) {
+            const imageBuffer = await page.goto(images[i].src).then(response => response.buffer());
+            const img = 'image-' + (''+ i+1).padStart(3, '0') + '.png';
+            fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
+            subscriber.next({data: `${i+1}/${images.length}`});
+            result.push({img, name: images[i].name});
+        }
+
+        await browser.close();
+
+        return result;
     }
 
     async downloadImages(subscriber: Subscriber<{data: string}>, imgUrls: string[], code: string): Promise<{ img: string; name: string; }[]> {
