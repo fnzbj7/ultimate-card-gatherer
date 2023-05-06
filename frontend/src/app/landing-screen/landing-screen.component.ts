@@ -31,7 +31,7 @@ export class LandingScreenComponent implements OnInit {
 
     jsonArr!: {id: number, setCode: string, version: string}[];
 
-    fullMsg: string = 'START: ';
+    // fullMsg: string = 'START: ';
 
     constructor(
         private http: HttpClient,
@@ -46,9 +46,9 @@ export class LandingScreenComponent implements OnInit {
             console.log({x})
         });
 
-        this.sseService.createEventSource<MessageData>('/api/ssev2', (messageData) => {
-            this.fullMsg += ' ' + messageData.a;
-        });
+        // this.sseService.createEventSource<MessageData>('/api/ssev2', (messageData) => {
+        //     this.fullMsg += ' ' + messageData.a;
+        // });
 
     }
 
@@ -63,12 +63,12 @@ export class LandingScreenComponent implements OnInit {
         const formData = new FormData();
         formData.append("file", file);
 
-        const upload$ = this.http.post<{ id: number, setCode: string, version: string }>("/api/upload", formData).subscribe(resp => {
+        this.http.post<{ id: number, setCode: string, version: string }>("/api/upload", formData).subscribe(resp => {
             console.log({resp})
             this.appService.setSetCode(resp.setCode);
             this.appService.id = resp.id;
             this.router.navigate(['url-upload']);
-            // TODO navigate 
+
         });
     }
 
