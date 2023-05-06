@@ -14,15 +14,12 @@ export class IconUploadComponent {
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+    if(this.selectedFile) {
+      const id = this.route.snapshot.params['id'];
+      const formData = new FormData();
+      formData.append('iconSvg', this.selectedFile);
+      this.http.post(`/api/entity/json-base/${id}/upload-svg`, formData).subscribe();
+  }
   }
 
-  onSubmit() {
-    if(this.selectedFile) {
-        const id = this.route.snapshot.params['id'];
-        const formData = new FormData();
-        formData.append('iconSvg', this.selectedFile);
-        this.http.post(`/api/entity/json-base/${id}/upload-svg`, formData).subscribe();
-    }
-    
-  }
 }
