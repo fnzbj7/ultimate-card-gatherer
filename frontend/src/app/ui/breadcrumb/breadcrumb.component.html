@@ -1,5 +1,9 @@
 <div class="breadcrumb mb-4">
-    <a a routerLink="/" class="text-blue-500">Home</a>
+    <a a routerLink="/" class="home-svg text-blue-500 inline-block w-5 hover:border-b border-blue-500">
+        <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+        <path class="fill-blue-500" d="M50 5 L10 45 L10 90 L90 90 L90 45 Z"/>
+        </svg>
+    </a>
     <span class="mx-2">&gt;</span>
     <ng-container *ngIf="setCode && id">
         <ng-container *ngIf="!subMenu">
