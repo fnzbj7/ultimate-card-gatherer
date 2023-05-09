@@ -1,28 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
-@Entity()
-export class JsonBase {
-    @PrimaryGeneratedColumn()
+export interface JsonBaseDto {
     id: number;
-
-    @Column()
     setCode: string;
-
-    @Column()
     version: string;
-
-    // Column with JSON data type
-    @Column('simple-json', { nullable: true })
-    mtgJson: MtgJson;
-
-    @Column('simple-json', { nullable: true })
-    cardMapping: CardMapping[];
-
-    @Column({ nullable: true })
-    urls: string;
-
-    @Column({ nullable: true })
-    icon: string;
+    mtgJson?: MtgJson;
+    cardMapping?: CardMapping[];
+    urls?: string;
+    icon?: string;
 }
 
 export interface MtgJson {

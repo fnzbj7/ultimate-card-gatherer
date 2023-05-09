@@ -11,6 +11,7 @@ import { HubComponent } from './hub/hub.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
 import { LoadingBarComponent } from './ui/loading-bar/loading-bar.conponent';
 import { IconUploadComponent } from './icon-upload/icon-upload.component';
+import { BreadcrumbComponent } from './ui/breadcrumb/breadcrumb.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { IconUploadComponent } from './icon-upload/icon-upload.component';
     ImageDownloadComponent,
     HubComponent,
     LoadingBarComponent,
-    IconUploadComponent
+    IconUploadComponent,
+    BreadcrumbComponent
   ],
   imports: [
     BrowserModule,

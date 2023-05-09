@@ -12,6 +12,7 @@ import { CardMigrationService } from './services/card-migration.service';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 import { JsonBaseRepository } from './repository/json-base.repository';
 import { JsonBaseController } from './json-base.controller';
+import { CardCompareService } from './services/card-compare.service';
 
 @Module({
     imports: [
@@ -32,6 +33,7 @@ import { JsonBaseController } from './json-base.controller';
         AwsCardUploadService,
         TryJsonSaveService,
         CardMigrationService,
+        CardCompareService,
         JsonBaseRepository,
     ],
 })

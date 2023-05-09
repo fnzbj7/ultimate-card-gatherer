@@ -1,22 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { CompareCardService } from './compare-card.service';
-import { CompareCardDto } from '../dto/compare-card.dto';
+import { CompareCardDto, CompareCardService } from './compare-card.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { RenameDto } from '../dto/rename.dto';
 import { CardUltimateService } from '../card-ultimate.service';
 import { ActivatedRoute } from '@angular/router';
 
+
+// export interface CompareCardDto {
+//   cardArray: {imgName: string, cardName: string, isFlip: boolean}[];
+//   reducedCardArray: {name: string, nums: number[]}[];
+// }
 @Component({
   selector: 'app-compare-screen',
   templateUrl: './compare-screen.component.html',
   styleUrls: ['./compare-screen.component.css'],
 })
 export class CompareScreenComponent implements OnInit {
-  myFormGroup: FormGroup;
-  compareList: CompareCardDto;
-  jsonName: string;
+  myFormGroup!: FormGroup;
+  compareList?: CompareCardDto;
+  // jsonName: string;
   quality = '65-80';
-  errArr: string[];
+  errArr?: string[];
   isRenameFinised = false;
   isResizeDone = false;
   isConvertWebpDone = false;
@@ -29,23 +33,27 @@ export class CompareScreenComponent implements OnInit {
 
   ngOnInit() {
     this.compareList = this.compareCardService.compareList;
-    this.jsonName = this.route.snapshot.params.jsonName;
+    // this.jsonName = this.route.snapshot.params.jsonName;
 
     if(this.compareList) {
-      let group = {};
+      let group: any = {};
       let bestNum = {};
+      let bestNumMap = new Map<string, number>();
       this.compareList.cardArray.forEach((input_template) => {
         if (!bestNum[input_template.cardName]) {
           bestNum[input_template.cardName] = 0;
+          bestNumMap.set(input_template.cardName, 0) 
         }
         group[input_template.imgName] = new FormControl(
           this.findPossibleCardNumbers(input_template.cardName)[
             bestNum[input_template.cardName]++
+            bestNumMap.set(input_template.cardName, bestNumMap.get(input_template.cardName)++)
           ]
         );
       });
       this.myFormGroup = new FormGroup(group);
     } else {
+      // this.http.get<CompareCardDto>(`http://localhost:3000/cached-download?json=${jsonName}`);
       this.cardUltimateService.getCachedDownload(this.jsonName).subscribe(compareCardDto => {
         this.compareList = compareCardDto;
         let group = {};

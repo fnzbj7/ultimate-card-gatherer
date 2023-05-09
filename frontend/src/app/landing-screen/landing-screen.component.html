@@ -11,7 +11,7 @@
 
 <section class="mt-10 container flex flex-wrap gap-x-11 gap-y-3 justify-center mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
     <ng-container *ngIf="jsonArr">
-        <a [href]="'/hub/' + aa.id" (click)="onGoToHub($event, aa)" *ngFor="let aa of jsonArr">
+        <a class="no-default" [href]="'/hub/' + aa.id" (click)="onGoToHub($event, aa)" *ngFor="let aa of jsonArr">
             <div class="parent hover:bg-blue-500 w-64 flex flex-col items-center px-4 py-6 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer  hover:text-white">
                 <img class="set-svg" [src]="'/api/entity/json-base/' + aa.id + '/icon-svg'">
                 <span class="mt-2 text-base leading-normal">{{ aa.setCode }}</span>

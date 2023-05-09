@@ -34,6 +34,7 @@ import { createReadStream } from 'fs';
 import { CardMigrationService } from './services/card-migration.service';
 import { Observable, interval, map } from 'rxjs';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
+import { CardCompareService } from './services/card-compare.service';
 
 @Controller('/api')
 export class AppController {
@@ -46,6 +47,7 @@ export class AppController {
         private readonly tryJsonSaveService: TryJsonSaveService,
         private readonly cardMigrationService: CardMigrationService,
         private readonly cardScrapperSseService: CardScrapperSseService,
+        private readonly cardCompareService: CardCompareService,
     ) {}
 
     @Post('/upload')
@@ -64,7 +66,7 @@ export class AppController {
     @Sse('image-download')
     async uploadUrlLis(@Query('id') id: number) {
         //
-        return new Observable<{data: string}>((subscriber) => {
+        return new Observable<{ data: string }>((subscriber) => {
             this.cardScrapperSseService.startImageDownload(id, subscriber);
             // sdas
         });
@@ -178,5 +180,10 @@ export class AppController {
     @Post('/upload-aws')
     async startAwsUpload(@Body() set: { setName: string }) {
         await this.awsCardUploadService.startAwsUpload(set.setName);
+    }
+
+    @Get('/compare/:id')
+    getCompare(@Param('id') id: string) {
+        this.cardCompareService.generateCompareDto(+id);
     }
 }

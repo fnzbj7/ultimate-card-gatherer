@@ -67,8 +67,7 @@ export class LandingScreenComponent implements OnInit {
             console.log({resp})
             this.appService.setSetCode(resp.setCode);
             this.appService.id = resp.id;
-            this.router.navigate(['url-upload']);
-
+            this.router.navigate(['hub', resp.id]);
         });
     }
 
