@@ -52,4 +52,13 @@ export interface MtgJson {
 export interface CardMapping {
     img: string;
     name: string;
+    hasBack: boolean
+}
+
+export interface CardMapping2 {
+    id: number;
+    src: string;
+    name: string,
+    isBack: boolean;
+    frontId?: number
 }

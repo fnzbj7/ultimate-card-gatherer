@@ -8,7 +8,7 @@ import { compress } from 'compress-images/promise';
 import imagemin = require('imagemin');
 import imageminWebp = require('imagemin-webp');
 import { InjectRepository } from '@nestjs/typeorm';
-import { JsonBase } from 'src/entities/entities/json-base.entity';
+import { CardMapping, JsonBase } from 'src/entities/entities/json-base.entity';
 import { Repository } from 'typeorm';
 import { URL } from 'url';
 import { Subscriber } from 'rxjs';
@@ -20,6 +20,15 @@ export interface ScrapeCardsDto {
         isFlip: boolean;
     }[];
     reducedCardArray: { name: string; nums: number[] }[];
+}
+
+export interface CardMapping2 {
+    id: number;
+    src: string;
+    name: string,
+    isBack: boolean;
+    frontId?: number
+    hasBack: boolean
 }
 
 interface MagicCardElement extends Element {
@@ -53,85 +62,47 @@ export class CardScrapperSseService {
     private async scrapeCardsFromMain(
         jsonBase: JsonBase,
         subscriber: Subscriber<{ data: string }>,
-        //): Promise<ScrapeCardsDto> { TODO kikommentezni
     ) {
         const imgUrls = jsonBase.urls.split(',');
         const json = jsonBase.mtgJson;
         this.logger.log({ imgUrls });
-
         this.logger.log('getImages');
-        // subscriber.next({ data: JSON.stringify({finishedProcess: 0, maxProcess: 0}) });
 
-        // TODO jól elnevezni őket
-
-        const cardMapping: { img: string; name: string }[] =
+        const cardMapping: CardMapping[] =
             await this.downloadImages2(subscriber, imgUrls, json.data.code);
 
         jsonBase.cardMapping = cardMapping;
 
         this.entityRepository.save(jsonBase);
 
-        // const cardNameWithSrc: {
-        //     src: string;
-        //     name: string;
-        // }[] = await this.getImgDataFromHtmlPage(imgUrls);
-
-        // this.logger.log(JSON.stringify(cardNameWithSrc))
-        // subscriber.next({data: JSON.stringify(cardNameWithSrc)});
-
         subscriber.complete();
-
-        // const cardArray: {
-        //     imgName: string;
-        //     cardName: string;
-        //     isFlip: boolean;
-        // }[] = await this.getDownloadedCardsData(
-        //     cardNameWithSrc,
-        //     cardNameArray,
-        //     json.data.code,
-        // );
-
-        // const init: { name: string; nums: number[] }[] = [];
-        // const reducedCardArray = cardNameArray.reduce(
-        //     (uniqueCardWithNums, actual) => {
-        //         // ha uniqueFoundCard tartalmazza
-        //         // akkor pusholni `num`-al a tömbbe
-        //         // különben új objektum hozzáadása a számmal
-        //         const uniqueFoundCard = uniqueCardWithNums.find(
-        //             (find) => find.name === actual.name,
-        //         );
-        //         if (uniqueFoundCard) {
-        //             if (!uniqueFoundCard.nums.some((x) => x === actual.num)) {
-        //                 uniqueFoundCard.nums.push(actual.num);
-        //             }
-        //         } else {
-        //             uniqueCardWithNums.push({
-        //                 name: actual.name,
-        //                 nums: [actual.num],
-        //             });
-        //         }
-
-        //         return uniqueCardWithNums;
-        //     },
-        //     init,
-        // );
-
-        // this.logger.log(`--- The download for ${json.data.code} is completed ---`);
-
-        // this.lastScrapeMap.set(json.data.code, { cardArray, reducedCardArray });
-        // return { cardArray, reducedCardArray };
     }
 
     async downloadImages2(
         subscriber: Subscriber<{ data: string }>,
         imgUrls: string[],
         code: string,
-    ): Promise<{ img: string; name: string }[]> {
+    ): Promise<CardMapping[]> {
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
 
-        const result: { img: string; name: string }[] = [];
-        let images: { src: string; name: string }[] = [];
+        let allowImages = false;
+        await page.setRequestInterception(true);
+        page.on('request', (request) => {
+            if (request.resourceType() === 'image') {
+                if (allowImages) {
+                    request.continue();
+                  } else {
+                    request.abort();
+                  }
+            } else {
+            request.continue();
+            }
+        });
+
+        const result: CardMapping[] = [];
+        let images: CardMapping2[] = [];
+        let inde = 1;
         for (let i = 0; i < imgUrls.length; i++) {
             await page.goto(imgUrls[i], { timeout: 0 });
             await page.waitForSelector('magic-card', {
@@ -141,33 +112,52 @@ export class CardScrapperSseService {
             // Get the src attribute of all images on the page
             const imgSrcs = await page.$$eval<
                 'magic-card',
-                [],
-                (imgs: MagicCardElement[]) => { src: string; name: string }[]
-            >('magic-card', (imgs) => {
-                const initVal: { src: string; name: string }[] = [];
+                [ number],
+                (imgs: MagicCardElement[], ind: number) => {
+                    array: CardMapping2[],
+                    index: number
+                }
+            >('magic-card', ( imgs, ind) => {
+                const initVal: {
+                    array: CardMapping2[],
+                    index: number
+                } = {array: [], index: ind};
                 return imgs.reduce((prevVal, mc) => {
                     if (mc.faceAlt) {
-                        prevVal.push({
+                        const frontIndex = prevVal.index++
+                        prevVal.array.push({
+                            id: frontIndex,
                             src: mc.face,
                             name: mc.faceAlt,
+                            isBack: false,
+                            hasBack: true
                         });
-                        prevVal.push({
+                        prevVal.array.push({
+                            id: prevVal.index++,
                             src: mc.back,
                             name: mc.backAlt,
+                            isBack: true,
+                            frontId: frontIndex,
+                            hasBack: false
                         });
                     } else {
-                        prevVal.push({
+                        prevVal.array.push({
+                            id: prevVal.index++,
                             src: mc.face,
                             name: mc.caption,
+                            isBack: false,
+                            hasBack: false
                         });
                     }
                     return prevVal;
                 }, initVal);
-            });
+            }, inde);
 
-            images = [...images, ...imgSrcs];
+            inde = imgSrcs.index; 
+            images = [...images, ...imgSrcs.array];
         }
 
+        allowImages = true;
         const dir = `../img-new/${code}/raw`;
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
@@ -177,7 +167,9 @@ export class CardScrapperSseService {
             const imageBuffer = await page
                 .goto(images[i].src)
                 .then((response) => response.buffer());
-            const img = 'image-' + (i + 1 + '').padStart(3, '0') + '.png';
+            const img = !images[i].isBack ? 
+            'image-' + (images[i].id + '').padStart(3, '0') + '.png' :
+            `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
             fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
             subscriber.next({
                 data: JSON.stringify({
@@ -189,7 +181,9 @@ export class CardScrapperSseService {
                 finishedProcess: i + 1,
                 maxProcess: images.length,
             });
-            result.push({ img, name: images[i].name });
+            if(!images[i].isBack) {
+                result.push({ img, name: images[i].name, hasBack: images[i].hasBack });
+            }
         }
 
         await browser.close();
