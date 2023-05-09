@@ -30,7 +30,7 @@ export class CardScrapperService {
             name: string;
             name2: string;
             num: number;
-        }[] = CardScrapperService.readCardJson(jsonName);
+        }[] = this.readCardJson(jsonName);
 
         const cardNameWithSrc: {
             src: string;
@@ -222,7 +222,7 @@ export class CardScrapperService {
             });
     }
 
-    private static readCardJson(
+    private readCardJson(
         jsonName,
     ): { name: string; name2: string; num: number }[] {
         const rawData = fs.readFileSync(`../cardjson/${jsonName}.json`, 'utf8');

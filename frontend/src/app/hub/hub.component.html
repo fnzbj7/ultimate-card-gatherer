@@ -1,47 +1,28 @@
 <div class="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <app-breadcumb [id]="id" [setCode]="setCode"></app-breadcumb>
     <h1 class="text-2xl font-bold mb-4">Hub Page</h1>
     <div class="w-full max-w-2xl">
-      <div class="flex flex-col space-y-4">
-        <div class="text-lg font-bold mb-2">Group 1</div>
-        <a [routerLink]="['/','icon-upload', id]" class="btn btn-blue w-full"><button class="btn-primary">Upload Set icon</button></a>
-        <a [routerLink]="['/','url-upload', id]" class="btn btn-blue w-full"><button class="btn-primary">Upload Urls</button></a>
-        <a [routerLink]="['/','image-download', id]" class="btn btn-blue w-full"><button class="btn-primary">Download Images</button></a>
-        <div class="text-lg font-bold mt-4 mb-2">Group 2</div>
-        <a href="#" class="w-full"><button class="btn-primary">Link 4</button></a>
-        <a href="#" class="btn btn-blue w-full"><button class="btn-primary">Link 5</button></a>
-        <a href="#" class="btn btn-blue w-full"><button class="btn-primary">Link 6</button></a>
+      <div class="flex flex-row flex-wrap items-start">
+        <div class="w-1/2 flex flex-col space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 1</div>
+            <a [routerLink]="['/','icon-upload', id]"><button class="btn-primary w-52">Upload Set icon</button></a>
+            
+        </div>
+        <div class="w-1/2 flex flex-col mt-0 space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 2</div>
+            <a [routerLink]="['/','url-upload', id]"><button class="btn-primary w-52">Upload Urls</button></a>
+            <a [routerLink]="['/','image-download', id]"><button class="btn-primary w-52">Download Images</button></a>
+            <!-- <a href="#"><button class="btn-primary w-52">Link 6</button></a> -->
+        </div>
+        <div class="w-full flex flex-col mt-0 space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 2</div>
+            <a href="#" class="w-full"><button class="btn-primary w-full">Check numbers</button></a>
+            <a href="#" class="w-full"><button class="btn-primary w-full">Convert Images</button></a>
+            <a href="#" class="w-full"><button class="btn-primary w-full">Upload to AWS</button></a>
+            <!-- <a href="#"><button class="btn-primary w-52">Link 6</button></a> -->
+        </div>
+        
       </div>
     </div>
     <a routerLink="/" class="text-blue-500 mt-4">Back to Landing Page</a>
   </div>
-  
-
-<section class="mt-64">
-    
-    <a [routerLink]="['/','icon-upload', id]"><button class="btn-primary">Upload Set icon</button></a>
-</section>
-
-<section>
-    Upload Urls <a [routerLink]="['/','url-upload', id]"><button class="btn-primary">TODO id GO</button></a>
-    Start download <a [routerLink]="['/','image-download', id]"><button class="btn-primary">TODO id GO</button></a>
-</section>
-
-<section>
-    Mixing the Json with the images
-</section>
-
-<section>
-    Image conversions
-</section>
-
-<section>
-    Migration patch download
-</section>
-
-<section>
-    Upload to AWS
-</section>
-
-<footer>
-    go <a routerLink="/"><button class="btn-primary">back</button></a> to to the list 
-</footer>

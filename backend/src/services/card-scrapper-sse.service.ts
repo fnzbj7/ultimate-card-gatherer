@@ -8,7 +8,7 @@ import { compress } from 'compress-images/promise';
 import imagemin = require('imagemin');
 import imageminWebp = require('imagemin-webp');
 import { InjectRepository } from '@nestjs/typeorm';
-import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
+import { JsonBase } from 'src/entities/entities/json-base.entity';
 import { Repository } from 'typeorm';
 import { URL } from 'url';
 import { Subscriber } from 'rxjs';
@@ -130,8 +130,6 @@ export class CardScrapperSseService {
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
 
-        page.on('response', async (response) => {});
-
         const result: { img: string; name: string }[] = [];
         let images: { src: string; name: string }[] = [];
         for (let i = 0; i < imgUrls.length; i++) {
@@ -181,8 +179,16 @@ export class CardScrapperSseService {
                 .then((response) => response.buffer());
             const img = 'image-' + (i + 1 + '').padStart(3, '0') + '.png';
             fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
-            subscriber.next({ data: JSON.stringify({finishedProcess: i + 1, maxProcess: images.length})});
-            this.logger.log({finishedProcess: i + 1, maxProcess: images.length});
+            subscriber.next({
+                data: JSON.stringify({
+                    finishedProcess: i + 1,
+                    maxProcess: images.length,
+                }),
+            });
+            this.logger.log({
+                finishedProcess: i + 1,
+                maxProcess: images.length,
+            });
             result.push({ img, name: images[i].name });
         }
 
@@ -200,7 +206,7 @@ export class CardScrapperSseService {
 
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
-        let working = new Map();
+        const working = new Map();
         let counter = 0;
         // DOWNLOAD IMG
         const dir = `../img-new/${code}/raw`;
@@ -233,7 +239,7 @@ export class CardScrapperSseService {
                 const immages =
                     document.querySelectorAll<MagicCardElement>('magic-card');
                 const initVal: { src: string; name: string }[] = [];
-                const s = Array.from(immages);
+
                 return Array.from(immages).reduce((prevVal, mc) => {
                     if (mc.faceAlt) {
                         prevVal.push({
@@ -255,7 +261,7 @@ export class CardScrapperSseService {
             });
 
             cardNamesUrls.forEach((cnu) => {
-                let w = working.get(cnu.src);
+                const w = working.get(cnu.src);
                 if (w) {
                     result.push({ name: cnu.name, img: w });
                 }

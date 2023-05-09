@@ -1,0 +1,14 @@
+<div class="breadcrumb mb-4">
+    <a a routerLink="/" class="text-blue-500">Home</a>
+    <span class="mx-2">&gt;</span>
+    <ng-container *ngIf="setCode && id">
+        <ng-container *ngIf="!subMenu">
+            <span class="font-bold">{{setCode}}</span>
+        </ng-container>
+        <ng-container *ngIf="subMenu">
+            <a [routerLink]="['/','hub', id]" class="text-blue-500">{{setCode}}</a>
+            <span class="mx-2">&gt;</span>
+            <span class="font-bold">{{subMenu}}</span>
+        </ng-container>
+    </ng-container>
+  </div>
