@@ -1,5 +1,4 @@
-<button (click)="onStartDownload()">Start Download</button>
+<app-breadcumb [id]="id" [setCode]="setCode" subMenu="Download Images"></app-breadcumb>
+<button class="btn btn-primary" (click)="onStartDownload()">Start Download</button>
 <app-loading-bar [finishedProcess]="finishedProcess" [maxProcess]="maxProcess"></app-loading-bar>
-<footer>
-    go <a routerLink="/"><button class="btn-primary">back</button></a> to to the list 
-</footer>
+<a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>

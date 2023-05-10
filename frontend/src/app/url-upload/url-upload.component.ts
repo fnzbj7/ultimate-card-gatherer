@@ -18,6 +18,7 @@ export class UrlUploadComponent implements OnInit {
     searchTerm = '';
 
     isLoading = false;
+    id!: string;
 
     constructor(
         private appService: AppService,
@@ -26,15 +27,15 @@ export class UrlUploadComponent implements OnInit {
 
     ngOnInit(): void {
         this.setCode = this.appService.getSetCode();
-        const id = this.route.snapshot.params['id'];
-        this.http.get<{fullName: string}>(`/api/entity/json-base/${id}/full-name`).subscribe(resp => {
+        this.id = this.route.snapshot.params['id'];
+        this.http.get<{fullName: string}>(`/api/entity/json-base/${this.id}/full-name`).subscribe(resp => {
             // ?search=Multiverse+Legends
             if(resp) {
                 this.searchTerm = resp.fullName.replaceAll(' ', '+')
             }
         });
 
-        this.http.get<{urls: string}>(`/api/entity/json-base/${id}/full`).subscribe(resp => {
+        this.http.get<{urls: string}>(`/api/entity/json-base/${this.id}/full`).subscribe(resp => {
             // ?search=Multiverse+Legends
             if(resp && resp.urls) {
                 this.urlList = resp.urls.split(',')

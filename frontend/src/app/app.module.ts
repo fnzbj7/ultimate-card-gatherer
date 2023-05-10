@@ -6,12 +6,13 @@ import { AppComponent } from './app.component';
 import { LandingScreenComponent } from './landing-screen/landing-screen.component';
 import { HttpClientModule } from '@angular/common/http';
 import { UrlUploadComponent } from './url-upload/url-upload.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HubComponent } from './hub/hub.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
 import { LoadingBarComponent } from './ui/loading-bar/loading-bar.conponent';
 import { IconUploadComponent } from './icon-upload/icon-upload.component';
 import { BreadcrumbComponent } from './ui/breadcrumb/breadcrumb.component';
+import { CompareScreenComponent } from './compare-screen/compare-screen.component';
 
 @NgModule({
   declarations: [
@@ -22,13 +23,15 @@ import { BreadcrumbComponent } from './ui/breadcrumb/breadcrumb.component';
     HubComponent,
     LoadingBarComponent,
     IconUploadComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    CompareScreenComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

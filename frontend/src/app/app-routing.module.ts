@@ -5,6 +5,7 @@ import { UrlUploadComponent } from './url-upload/url-upload.component';
 import { HubComponent } from './hub/hub.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
 import { IconUploadComponent } from './icon-upload/icon-upload.component';
+import { CompareScreenComponent } from './compare-screen/compare-screen.component';
 
 const routes: Routes = [
   {path: '', component: LandingScreenComponent },
@@ -12,6 +13,7 @@ const routes: Routes = [
   {path: 'url-upload/:id', component: UrlUploadComponent },
   {path: 'image-download/:id', component: ImageDownloadComponent },
   {path: 'icon-upload/:id', component: IconUploadComponent },
+  {path: 'compare/:id', component: CompareScreenComponent },
 ];
 
 @NgModule({

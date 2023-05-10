@@ -6,6 +6,7 @@ export class CompareCardService {
 }
 
 export interface CompareCardDto {
-  cardArray: {imgName: string, cardName: string, isFlip: boolean}[];
+  cardMapping: {img: string, name: string, hasBack: boolean}[];
   reducedCardArray: {name: string, nums: number[]}[];
+  setCode: string;
 }
