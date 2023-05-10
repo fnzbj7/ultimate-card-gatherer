@@ -182,8 +182,5 @@ export class AppController {
         await this.awsCardUploadService.startAwsUpload(set.setName);
     }
 
-    @Get('/compare/:id')
-    getCompare(@Param('id') id: string) {
-        this.cardCompareService.generateCompareDto(+id);
-    }
+
 }
