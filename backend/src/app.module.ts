@@ -13,6 +13,7 @@ import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 import { JsonBaseRepository } from './repository/json-base.repository';
 import { JsonBaseController } from './json-base.controller';
 import { CardCompareService } from './services/card-compare.service';
+import { CardImgManipulationService } from './services/card-img-manipulation.service';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { CardCompareService } from './services/card-compare.service';
         CardMigrationService,
         CardCompareService,
         JsonBaseRepository,
+        CardImgManipulationService,
     ],
 })
 export class AppModule {}

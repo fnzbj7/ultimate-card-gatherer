@@ -29,14 +29,12 @@ export class UrlUploadComponent implements OnInit {
         this.setCode = this.appService.getSetCode();
         this.id = this.route.snapshot.params['id'];
         this.http.get<{fullName: string}>(`/api/entity/json-base/${this.id}/full-name`).subscribe(resp => {
-            // ?search=Multiverse+Legends
             if(resp) {
                 this.searchTerm = resp.fullName.replaceAll(' ', '+')
             }
         });
 
         this.http.get<{urls: string}>(`/api/entity/json-base/${this.id}/full`).subscribe(resp => {
-            // ?search=Multiverse+Legends
             if(resp && resp.urls) {
                 this.urlList = resp.urls.split(',')
             }

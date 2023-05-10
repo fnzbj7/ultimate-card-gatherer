@@ -35,6 +35,7 @@ import { CardMigrationService } from './services/card-migration.service';
 import { Observable, interval, map } from 'rxjs';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 import { CardCompareService } from './services/card-compare.service';
+import { CardImgManipulationService } from './services/card-img-manipulation.service';
 
 @Controller('/api')
 export class AppController {
@@ -47,7 +48,7 @@ export class AppController {
         private readonly tryJsonSaveService: TryJsonSaveService,
         private readonly cardMigrationService: CardMigrationService,
         private readonly cardScrapperSseService: CardScrapperSseService,
-        private readonly cardCompareService: CardCompareService,
+        private readonly cardImgManipulationService: CardImgManipulationService
     ) {}
 
     @Post('/upload')
@@ -68,7 +69,6 @@ export class AppController {
         //
         return new Observable<{ data: string }>((subscriber) => {
             this.cardScrapperSseService.startImageDownload(id, subscriber);
-            // sdas
         });
     }
 
@@ -151,7 +151,7 @@ export class AppController {
 
     @Post('/rename')
     renameImg(@Body() renameDto: RenameDto) {
-        this.cardScrapperService.renameCards(renameDto);
+        this.cardImgManipulationService.renameCards(renameDto);
     }
 
     @Post('/resize')
@@ -166,11 +166,6 @@ export class AppController {
     async createWebp(@Body() jsonNameDto: { jsonName: string }) {
         const { jsonName } = jsonNameDto;
         await this.cardScrapperService.createWebp(jsonName);
-    }
-
-    @Delete('/img')
-    deleteFolder() {
-        // Unused
     }
 
     /**

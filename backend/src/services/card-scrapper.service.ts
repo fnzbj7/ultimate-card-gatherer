@@ -253,43 +253,6 @@ export class CardScrapperService {
         this.logger.log(`${dir}/raw is created!`);
     }
 
-    renameCards(renameDto: RenameDto) {
-        const { jsonName, setName } = renameDto;
-
-        // Elkészíteni a mappát
-        const dir = `../img/${jsonName}/rename`;
-        fs.mkdirSync(dir, { recursive: true });
-        this.logger.log(`${dir} is created!`);
-
-        renameDto.cards.forEach((renameCard) => {
-            if (renameCard.newNumber === '') {
-                return;
-            }
-            if (!renameCard.newNumber) {
-                this.logger.warn(
-                    `Was not newNumber set:${JSON.stringify(renameCard)}`,
-                );
-                return;
-            }
-            fs.copyFileSync(
-                `../img/${jsonName}/raw/` + renameCard.imgName,
-                `../img/${jsonName}/rename/${setName}_${renameCard.newNumber.padStart(
-                    3,
-                    '0',
-                )}.png`,
-            );
-            if (renameCard.isFlip) {
-                fs.copyFileSync(
-                    `../img/${jsonName}/raw/` + renameCard.flipName,
-                    `../img/${jsonName}/rename/${setName}_${renameCard.newNumber.padStart(
-                        3,
-                        '0',
-                    )}_F.png`,
-                );
-            }
-        });
-    }
-
     async resizeImgs(jsonName: string, quality: string): Promise<string[]> {
         // Elkészíteni a mappát
         const dir = `../img/${jsonName}/resized`;
