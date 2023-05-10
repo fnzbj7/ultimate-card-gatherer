@@ -26,6 +26,8 @@ export class CompareScreenComponent implements OnInit {
   
   quality = '65-80';
   errArr?: string[];
+  renameState: 'init' | 'load' | 'finished' = 'init';
+  isRenameLoading = false;
   isRenameFinised = false;
   isResizeDone = false;
   isConvertWebpDone = false;
@@ -58,7 +60,6 @@ export class CompareScreenComponent implements OnInit {
         group[input_template.img] = new FormControl(
           this.findPossibleCardNumbers(input_template.name)[
             bestNum[input_template.name]++
-            //bestNumMap.set(input_template.cardName, bestNumMap.get(input_template.cardName)++)
           ]
         );
       });
@@ -99,34 +100,41 @@ export class CompareScreenComponent implements OnInit {
 
   onSubmit() {
 
-    //TODO Átalakítni a mostani módszerre
-    // console.log(this.myFormGroup);
+    console.log(this.myFormGroup);
 
-    // let cards: {
-    //   imgName: string;
-    //   flipName: string;
-    //   isFlip: boolean;
-    //   newNumber: string;
-    // }[] = [];
+    this.renameState = 'load';
+    this.isRenameLoading = true;
 
-    // let renameDto = {
-    //   jsonName: this.jsonName,
-    //   setName: this.jsonName.split('-')[0],
-    //   cards,
-    // };
+    let cards: {
+      imgName: string;
+      flipName?: string;
+      isFlip: boolean;
+      newNumber: string;
+    }[] = [];
 
-    // for (const [key, value] of Object.entries(this.myFormGroup.controls)) {
-    //   let isFlip = this.compareList.cardArray.find(
-    //     (x) => x.imgName === key
-    //   ).isFlip;
-    //   let flipName = null;
-    //   if (isFlip) {
-    //     flipName = key.split('.png')[0] + '_F.png';
-    //   }
+    let renameDto = {
+      id: this.id,
+      cards,
+    };
 
-    //   cards.push({ imgName: key, flipName, isFlip, newNumber: value.value });
-    // }
+    for (const [key, value] of Object.entries(this.myFormGroup.controls)) {
+      let isFlip = this.compareList?.cardMapping.find(
+        (x) => x.img === key
+      )?.hasBack ?? false;
+      let flipName = undefined;
+      if (isFlip) {
+        flipName = key.split('.png')[0] + '_F.png';
+      }
 
+      cards.push({ imgName: key, flipName, isFlip, newNumber: value.value });
+    }
+
+    this.http.post<void>("api/rename", renameDto).subscribe(() => {
+      console.log('végzett a rename');
+      this.isRenameLoading = false;
+      this.isRenameFinised = true;
+      this.renameState = 'finished';
+    });    
     // this.cardUltimateService.sendRenameCards(renameDto).subscribe(() => {
     //   console.log('végzett a rename');
     //   this.isRenameFinised = true;

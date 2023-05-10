@@ -13,6 +13,7 @@ import { LoadingBarComponent } from './ui/loading-bar/loading-bar.conponent';
 import { IconUploadComponent } from './icon-upload/icon-upload.component';
 import { BreadcrumbComponent } from './ui/breadcrumb/breadcrumb.component';
 import { CompareScreenComponent } from './compare-screen/compare-screen.component';
+import { ConvertImgComponent } from './convert-img/convert-img.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { CompareScreenComponent } from './compare-screen/compare-screen.componen
     LoadingBarComponent,
     IconUploadComponent,
     BreadcrumbComponent,
-    CompareScreenComponent
+    CompareScreenComponent,
+    ConvertImgComponent
   ],
   imports: [
     BrowserModule,

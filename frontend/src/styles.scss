@@ -19,8 +19,11 @@ a:not(.no-default) {
 .btn-primary {
     @apply bg-blue-500 text-white;
 }
-.btn-primary:hover {
+.btn-primary:not([disabled]):hover {
     @apply bg-blue-700;
+}
+.btn-finished {
+    @apply bg-yellow-500 text-white;
 }
 .btn-danger {
     @apply bg-red-500 text-white;
