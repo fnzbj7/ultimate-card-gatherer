@@ -16,6 +16,7 @@ import { CompareScreenComponent } from './compare-screen/compare-screen.componen
 import { ConvertImgComponent } from './convert-img/convert-img.component';
 import { GenerateMigrationComponent } from './generate-migration/generate-migration.component';
 import { MenuBtnComponent } from './ui/menu-btn/menu-btn.component';
+import { UploadJsonComponent } from './upload-json/upload-json.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { MenuBtnComponent } from './ui/menu-btn/menu-btn.component';
     ConvertImgComponent,
     GenerateMigrationComponent,
     MenuBtnComponent,
+    UploadJsonComponent,
   ],
   imports: [
     BrowserModule,
