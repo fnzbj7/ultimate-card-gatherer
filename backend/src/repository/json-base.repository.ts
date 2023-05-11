@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JsonBase } from 'src/entities/entities/json-base.entity';
+import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -48,5 +48,19 @@ export class JsonBaseRepository {
     async getThingsForCompare(id: number) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
         return jsonBase;
+    }
+
+    async updateJson(id: number, fileContent: MtgJson) {
+        const jsonBase = await this.entityRepository.findOne({ where: { id } });
+
+        const {data: {code}, meta: {version}} = fileContent;
+        if( jsonBase.setCode != code) {
+            throw new Error('Azonosnak kell lennie a json kódnak');
+        }
+
+        jsonBase.mtgJson = fileContent;
+        jsonBase.version = version;
+
+        await this.entityRepository.save(jsonBase);
     }
 }

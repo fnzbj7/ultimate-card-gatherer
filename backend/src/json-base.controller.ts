@@ -80,4 +80,16 @@ export class JsonBaseController {
     getCompare(@Param('id') id: string) {
         return this.cardCompareService.generateCompareDto(+id);
     }
+
+    @Post('/:id/update-json')
+    @UseInterceptors(FileInterceptor('json'))
+    async updateJson(
+        @Param('id') id: string,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        return await this.jsonBaseRepository.updateJson(
+            +id,
+            JSON.parse(file.buffer.toString()),
+        );
+    }
 }
