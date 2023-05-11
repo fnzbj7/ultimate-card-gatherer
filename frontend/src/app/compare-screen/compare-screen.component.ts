@@ -23,8 +23,6 @@ type MyType = {
 export class CompareScreenComponent implements OnInit {
   myFormGroup!: FormGroup;
   compareList?: CompareCardDto;
-  
-  quality = '65-80';
   errArr?: string[];
   renameState: 'init' | 'load' | 'finished' = 'init';
   isRenameLoading = false;
@@ -135,28 +133,6 @@ export class CompareScreenComponent implements OnInit {
       this.isRenameFinised = true;
       this.renameState = 'finished';
     });    
-    // this.cardUltimateService.sendRenameCards(renameDto).subscribe(() => {
-    //   console.log('végzett a rename');
-    //   this.isRenameFinised = true;
-    // });
   }
 
-  onResize() {
-    // TODO lehet ezt ki kéne innen venni
-    // this.cardUltimateService
-    //   .resizeCard(this.jsonName, this.quality)
-    //   .subscribe((errArr) => {
-    //     this.errArr = errArr;
-    //     console.log('végzett RESIZE');
-    //     this.isResizeDone = true;
-    //   });
-  }
-
-  onConvertToWebp() {
-    // TODO lehet ezt ki kéne innen venni
-    // this.cardUltimateService.convertToWebp(this.jsonName).subscribe(() => {
-    //   console.log('végzett webp');
-    //   this.isConvertWebpDone = true;
-    // });
-  }
 }

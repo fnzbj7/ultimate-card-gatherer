@@ -7,6 +7,7 @@ import { ImageDownloadComponent } from './image-download/image-download.componen
 import { IconUploadComponent } from './icon-upload/icon-upload.component';
 import { CompareScreenComponent } from './compare-screen/compare-screen.component';
 import { ConvertImgComponent } from './convert-img/convert-img.component';
+import { GenerateMigrationComponent } from './generate-migration/generate-migration.component';
 
 const routes: Routes = [
   {path: '', component: LandingScreenComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   {path: 'icon-upload/:id', component: IconUploadComponent },
   {path: 'compare/:id', component: CompareScreenComponent },
   {path: 'convert/:id', component: ConvertImgComponent },
+  {path: 'generate-migration/:id', component: GenerateMigrationComponent },
 ];
 
 @NgModule({

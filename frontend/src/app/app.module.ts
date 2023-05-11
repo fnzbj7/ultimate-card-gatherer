@@ -14,6 +14,8 @@ import { IconUploadComponent } from './icon-upload/icon-upload.component';
 import { BreadcrumbComponent } from './ui/breadcrumb/breadcrumb.component';
 import { CompareScreenComponent } from './compare-screen/compare-screen.component';
 import { ConvertImgComponent } from './convert-img/convert-img.component';
+import { GenerateMigrationComponent } from './generate-migration/generate-migration.component';
+import { MenuBtnComponent } from './ui/menu-btn/menu-btn.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { ConvertImgComponent } from './convert-img/convert-img.component';
     IconUploadComponent,
     BreadcrumbComponent,
     CompareScreenComponent,
-    ConvertImgComponent
+    ConvertImgComponent,
+    GenerateMigrationComponent,
+    MenuBtnComponent,
   ],
   imports: [
     BrowserModule,
