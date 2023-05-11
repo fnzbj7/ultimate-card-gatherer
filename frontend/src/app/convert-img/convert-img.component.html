@@ -1,5 +1,24 @@
 Convert screen
-<p>Start small size</p>
+<button class="btn btn-primary my-4" (click)="onResize()">Start Resize</button>
+<input [(ngModel)]="quality">
 <p> convert to webp</p>
+<div>
+    <button class="btn btn-primary my-4" (click)="onConvertToWebp()">Start Convert webp</button>
+</div>
+
 
 <a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
+
+<!-- <div *ngIf="isRenameFinised">
+      <button class="btn my-4" [ngClass]="isRenameFinised && !isResizeDone ? 'btn-primary' : 'btn-warning'" (click)="onResize()">Start Resize</button>
+      <input [(ngModel)]="quality">
+      <ng-container *ngIf="errArr">
+        <p>
+          <span *ngFor="let err of errArr">{{err}}</span>
+        </p>
+      </ng-container>
+      <p *ngIf="isResizeDone">A képek átméretezése megtörtént, következő léps az <b>Convert webp</b></p>
+    </div>
+    <div *ngIf="isResizeDone">
+      <button class="btn my-4" [ngClass]="isResizeDone && !isConvertWebpDone ? 'btn-primary' : 'btn-warning'" (click)="onConvertToWebp()">Start Convert webp</button>
+    </div> -->

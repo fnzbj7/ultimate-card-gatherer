@@ -156,16 +156,16 @@ export class AppController {
 
     @Post('/resize')
     async resize(
-        @Body() jsonNameDto: { jsonName: string; quality: string },
+        @Body() jsonNameDto: { id:string,  quality: string },
     ): Promise<string[]> {
-        const { jsonName, quality } = jsonNameDto;
-        return await this.cardScrapperService.resizeImgs(jsonName, quality);
+        const { id, quality } = jsonNameDto;
+        return await this.cardImgManipulationService.resizeImgs(id, quality);
     }
 
     @Post('/webp')
-    async createWebp(@Body() jsonNameDto: { jsonName: string }) {
-        const { jsonName } = jsonNameDto;
-        await this.cardScrapperService.createWebp(jsonName);
+    async createWebp(@Body() jsonNameDto: { id: string }) {
+        const { id } = jsonNameDto;
+        await this.cardImgManipulationService.createWebp(id);
     }
 
     /**
