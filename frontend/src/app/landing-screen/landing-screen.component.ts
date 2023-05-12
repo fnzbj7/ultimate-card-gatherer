@@ -63,7 +63,7 @@ export class LandingScreenComponent implements OnInit {
         const formData = new FormData();
         formData.append("file", file);
 
-        this.http.post<{ id: number, setCode: string, version: string }>("/api/upload", formData).subscribe(resp => {
+        this.http.post<{ id: number, setCode: string, version: string }>("/api/entity/json-base/upload", formData).subscribe(resp => {
             console.log({resp})
             this.appService.setSetCode(resp.setCode);
             this.appService.id = resp.id;
@@ -89,11 +89,11 @@ export class LandingScreenComponent implements OnInit {
         });
     }
 
-    onGoToHub(event: MouseEvent, json: {id: number, setCode: string, version: string}) {
-        event.preventDefault()
+    onGoToHub(event: MouseEvent, json: {id: number, setCode: string}) {
+        event.preventDefault();
         this.appService.id = json.id;
         this.appService.setCode = json.setCode;
-        this.router.navigate(['hub', json.id])
+        this.router.navigate(['hub', json.id]);
     }
 
 }

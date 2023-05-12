@@ -11,15 +11,12 @@ export class JsonBaseRepository {
     ) {}
 
     async getAllJsonBase() {
-        return await this.entityRepository.find({
-            select: ['id', 'setCode', 'version', 'urls', 'cardMapping'],
-        });
+        return await this.entityRepository.find({order: {'updatedAt': 'DESC'}});
     }
 
     async getSingleJsonBase(id: number) {
         return await this.entityRepository.findOne({
             where: { id },
-            select: ['id', 'setCode', 'version', 'urls', 'cardMapping', 'icon'],
         });
     }
 
@@ -42,6 +39,7 @@ export class JsonBaseRepository {
     async saveIcon(id: number, icon: string) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
         jsonBase.icon = icon;
+        jsonBase.isIconUploadF = true;
         this.entityRepository.save(jsonBase);
     }
 
@@ -50,17 +48,40 @@ export class JsonBaseRepository {
         return jsonBase;
     }
 
+    async saveOrUpdate(fileContent: MtgJson) {
+        const setCode = fileContent.data.code;
+        const jsonBase = await this.entityRepository.findOne({ where: { setCode } });
+
+        if(jsonBase === null) {
+            // Save
+            const newJsonBase = {
+                setCode: fileContent.data.code,
+                mtgJson: fileContent,
+                name: fileContent.data.name,
+                isJsonUploadF: true
+            };
+            const v = await this.entityRepository.save(newJsonBase);
+            return { id: v.id, setCode: newJsonBase.setCode };
+        } else {
+            jsonBase.mtgJson = fileContent;
+            const res = await this.entityRepository.save(jsonBase);
+            return {id: res.id, setCode: res.setCode};
+        }
+
+    }
+
     async updateJson(id: number, fileContent: MtgJson) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
 
-        const {data: {code}, meta: {version}} = fileContent;
+
+        const {data: {code}} = fileContent;
         if( jsonBase.setCode != code) {
             throw new Error('Azonosnak kell lennie a json kódnak');
         }
 
         jsonBase.mtgJson = fileContent;
-        jsonBase.version = version;
 
         await this.entityRepository.save(jsonBase);
     }
+
 }
