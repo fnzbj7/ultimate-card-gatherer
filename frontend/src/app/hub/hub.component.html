@@ -5,7 +5,7 @@
       <div class="flex flex-row flex-wrap items-start">
         <div class="w-1/2 flex flex-col space-y-4 items-center">
             <div class="text-lg font-bold mb-2">Group 1</div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json TODO'" [navLovation]="'icon-upload'"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json'" [navLovation]="'upload-json'"></div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Set icon'" [navLovation]="'icon-upload'" [isDone]="false"></div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="false"></div>
         </div>
@@ -18,9 +18,8 @@
             <div class="text-lg font-bold mb-2">Group 2</div>
             <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Check numbers'" [navLovation]="'compare'"></div>
             <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Convert Images'" [navLovation]="'convert'"></div>
-            <a href="#" class="w-11/12"><button class="btn-primary w-full">Upload to AWS</button></a>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'"></div>
         </div>
-        
       </div>
     </div>
     <a routerLink="/" class="text-blue-500 mt-4">Back to Landing Page</a>

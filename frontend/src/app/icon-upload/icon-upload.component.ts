@@ -37,7 +37,7 @@ export class IconUploadComponent implements OnInit {
       const formData = new FormData();
       formData.append('iconSvg', this.selectedFile);
       this.http.post(`/api/entity/json-base/${id}/upload-svg`, formData).subscribe();
-  }
+    }
   }
 
 }
