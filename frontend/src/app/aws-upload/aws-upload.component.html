@@ -1,0 +1,10 @@
+Convert screen
+<button class="btn btn-primary my-4" (click)="onPrepareAws()">Upload AWS (webp)</button>
+<ng-container *ngIf="isPrepare">
+    <input>
+    <button class="btn btn-primary my-4">Nyomogassad</button>
+</ng-container>
+
+
+
+<a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
