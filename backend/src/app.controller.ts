@@ -51,14 +51,6 @@ export class AppController {
         private readonly cardImgManipulationService: CardImgManipulationService
     ) {}
 
-    @Post('/upload')
-    @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        return await this.tryJsonSaveService.trySave(
-            JSON.parse(file.buffer.toString()),
-        );
-    }
-
     @Post('/upload-url-list')
     async uploadUrlLists(@Body() x: SaveUrlLists) {
         this.tryJsonSaveService.saveUrlList(x);

@@ -1,15 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class JsonBase {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    setCode: string;
+    @Column({ nullable: true })
+    name: string;
 
     @Column()
-    version: string;
+    setCode: string;
 
     // Column with JSON data type
     @Column('simple-json', { nullable: true })
@@ -23,6 +23,30 @@ export class JsonBase {
 
     @Column({ nullable: true })
     icon: string;
+
+    @Column({ default: false })
+    isJsonUploadF: boolean;
+
+    @Column({ default: false })
+    isIconUploadF: boolean;
+
+    @Column({ default: false })
+    isMigrationGeneratedF: boolean;
+
+    @Column({ default: false })
+    isUrlUploadF: boolean;
+
+    @Column({ default: false })
+    isDownloadImagesF: boolean;
+
+    @Column({ default: false })
+    isCheckNumberF: boolean;
+
+    @Column({ default: false })
+    isUploadAwsF: boolean;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
 
 export interface MtgJson {

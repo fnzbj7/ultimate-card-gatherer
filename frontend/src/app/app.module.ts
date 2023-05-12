@@ -18,6 +18,8 @@ import { GenerateMigrationComponent } from './generate-migration/generate-migrat
 import { MenuBtnComponent } from './ui/menu-btn/menu-btn.component';
 import { UploadJsonComponent } from './upload-json/upload-json.component';
 import { AwsUploadComponent } from './aws-upload/aws-upload.component';
+import { StoreModule } from '@ngrx/store';
+import { taskReducer } from './store/task.reducer';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,8 @@ import { AwsUploadComponent } from './aws-upload/aws-upload.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    StoreModule.forRoot({ tasks: taskReducer }),
   ],
   providers: [],
   bootstrap: [AppComponent]

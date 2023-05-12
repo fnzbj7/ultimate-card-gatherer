@@ -23,7 +23,7 @@ export class TryJsonSaveService {
 
     async getJsonBase() {
         return await this.entityRepository.find({
-            select: { id: true, setCode: true, version: true },
+            select: { id: true, setCode: true },
         });
     }
 

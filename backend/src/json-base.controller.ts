@@ -24,6 +24,14 @@ export class JsonBaseController {
         private readonly cardCompareService: CardCompareService
     ) {}
 
+    @Post('/upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file: Express.Multer.File) {
+        return await this.jsonBaseRepository.saveOrUpdate(
+            JSON.parse(file.buffer.toString()),
+        );
+    }
+
     @Get('/all')
     async getJsonFiles(): Promise<JsonBase[]> {
         return await this.jsonBaseRepository.getAllJsonBase();
