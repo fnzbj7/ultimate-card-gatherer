@@ -29,14 +29,18 @@ export class CardMigrationService {
         });
         const dateTime = '' + new Date().getTime();
 
+        const className = `add${mtgJson.data.code.charAt(0).toUpperCase() +
+            mtgJson.data.code.slice(1).toLowerCase() + dateTime}`; 
+
         const result = {
             text: this.generateAllSql(
                 mtgJson.data.code,
+                className,
                 mtgJson.data.name,
                 orderedCardArray,
-                dateTime,
             ),
             fileName: `${dateTime}-add-${mtgJson.data.code.toLocaleLowerCase()}-cards.migrations.ts`,
+            className,
             cardService: `new MagicSet('${mtgJson.data.code}', '${
                 mtgJson.data.name
             }', ${mtgJson.data.totalSetSize}, ${mtgJson.data.releaseDate.slice(
@@ -53,20 +57,20 @@ export class CardMigrationService {
     }
 
     private generateAllSql(
-        shortName,
-        setModel,
+        shortName: string,
+        className: string,
+        setModel: string,
         orderedCardArray: InsertCardModel[],
-        dateTime: string,
     ) {
         // V2
-        const header = this.generateSetSQLNextJsHeaderV2(shortName, dateTime);
+        const header = this.generateSetSQLNextJsHeaderV2(shortName, className);
         const body = this.generateInsertSqlFromListNextJsV2(orderedCardArray);
         const afterBody = this.generateSetSQLNextJsFooterV2(setModel);
 
         return header + body + afterBody;
     }
 
-    private generateSetSQLNextJsHeaderV2(shortName: string, dateTime: string) {
+    private generateSetSQLNextJsHeaderV2(shortName: string, className: string) {
         return `import { MigrationInterface, QueryRunner } from 'typeorm';
         import { CardSet } from '../card/entity/card-set.entity';
         import { CardVariantType } from '../card/entity/card-variant-type.enum';
@@ -74,11 +78,7 @@ export class CardMigrationService {
         import { PossibleCardVariation } from '../card/entity/possible-card-variation.entity';
         import { MigrationHelper } from './helper/migration-helper';
         
-        export class add${
-            shortName.charAt(0).toUpperCase() +
-            shortName.slice(1).toLowerCase() +
-            dateTime
-        } implements MigrationInterface {
+        export class add${className} implements MigrationInterface {
             shortName = '${shortName}';
             public async up(queryRunner: QueryRunner): Promise<void> {`;
     }
@@ -106,7 +106,7 @@ export class CardMigrationService {
         return parts.join('');
     }
 
-    private generateSetSQLNextJsFooterV2(fullExtension) {
+    private generateSetSQLNextJsFooterV2(fullExtension: string) {
         return `
         await MigrationHelper.cardSetUp(
             queryRunner,

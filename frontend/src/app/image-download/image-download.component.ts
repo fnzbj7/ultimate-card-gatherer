@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AppService } from '../app.service';
 import { finishTask } from '../store/task.actions';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { AppState } from '../store/task.reducer';
+import { TaskService } from '../store/task.service';
 
 @Component({
   selector: 'app-image-download',
@@ -17,16 +17,28 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
   id!: string;
   setCode = '';
 
-  constructor(private appService: AppService, private route: ActivatedRoute, private store: Store<AppState>) {}
+  isStarted = false;
+
+  constructor(private route: ActivatedRoute,
+    private store: Store<AppState>,
+    private taskService: TaskService) {}
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
-    if (this.appService.setCode) {
-      this.setCode = this.appService.setCode;
+
+    this.store.pipe(select((state) => state.tasks)).subscribe((tasks) => {
+      if (tasks.jsonBase) {
+        const { jsonBase } = tasks;
+        this.setCode = jsonBase.setCode;
+      }
+    });
+    if (!this.taskService.id && this.id) {
+      this.taskService.setId(+this.id);
     }
   }
 
   onStartDownload() {
+    this.isStarted = true;
     this.eventSource = new EventSource(`/api/image-download?id=${this.id}`);
     this.eventSource.addEventListener('message', (event: { data: string }) => {
       const data = JSON.parse(event.data);

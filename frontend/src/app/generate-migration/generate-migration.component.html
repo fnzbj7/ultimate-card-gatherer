@@ -1,33 +1,23 @@
-Migráció
-<button (click)="downloadMigrationFile()" class="btn btn-primary">Start migration</button>
+<section class="container w-4/6 flex flex-col mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
+  <app-breadcumb [id]="id" [setCode]="setCode" subMenu="Typeorm Migration"></app-breadcumb>
+  <h1 class="mb-4 self-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-5xl dark:text-white">Typeorm Migration</h1>
 
+  <button (click)="downloadMigrationFile()" class="btn self-center btn-primary w-52">Start migration</button>
+  <ng-container *ngIf="code">
+    <app-code-snipet class="self-center" [code]="code" fileName="magiccollection\src\app\magic\magic-card-list\magic-cards-list.service.ts"></app-code-snipet>
+  </ng-container>
+  <ng-container *ngIf="importCode">
+    <app-code-snipet class="self-center" [code]="importCode" fileName="apps\api\src\config\migration-list.ts"></app-code-snipet>
+  </ng-container>
+  TODO patch az hova menjen? és a patchet hova másolni?
 
-
-<ng-container *ngIf="code">
-  <div class="bg-black rounded-md mb-4 ml-5 w-6/12">
-    <div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans justify-between rounded-t-md">
-      <span class="cursor-pointer" (click)="copyServiceName()">magiccollection\src\app\magic\magic-card-list\magic-cards-list.service.ts</span>
-      <button (click)="copyToClipboard()" class="flex ml-auto gap-2">
-        <ng-container *ngIf="copy">
-          <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-          </svg>
-          Copy code
-        </ng-container>
-        <ng-container *ngIf="!copy">
-          Copied!
-        </ng-container>
-      </button>
-    </div>
-    <pre ngx-highlightjs><code [highlight]="code" [lineNumbers]="true" [lang]="'typescript'"></code></pre>
+  {{ fileName }} <br>
+  {{ className }}
+  
+  <div class="self-end">
+    <button *ngIf="text" class="btn btn-primary mr-3" (click)="downloadCurrent()">Download</button>
+    <a class="w-28" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
   </div>
-</ng-container>
 
-<ng-container *ngIf="text">
-  <h1>Download Current Migration</h1>
-  <button class="btn btn-primary" (click)="downloadCurrent()">Download</button>
-</ng-container> 
+</section>
 
-
-<br>
-
-<a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>

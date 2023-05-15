@@ -1,10 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AppService } from '../app.service';
 import * as parserTypeScript from 'prettier/parser-typescript';
 import { format } from 'prettier/standalone';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { finishTask } from '../store/task.actions';
 import { Store, select } from '@ngrx/store';
 import { TaskService } from '../store/task.service';
@@ -13,6 +11,7 @@ import { AppState } from '../store/task.reducer';
 interface MigrationDto {
   text: string;
   fileName: string;
+  className: string;
   cardService: string;
 }
 @Component({
@@ -25,15 +24,18 @@ export class GenerateMigrationComponent implements OnInit {
 
   code?: string;
 
+  // importCode
+  importCode?: string
+
   text?: string;
   fileName?: string;
+  className?: string;
 
   copy = true;
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private clipboard: Clipboard,
     private store: Store<AppState>,
     private taskService: TaskService,
   ) {}
@@ -52,44 +54,42 @@ export class GenerateMigrationComponent implements OnInit {
     }
 
     this.http.get<MigrationDto>(`/api/${this.id}/generate-migration`).subscribe((x) => {
+      // TODO ez is benne van a store-ba
       if (x) {
         this.code = x.cardService;
         this.text = x.text;
         this.fileName = x.fileName;
+        this.className = x.className;
+
+        this.importCode = this.createImportCode(this.fileName, this.className);
       }
     });
   }
 
   downloadMigrationFile() {
     this.http.get<MigrationDto>(`/api/${this.id}/generate-migration?create=yes`).subscribe((x) => {
-      this.store.dispatch(finishTask({ taskId: 'isUrlUploadF' }));
+      this.store.dispatch(finishTask({ taskId: 'isMigrationGeneratedF' }));
       this.code = x.cardService;
 
       this.text = x.text;
       this.fileName = x.fileName;
+      this.className = x.className;
+
+      this.importCode = this.createImportCode(this.fileName, this.className);
 
       if (this.text && this.fileName) {
         this.generateDownload(this.text, this.fileName);
       }
     });
   }
+  private createImportCode(fileName: string, className: string) {
+    return `import { ${className} } from '../app/migration/${fileName.split('.ts')[0]}'`
+  }
 
   downloadCurrent() {
     if (this.text && this.fileName) {
       this.generateDownload(this.text, this.fileName);
     }
-  }
-
-  copyToClipboard() {
-    if (this.code) {
-      this.copy = false;
-      this.clipboard.copy(this.code);
-      setTimeout(() => (this.copy = true), 650);
-    }
-  }
-
-  copyServiceName() {
-    this.clipboard.copy('magic-cards-list.service.ts');
   }
 
   private generateDownload(text: string, fileName: string) {

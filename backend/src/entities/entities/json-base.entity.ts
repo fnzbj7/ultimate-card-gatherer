@@ -96,5 +96,6 @@ export interface CardMapping2 {
 export interface CreatedMigration {
     text: string;
     fileName: string;
+    className: string;
     cardService: string;
 }
