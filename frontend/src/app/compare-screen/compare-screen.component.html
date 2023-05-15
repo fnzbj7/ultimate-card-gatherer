@@ -7,6 +7,9 @@
     [setCode]="setCode"
     [subMenu]="'Compare Screen'"
   ></app-breadcumb>
+  <a *ngIf="!compareList?.cardMapping" class="w-28" [routerLink]="['/', 'hub', id]"
+        ><button class="btn-secondary">Back</button></a
+      >
   <form
     *ngIf="compareList?.cardMapping"
     [formGroup]="myFormGroup"

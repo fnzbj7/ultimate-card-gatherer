@@ -3,14 +3,8 @@ import { CompareCardDto, CompareCardService } from './compare-card.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { AppService } from '../app.service';
 
-// export interface CompareCardDto {
-//   cardArray: {imgName: string, cardName: string, isFlip: boolean}[];
-//   reducedCardArray: {name: string, nums: number[]}[];
-// }
-
-type MyType = {
+type BestNum = {
   [key: string]: number;
 };
 
@@ -36,7 +30,6 @@ export class CompareScreenComponent implements OnInit {
     //private cardUltimateService: CardUltimateService,
     private http: HttpClient,
     private route: ActivatedRoute,
-    private appService: AppService,
   ) {}
 
   ngOnInit() {
@@ -47,7 +40,7 @@ export class CompareScreenComponent implements OnInit {
 
     if (this.compareList) {
       let group: { [key: string]: FormControl } = {};
-      let bestNum: MyType = {};
+      let bestNum: BestNum = {};
       let bestNumMap = new Map<string, number>();
       this.compareList.cardMapping.forEach((input_template) => {
         if (!bestNum[input_template.name]) {
@@ -64,7 +57,7 @@ export class CompareScreenComponent implements OnInit {
         this.compareList = x;
         this.setCode = this.compareList.setCode;
         let group: { [key: string]: FormControl } = {};
-        let bestNum: MyType = {};
+        let bestNum: BestNum = {};
         this.compareList.cardMapping.forEach((input_template) => {
           if (!bestNum[input_template.name]) {
             bestNum[input_template.name] = 0;
