@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { AppService } from '../app.service';
-import { JsonBaseDto } from '../dto/dto-collection';
 import { Store, select } from '@ngrx/store';
 import { finishTask } from '../store/task.actions';
-import { AppState, TaskState } from '../store/task.reducer';
-import { Observable } from 'rxjs';
+import { AppState } from '../store/task.reducer';
+import { TaskService } from '../store/task.service';
 
 @Component({
   selector: 'app-upload-component',
@@ -22,28 +20,22 @@ export class IconUploadComponent implements OnInit {
 
   constructor(private http: HttpClient,
     private route: ActivatedRoute,
-    private appService: AppService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private taskService: TaskService
   ) {}
   
   ngOnInit(): void {
-    this.store.pipe(select(state => {
-      console.log({state});
-      return state.tasks;
-    })).subscribe(tasks => {
-      this.finishedTaskIds = tasks.finishedTaskIds;
-    });
+    this.id = this.route.snapshot.params['id'];
 
-
-    this.id = this.route.snapshot.params["id"];
-    if(this.appService.setCode) {
-        this.setCode = this.appService.setCode;
-    } else {
-      this.appService.getSingleJsonBase(this.id).subscribe(({setCode}) => {
-            this.setCode = setCode;
-            this.appService.setCode = setCode;
+      this.store.pipe(select(state => state.tasks)).subscribe(tasks => {
+        if(tasks.jsonBase) {
+          const { jsonBase } = tasks;
+            this.setCode = jsonBase.setCode
+        }
       });
-    }
+      if(!this.taskService.id && this.id) {
+        this.taskService.setId(+this.id);
+      }
   }
 
   onFileSelected(event: any) {

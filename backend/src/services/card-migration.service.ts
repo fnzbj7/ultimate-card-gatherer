@@ -46,6 +46,7 @@ export class CardMigrationService {
         };
 
         jsonBase.migration = result;
+        jsonBase.isMigrationGeneratedF = true;
         await this.jsonBaseRepository.save(jsonBase);
 
         return result;

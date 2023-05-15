@@ -28,7 +28,8 @@ export class TryJsonSaveService {
     }
 
     saveUrlList(x: SaveUrlLists) {
-        this.entityRepository.update(x.id, { urls: x.urlList.join(',') });
+
+        this.entityRepository.update(x.id, { urls: x.urlList.join(','), isUrlUploadF: true });
     }
 }
 

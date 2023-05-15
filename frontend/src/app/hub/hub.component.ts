@@ -4,6 +4,8 @@ import { ActivatedRoute, Route } from "@angular/router";
 import { HttpClient } from '@angular/common/http';
 import { AppState } from "../store/task.reducer";
 import { Store, select } from "@ngrx/store";
+import { JsonBaseDto } from '../dto/dto-collection';
+import { TaskService } from '../store/task.service';
 
 @Component({
     selector: 'app-hub',
@@ -16,31 +18,35 @@ export class HubComponent implements OnInit {
     setCode: string = '';
     finishedTaskIds!: string[];
 
-    isIconUploadFinished = false;
+    jsonBase?: JsonBaseDto;
+    isJsonUploadF: boolean = false;
+    isIconUploadF: boolean = false;
+    isMigrationGeneratedF: boolean = false;
+    isUrlUploadF: boolean = false;
 
     constructor(
-        private appService: AppService,
         private route: ActivatedRoute,
-        private http: HttpClient,
-        private store: Store<AppState>) {}
+        private store: Store<AppState>,
+        private taskService: TaskService
+        ) {}
 
     ngOnInit(): void {
-        this.store.pipe(select(state => {
-            console.log({state});
-            return state.tasks;
-          })).subscribe(tasks => {
-            this.finishedTaskIds = tasks.finishedTaskIds;
-            this.isIconUploadFinished = this.finishedTaskIds.includes('IconUpload');
+        this.store.pipe(select(state => state.tasks)).subscribe(tasks => {
+            this.jsonBase = tasks.jsonBase;
+            if(this.jsonBase) {
+                this.isJsonUploadF = this.jsonBase.isJsonUploadF ? true : false;
+                this.isIconUploadF = this.jsonBase.isIconUploadF ? true : false;
+                this.isMigrationGeneratedF = this.jsonBase.isMigrationGeneratedF ? true : false;
+                this.isUrlUploadF = this.jsonBase.isUrlUploadF ? true : false;
+                this.setCode = this.jsonBase.setCode
+            }
           });
         this.id = this.route.snapshot.params["id"];
-        if(this.appService.setCode) {
-            this.setCode = this.appService.setCode;
-        } else {
-            this.http.get<{setCode: string}>('/api/entity/json-base/1/full').subscribe(({setCode}) => {
-                this.setCode = setCode;
-                this.appService.setCode = setCode;
-            })
+
+        if(!this.taskService.id && this.id) {
+            this.taskService.setId(+this.id);
         }
+
         
     }
 
