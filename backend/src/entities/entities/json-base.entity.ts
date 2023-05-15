@@ -24,6 +24,9 @@ export class JsonBase {
     @Column({ nullable: true })
     icon: string;
 
+    @Column('simple-json',{ nullable: true })
+    migration: CreatedMigration;
+
     @Column({ default: false })
     isJsonUploadF: boolean;
 
@@ -85,4 +88,10 @@ export interface CardMapping2 {
     name: string,
     isBack: boolean;
     frontId?: number
+}
+
+export interface CreatedMigration {
+    text: string;
+    fileName: string;
+    cardService: string;
 }

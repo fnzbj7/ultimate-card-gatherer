@@ -1,10 +1,26 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { MtgJson } from 'src/entities/entities/json-base.entity';
+import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
+import { JsonBaseRepository } from 'src/repository/json-base.repository';
+
 
 @Injectable()
 export class CardMigrationService {
-    createMigration(json: MtgJson) {
-        const cardList: InsertCardModel[] = this.readCardsFromJson(json);
+
+    constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
+
+    async createMigrationForJasonBase(id: number) {
+        const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(id);
+        return this.createMigration(jsonBase);
+    }
+
+    async getMigrationForJasonBase(id: number) {
+        const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(id);
+        return jsonBase.migration;
+    }
+
+    async createMigration(jsonBase: JsonBase) {
+        const { mtgJson } = jsonBase;
+        const cardList: InsertCardModel[] = this.readCardsFromJson(mtgJson);
 
         const orderedCardArray: InsertCardModel[] = cardList.sort((a, b) => {
             if (a.cardNumber === b.cardNumber) return 0;
@@ -12,21 +28,27 @@ export class CardMigrationService {
             return a.cardNumber - b.cardNumber;
         });
         const dateTime = '' + new Date().getTime();
-        return {
+
+        const result = {
             text: this.generateAllSql(
-                json.data.code,
-                json.data.name,
+                mtgJson.data.code,
+                mtgJson.data.name,
                 orderedCardArray,
                 dateTime,
             ),
-            fileName: `${dateTime}-add-${json.data.code.toLocaleLowerCase()}-cards.migrations.ts`,
-            cardService: `new MagicSet('${json.data.code}', '${
-                json.data.name
-            }', ${json.data.totalSetSize}, ${json.data.releaseDate.slice(
+            fileName: `${dateTime}-add-${mtgJson.data.code.toLocaleLowerCase()}-cards.migrations.ts`,
+            cardService: `new MagicSet('${mtgJson.data.code}', '${
+                mtgJson.data.name
+            }', ${mtgJson.data.totalSetSize}, ${mtgJson.data.releaseDate.slice(
                 0,
                 4,
             )}),`,
         };
+
+        jsonBase.migration = result;
+        await this.jsonBaseRepository.save(jsonBase);
+
+        return result;
     }
 
     private generateAllSql(

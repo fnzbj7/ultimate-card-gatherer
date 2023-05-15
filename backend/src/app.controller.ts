@@ -169,5 +169,19 @@ export class AppController {
         await this.awsCardUploadService.startAwsUpload(set.setName);
     }
 
+    @Get('/:id/generate-migration')
+    async generateMigration(@Param('id') id: string, @Query('create') create: string) {
+        if(create) {
+            this.logger.log(`New migration download started for id{${id}}`);
+            return await this.cardMigrationService.createMigrationForJasonBase(+id);
+        } else {
+            this.logger.log(`Old migration download started for id{${id}}`);
+            return await this.cardMigrationService.getMigrationForJasonBase(+id);
+        }
+        
+    }
+
+
+
 
 }

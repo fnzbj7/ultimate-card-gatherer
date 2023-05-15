@@ -48,7 +48,11 @@ export class JsonBaseRepository {
         return jsonBase;
     }
 
-    async saveOrUpdate(fileContent: MtgJson) {
+    async save(jsonBase) {
+        await this.entityRepository.save(jsonBase);
+    }
+
+    async mtgJsonSaveOrUpdate(fileContent: MtgJson) {
         const setCode = fileContent.data.code;
         const jsonBase = await this.entityRepository.findOne({ where: { setCode } });
 

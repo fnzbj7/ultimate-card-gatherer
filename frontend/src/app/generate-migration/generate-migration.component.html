@@ -1,2 +1,20 @@
 Migráció
+<button (click)="downloadMigrationFile()" class="btn btn-primary">Start migration</button>
+
+<ng-container *ngIf="code">
+  <pre ngx-highlightjs>
+    <code [highlight]="code" [lineNumbers]="true" [lang]="'typescript'">
+      
+    </code>
+  </pre>
+</ng-container>
+
+<ng-container *ngIf="text">
+  <h1>Download Current Migration</h1>
+  <button class="btn btn-primary" (click)="downloadCurrent()">Download</button>
+</ng-container> 
+
+
+<br>
+
 <a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>

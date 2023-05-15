@@ -27,7 +27,7 @@ export class JsonBaseController {
     @Post('/upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
-        return await this.jsonBaseRepository.saveOrUpdate(
+        return await this.jsonBaseRepository.mtgJsonSaveOrUpdate(
             JSON.parse(file.buffer.toString()),
         );
     }

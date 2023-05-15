@@ -20,6 +20,7 @@ import { UploadJsonComponent } from './upload-json/upload-json.component';
 import { AwsUploadComponent } from './aws-upload/aws-upload.component';
 import { StoreModule } from '@ngrx/store';
 import { taskReducer } from './store/task.reducer';
+import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
 
 @NgModule({
   declarations: [
@@ -45,8 +46,24 @@ import { taskReducer } from './store/task.reducer';
     FormsModule,
     ReactiveFormsModule,
     StoreModule.forRoot({ tasks: taskReducer }),
+    HighlightModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HIGHLIGHT_OPTIONS,
+      useValue: <HighlightOptions>{
+        lineNumbers: true,
+        coreLibraryLoader: () => import('highlight.js/lib/core'),
+        lineNumbersLoader: () => import('highlightjs-line-numbers.js'),
+        themePath: 'node_modules/highlight.js/styles/github.css',
+        languages: {
+          typescript: () => import('highlight.js/lib/languages/typescript'),
+          css: () => import('highlight.js/lib/languages/css'),
+          xml: () => import('highlight.js/lib/languages/xml'),
+        },
+      },
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
