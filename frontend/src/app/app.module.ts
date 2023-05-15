@@ -55,7 +55,6 @@ import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highli
         lineNumbers: true,
         coreLibraryLoader: () => import('highlight.js/lib/core'),
         lineNumbersLoader: () => import('highlightjs-line-numbers.js'),
-        themePath: 'node_modules/highlight.js/styles/github.css',
         languages: {
           typescript: () => import('highlight.js/lib/languages/typescript'),
           css: () => import('highlight.js/lib/languages/css'),

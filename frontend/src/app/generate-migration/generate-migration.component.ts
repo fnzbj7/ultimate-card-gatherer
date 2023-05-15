@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AppService } from '../app.service';
 import * as parserTypeScript from "prettier/parser-typescript";
 import { format } from "prettier/standalone";
+import { Clipboard } from '@angular/cdk/clipboard';
 
 
 interface MigrationDto {
@@ -23,11 +24,14 @@ export class GenerateMigrationComponent implements OnInit {
     code?: string;
 
     text?: string;
-    fileName?: string
+    fileName?: string;
+
+    copy = true;
     
     constructor(private http: HttpClient,
         private route: ActivatedRoute,
-        private appService: AppService) {}
+        private appService: AppService,
+        private clipboard: Clipboard) {}
 
         ngOnInit(): void {
             this.id = this.route.snapshot.params["id"];
@@ -70,6 +74,18 @@ export class GenerateMigrationComponent implements OnInit {
                 this.generateDownload(this.text, this.fileName);
             }
             
+        }
+
+        copyToClipboard() {
+            if(this.code) {
+                this.copy = false;
+                this.clipboard.copy(this.code);
+                setTimeout(() => this.copy = true, 650);
+            }
+        }
+
+        copyServiceName() {
+            this.clipboard.copy('magic-cards-list.service.ts');
         }
 
         private generateDownload(text: string, fileName: string) {
