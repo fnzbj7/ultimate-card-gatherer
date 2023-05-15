@@ -46,7 +46,7 @@ import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highli
     FormsModule,
     ReactiveFormsModule,
     StoreModule.forRoot({ tasks: taskReducer }),
-    HighlightModule
+    HighlightModule,
   ],
   providers: [
     {
@@ -63,6 +63,6 @@ import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highli
       },
     },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

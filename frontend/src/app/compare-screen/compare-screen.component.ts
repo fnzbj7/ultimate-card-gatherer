@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AppService } from '../app.service';
 
-
 // export interface CompareCardDto {
 //   cardArray: {imgName: string, cardName: string, isFlip: boolean}[];
 //   reducedCardArray: {name: string, nums: number[]}[];
@@ -37,7 +36,7 @@ export class CompareScreenComponent implements OnInit {
     //private cardUltimateService: CardUltimateService,
     private http: HttpClient,
     private route: ActivatedRoute,
-    private appService: AppService 
+    private appService: AppService,
   ) {}
 
   ngOnInit() {
@@ -46,58 +45,49 @@ export class CompareScreenComponent implements OnInit {
 
     // this.jsonName = this.route.snapshot.params.jsonName;
 
-    if(this.compareList) {
-      let group: {[key: string]: FormControl} = {};
+    if (this.compareList) {
+      let group: { [key: string]: FormControl } = {};
       let bestNum: MyType = {};
       let bestNumMap = new Map<string, number>();
       this.compareList.cardMapping.forEach((input_template) => {
         if (!bestNum[input_template.name]) {
           bestNum[input_template.name] = 0;
-          bestNumMap.set(input_template.name, 0) 
+          bestNumMap.set(input_template.name, 0);
         }
         group[input_template.img] = new FormControl(
-          this.findPossibleCardNumbers(input_template.name)[
-            bestNum[input_template.name]++
-          ]
+          this.findPossibleCardNumbers(input_template.name)[bestNum[input_template.name]++],
         );
       });
       this.myFormGroup = new FormGroup(group);
     } else {
-      this.http.get<CompareCardDto>(`/api/entity/json-base/${this.id}/compare`).subscribe(x => {
+      this.http.get<CompareCardDto>(`/api/entity/json-base/${this.id}/compare`).subscribe((x) => {
         this.compareList = x;
         this.setCode = this.compareList.setCode;
-        let group: {[key: string]: FormControl} = {};
-        let bestNum: MyType  = {};
+        let group: { [key: string]: FormControl } = {};
+        let bestNum: MyType = {};
         this.compareList.cardMapping.forEach((input_template) => {
           if (!bestNum[input_template.name]) {
             bestNum[input_template.name] = 0;
           }
           group[input_template.img] = new FormControl(
-            this.findPossibleCardNumbers(input_template.name)[
-              bestNum[input_template.name]++
-            ]
+            this.findPossibleCardNumbers(input_template.name)[bestNum[input_template.name]++],
           );
         });
         this.myFormGroup = new FormGroup(group);
-        
       });
-
     }
   }
 
   findPossibleCardNumbers(cardName: string): number[] {
-    if(this.compareList) {
-      const f = this.compareList.reducedCardArray.find((x) => x.name === cardName)
+    if (this.compareList) {
+      const f = this.compareList.reducedCardArray.find((x) => x.name === cardName);
       return f ? f.nums : [];
     } else {
       return [];
     }
-
-    
   }
 
   onSubmit() {
-
     console.log(this.myFormGroup);
 
     this.renameState = 'load';
@@ -116,9 +106,7 @@ export class CompareScreenComponent implements OnInit {
     };
 
     for (const [key, value] of Object.entries(this.myFormGroup.controls)) {
-      let isFlip = this.compareList?.cardMapping.find(
-        (x) => x.img === key
-      )?.hasBack ?? false;
+      let isFlip = this.compareList?.cardMapping.find((x) => x.img === key)?.hasBack ?? false;
       let flipName = undefined;
       if (isFlip) {
         flipName = key.split('.png')[0] + '_F.png';
@@ -127,12 +115,11 @@ export class CompareScreenComponent implements OnInit {
       cards.push({ imgName: key, flipName, isFlip, newNumber: value.value });
     }
 
-    this.http.post<void>("api/rename", renameDto).subscribe(() => {
+    this.http.post<void>('api/rename', renameDto).subscribe(() => {
       console.log('végzett a rename');
       this.isRenameLoading = false;
       this.isRenameFinised = true;
       this.renameState = 'finished';
-    });    
+    });
   }
-
 }

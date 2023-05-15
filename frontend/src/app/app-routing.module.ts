@@ -12,20 +12,20 @@ import { UploadJsonComponent } from './upload-json/upload-json.component';
 import { AwsUploadComponent } from './aws-upload/aws-upload.component';
 
 const routes: Routes = [
-  {path: '', component: LandingScreenComponent },
-  {path: 'hub/:id', component: HubComponent },
-  {path: 'url-upload/:id', component: UrlUploadComponent },
-  {path: 'image-download/:id', component: ImageDownloadComponent },
-  {path: 'icon-upload/:id', component: IconUploadComponent },
-  {path: 'compare/:id', component: CompareScreenComponent },
-  {path: 'convert/:id', component: ConvertImgComponent },
-  {path: 'generate-migration/:id', component: GenerateMigrationComponent },
-  {path: 'upload-json/:id', component: UploadJsonComponent },
-  {path: 'aws-upload/:id', component: AwsUploadComponent },
+  { path: '', component: LandingScreenComponent },
+  { path: 'hub/:id', component: HubComponent },
+  { path: 'url-upload/:id', component: UrlUploadComponent },
+  { path: 'image-download/:id', component: ImageDownloadComponent },
+  { path: 'icon-upload/:id', component: IconUploadComponent },
+  { path: 'compare/:id', component: CompareScreenComponent },
+  { path: 'convert/:id', component: ConvertImgComponent },
+  { path: 'generate-migration/:id', component: GenerateMigrationComponent },
+  { path: 'upload-json/:id', component: UploadJsonComponent },
+  { path: 'aws-upload/:id', component: AwsUploadComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
