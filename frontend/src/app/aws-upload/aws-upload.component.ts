@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../store/task.reducer';
 import { TaskService } from '../store/task.service';
+import { finishTask } from '../store/task.actions';
 
 @Component({
   selector: 'app-aws-upload',
@@ -12,7 +13,12 @@ import { TaskService } from '../store/task.service';
 export class AwsUploadComponent implements OnInit {
   id!: string;
   isPrepare = false;
+  confirm?: string;
   setCode: string = '';
+  eventSource!: EventSource;
+  maxProcess: number = 0;
+  finishedProcess: number = 0;
+  isStarted = false;
 
 
   constructor(private readonly route: ActivatedRoute,
@@ -37,5 +43,21 @@ export class AwsUploadComponent implements OnInit {
     this.isPrepare = !this.isPrepare;
   }
 
-  onAwsUpload() {}
+  onAwsUpload() {
+    if(this.confirm && this.confirm.toLocaleLowerCase() === 'webp') {
+      this.isStarted = true;
+      this.eventSource = new EventSource(`/api/entity/json-base/${this.id}/upload-aws`);
+      this.eventSource.addEventListener('message', (event: { data: string }) => {
+        const data = JSON.parse(event.data);
+        this.maxProcess = data.maxProcess;
+        this.finishedProcess = data.finishedProcess;
+      });
+      this.eventSource.onerror = (event: any) => {
+        console.error('SSE error:', event);
+        this.store.dispatch(finishTask({ taskId: 'isUploadAwsF' }));
+        this.eventSource.close();
+      };
+    }
+
+  }
 }
