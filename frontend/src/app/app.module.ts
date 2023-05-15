@@ -21,6 +21,7 @@ import { AwsUploadComponent } from './aws-upload/aws-upload.component';
 import { StoreModule } from '@ngrx/store';
 import { taskReducer } from './store/task.reducer';
 import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
+import { CodeSnipetComponent } from './ui/code-snipet/code-snipet.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { HighlightModule, HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highli
     MenuBtnComponent,
     UploadJsonComponent,
     AwsUploadComponent,
+    CodeSnipetComponent,
   ],
   imports: [
     BrowserModule,

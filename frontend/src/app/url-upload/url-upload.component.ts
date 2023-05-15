@@ -19,7 +19,6 @@ export class UrlUploadComponent implements OnInit {
 
   searchTerm = '';
 
-  isLoading = false;
   id!: string;
 
   constructor(
@@ -52,10 +51,8 @@ export class UrlUploadComponent implements OnInit {
   }
 
   onSendToBackend() {
-    this.isLoading = true;
     this.http.post('/api/upload-url-list', { id: this.id, urlList: this.urlList }).subscribe(() => {
       this.store.dispatch(finishTask({ taskId: 'isUrlUploadF' }));
-      this.isLoading = false;
     });
   }
 
