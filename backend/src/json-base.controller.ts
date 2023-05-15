@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Res,
+    Sse,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import { JsonBaseRepository } from './repository/json-base.repository';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { CardCompareService } from './services/card-compare.service';
+import { AwsCardUploadService } from './services/aws-card-upload.service';
+import { Observable } from 'rxjs';
 
 @Controller('/api/entity/json-base')
 export class JsonBaseController {
@@ -21,7 +24,8 @@ export class JsonBaseController {
 
     constructor(
         private readonly jsonBaseRepository: JsonBaseRepository,
-        private readonly cardCompareService: CardCompareService
+        private readonly cardCompareService: CardCompareService,
+        private readonly awsCardUploadService: AwsCardUploadService
     ) {}
 
     @Post('/upload')
@@ -99,5 +103,16 @@ export class JsonBaseController {
             +id,
             JSON.parse(file.buffer.toString()),
         );
+    }
+
+    /**
+     *
+     * @param set
+     */
+    @Sse('/:id/upload-aws')
+    async startAwsUpload(@Param('id') id: string ) {
+        return new Observable<{ data: string }>((subscriber) => {
+            this.awsCardUploadService.startAwsUpload(+id, subscriber);
+        });
     }
 }

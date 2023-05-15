@@ -34,7 +34,6 @@ import { createReadStream } from 'fs';
 import { CardMigrationService } from './services/card-migration.service';
 import { Observable, interval, map } from 'rxjs';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
-import { CardCompareService } from './services/card-compare.service';
 import { CardImgManipulationService } from './services/card-img-manipulation.service';
 
 @Controller('/api')
@@ -42,9 +41,7 @@ export class AppController {
     private logger = new Logger(AppController.name);
 
     constructor(
-        private readonly appService: AppService,
         private readonly cardScrapperService: CardScrapperService,
-        private readonly awsCardUploadService: AwsCardUploadService,
         private readonly tryJsonSaveService: TryJsonSaveService,
         private readonly cardMigrationService: CardMigrationService,
         private readonly cardScrapperSseService: CardScrapperSseService,
@@ -160,15 +157,6 @@ export class AppController {
         await this.cardImgManipulationService.createWebp(id);
     }
 
-    /**
-     *
-     * @param set
-     */
-    @Post('/upload-aws')
-    async startAwsUpload(@Body() set: { setName: string }) {
-        await this.awsCardUploadService.startAwsUpload(set.setName);
-    }
-
     @Get('/:id/generate-migration')
     async generateMigration(@Param('id') id: string, @Query('create') create: string) {
         if(create) {
@@ -178,10 +166,5 @@ export class AppController {
             this.logger.log(`Old migration download started for id{${id}}`);
             return await this.cardMigrationService.getMigrationForJasonBase(+id);
         }
-        
     }
-
-
-
-
 }
