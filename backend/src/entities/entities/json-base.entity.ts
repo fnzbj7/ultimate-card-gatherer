@@ -46,6 +46,9 @@ export class JsonBase {
     isCheckNumberF: boolean;
 
     @Column({ default: false })
+    isConvertImg: boolean;
+
+    @Column({ default: false })
     isUploadAwsF: boolean;
 
     @UpdateDateColumn()

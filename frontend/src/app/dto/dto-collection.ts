@@ -1,11 +1,20 @@
 export interface JsonBaseDto {
     id: number;
+    name: string;
     setCode: string;
-    version: string;
-    mtgJson?: MtgJson;
-    cardMapping?: CardMapping[];
-    urls?: string;
-    icon?: string;
+    mtgJson: MtgJson;
+    cardMapping: CardMapping[];
+    urls: string;
+    icon: string;
+    migration: CreatedMigration;
+    isJsonUploadF: boolean;
+    isIconUploadF: boolean;
+    isMigrationGeneratedF: boolean;
+    isUrlUploadF: boolean;
+    isDownloadImagesF: boolean;
+    isCheckNumberF: boolean;
+    isUploadAwsF: boolean;
+    updatedAt: Date;
 }
 
 export interface MtgJson {
@@ -35,4 +44,10 @@ export interface MtgJson {
 export interface CardMapping {
     img: string;
     name: string;
+}
+
+export interface CreatedMigration {
+    text: string;
+    fileName: string;
+    cardService: string;
 }

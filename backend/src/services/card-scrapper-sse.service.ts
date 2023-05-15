@@ -71,8 +71,9 @@ export class CardScrapperSseService {
             await this.downloadImages2(subscriber, imgUrls, json.data.code);
 
         jsonBase.cardMapping = cardMapping;
+        jsonBase.isDownloadImagesF = true;
 
-        this.entityRepository.save(jsonBase);
+        await this.entityRepository.save(jsonBase);
 
         subscriber.complete();
     }

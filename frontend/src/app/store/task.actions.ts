@@ -1,4 +1,10 @@
 import { createAction, props } from '@ngrx/store';
+import { JsonBaseDto } from '../dto/dto-collection';
+
+export const setJsonBase = createAction(
+  '[Task] Set Json Base',
+  props<{ jsonBase: JsonBaseDto }>()
+);
 
 export const finishTask = createAction(
   '[Task] Finish Task',

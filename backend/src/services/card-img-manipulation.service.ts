@@ -52,6 +52,9 @@ export class CardImgManipulationService {
                 );
             }
         });
+
+        jsonBase.isCheckNumberF= true;
+        await this.jsonBaseRepository.save(jsonBase);
     }
 
     async resizeImgs(id: string, quality: string): Promise<string[]> {
@@ -127,6 +130,9 @@ export class CardImgManipulationService {
         this.logger.log(
             `--END-- ${setCode} Images converted from png to webp`,
         );
+
+        jsonBase.isConvertImg = true;
+        await this.jsonBaseRepository.save(jsonBase);
     }
 }
 

@@ -1,7 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { AppService } from "../app.service";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
+import { Store, select } from '@ngrx/store';
+import { TaskService } from '../store/task.service';
+import { AppState } from '../store/task.reducer';
 
 @Component({
     selector: 'app-url-upload',
@@ -21,24 +23,27 @@ export class UrlUploadComponent implements OnInit {
     id!: string;
 
     constructor(
-        private appService: AppService,
         private route: ActivatedRoute,
-        private http: HttpClient) {}
+        private http: HttpClient,
+        private store: Store<AppState>,
+        private taskService: TaskService
+    ) {}
 
     ngOnInit(): void {
-        this.setCode = this.appService.getSetCode();
         this.id = this.route.snapshot.params['id'];
-        this.http.get<{fullName: string}>(`/api/entity/json-base/${this.id}/full-name`).subscribe(resp => {
-            if(resp) {
-                this.searchTerm = resp.fullName.replaceAll(' ', '+')
-            }
-        });
 
-        this.http.get<{urls: string}>(`/api/entity/json-base/${this.id}/full`).subscribe(resp => {
-            if(resp && resp.urls) {
-                this.urlList = resp.urls.split(',')
+      this.store.pipe(select(state => state.tasks)).subscribe(tasks => {
+        if(tasks.jsonBase) {
+          const { jsonBase } = tasks;
+            this.setCode = jsonBase.setCode;
+            if(jsonBase.urls) {
+                this.urlList = jsonBase.urls.split(',');
             }
-        })
+        }
+      });
+      if(!this.taskService.id && this.id) {
+        this.taskService.setId(+this.id);
+      }
     }
 
     onAddingUrl() {
@@ -48,7 +53,7 @@ export class UrlUploadComponent implements OnInit {
 
     onSendToBackend() {
         this.isLoading = true;
-        this.http.post("/api/upload-url-list", {id: this.appService.id, urlList: this.urlList}).subscribe(() => {
+        this.http.post("/api/upload-url-list", {id: this.id, urlList: this.urlList}).subscribe(() => {
             this.isLoading = false;
         });
     }

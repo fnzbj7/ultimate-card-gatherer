@@ -1,10 +1,10 @@
 
 
 import { HttpClient } from "@angular/common/http";
-import { Component, NgZone, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppService } from "../app.service";
-import { SseService } from '../sse/sse.service';
+import { TaskService } from '../store/task.service';
 
 
 
@@ -30,17 +30,13 @@ export class LandingScreenComponent implements OnInit {
         private http: HttpClient,
         private appService: AppService,
         private router: Router,
-        private sseService: SseService) {}
+        private taskService: TaskService) {}
 
     ngOnInit(): void {
         this.http.get<{id: number, setCode: string, version: string}[]>('/api/updated-urls').subscribe((x) => {
             this.jsonArr = x;
             console.log({x})
         });
-
-        // this.sseService.createEventSource<MessageData>('/api/ssev2', (messageData) => {
-        //     this.fullMsg += ' ' + messageData.a;
-        // });
 
     }
 
@@ -63,11 +59,12 @@ export class LandingScreenComponent implements OnInit {
         });
     }
 
-    onGoToHub(event: MouseEvent, json: {id: number, setCode: string}) {
+    onGoToHub(event: MouseEvent, {id, setCode}: {id: number, setCode: string}) {
         event.preventDefault();
-        this.appService.id = json.id;
-        this.appService.setCode = json.setCode;
-        this.router.navigate(['hub', json.id]);
+        this.appService.id = id;
+        this.appService.setCode = setCode;
+        this.router.navigate(['hub', id]);
+        this.taskService.setId(id);
     }
 
 }

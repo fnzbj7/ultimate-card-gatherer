@@ -5,13 +5,13 @@
       <div class="flex flex-row flex-wrap items-start">
         <div class="w-1/2 flex flex-col space-y-4 items-center">
             <div class="text-lg font-bold mb-2">Group 1</div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json'" [navLovation]="'upload-json'" [isDone]="true"></div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Set icon'" [navLovation]="'icon-upload'" [isDone]="isIconUploadFinished"></div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="false"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json'" [navLovation]="'upload-json'" [isDone]="isJsonUploadF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Set icon'" [navLovation]="'icon-upload'" [isDone]="isIconUploadF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="isMigrationGeneratedF"></div>
         </div>
         <div class="w-1/2 flex flex-col mt-0 space-y-4 items-center">
             <div class="text-lg font-bold mb-2">Group 2</div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Urls'" [navLovation]="'url-upload'"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Urls'" [navLovation]="'url-upload'" [isDone]="isUrlUploadF"></div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Download Images'" [navLovation]="'image-download'"></div>
         </div>
         <div class="w-full flex flex-col mt-0 space-y-4 items-center">
