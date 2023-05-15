@@ -3,17 +3,10 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import * as parserTypeScript from "prettier/parser-typescript";
-import { format } from "prettier/standalone";
 import { AppService } from "../app.service";
-import { Observable } from 'rxjs';
 import { SseService } from '../sse/sse.service';
 
-interface UploadAndProcess {
-    text: string,
-    fileName: string,
-    cardService: string
-}
+
 
 export interface MessageData {
     status: string;
@@ -37,7 +30,6 @@ export class LandingScreenComponent implements OnInit {
         private http: HttpClient,
         private appService: AppService,
         private router: Router,
-        private _zone: NgZone,
         private sseService: SseService) {}
 
     ngOnInit(): void {
@@ -68,24 +60,6 @@ export class LandingScreenComponent implements OnInit {
             this.appService.setSetCode(resp.setCode);
             this.appService.id = resp.id;
             this.router.navigate(['hub', resp.id]);
-        });
-    }
-
-    downloadMigrationFile(formData: FormData) {
-
-        const upload$ = this.http.post<UploadAndProcess>("/api/upload-and-process", formData).subscribe((x) => {
-
-            let fileContent = format(x.text, {
-                parser: "typescript",
-                plugins: [parserTypeScript],
-            });
-            const file = new Blob([fileContent], { type: "text/plain" });
-
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(file);
-            link.download = x.fileName;
-            link.click();
-            link.remove();
         });
     }
 
