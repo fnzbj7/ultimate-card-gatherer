@@ -6,6 +6,7 @@ export interface JsonBaseDto {
   cardMapping: CardMapping[];
   urls: string;
   icon: string;
+  iconModifDate: Date;
   migration: CreatedMigration;
   isJsonUploadF: boolean;
   isIconUploadF: boolean;
@@ -13,9 +14,11 @@ export interface JsonBaseDto {
   isUrlUploadF: boolean;
   isDownloadImagesF: boolean;
   isCheckNumberF: boolean;
-  isConvertImgF: boolean;
+  isRenameImgF: boolean;
+  isConvertToWebpF: boolean;
   isUploadAwsF: boolean;
   updatedAt: Date;
+  isEverythingDoneF: boolean
 }
 
 export interface MtgJson {

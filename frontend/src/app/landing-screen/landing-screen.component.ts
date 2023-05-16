@@ -3,6 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppService } from '../app.service';
 import { TaskService } from '../store/task.service';
+import { JsonBaseDto } from '../dto/dto-collection';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/task.reducer';
+import { setJsonBase } from '../store/task.actions';
 
 export interface MessageData {
   status: string;
@@ -16,21 +20,20 @@ export interface MessageData {
   styleUrls: ['landing-screen.component.scss'],
 })
 export class LandingScreenComponent implements OnInit {
-  jsonArr!: { id: number; setCode: string; version: string }[];
+  jsonArr!: JsonBaseDto[];
 
   // fullMsg: string = 'START: ';
 
   constructor(
     private http: HttpClient,
-    private appService: AppService,
     private router: Router,
     private taskService: TaskService,
+    private store: Store<AppState>
   ) {}
 
   ngOnInit(): void {
-    this.http.get<{ id: number; setCode: string; version: string }[]>('/api/updated-urls').subscribe((x) => {
+    this.http.get<JsonBaseDto[]>('/api/updated-urls').subscribe((x) => {
       this.jsonArr = x;
-      console.log({ x });
     });
   }
 
@@ -46,19 +49,15 @@ export class LandingScreenComponent implements OnInit {
     formData.append('file', file);
 
     this.http
-      .post<{ id: number; setCode: string; version: string }>('/api/entity/json-base/upload', formData)
-      .subscribe((resp) => {
-        console.log({ resp });
-        this.appService.setSetCode(resp.setCode);
-        this.appService.id = resp.id;
-        this.router.navigate(['hub', resp.id]);
+      .post<JsonBaseDto>('/api/entity/json-base/upload', formData)
+      .subscribe((jsonBase) => {
+        this.store.dispatch(setJsonBase({ jsonBase }));
+        this.router.navigate(['hub', jsonBase.id]);
       });
   }
 
-  onGoToHub(event: MouseEvent, { id, setCode }: { id: number; setCode: string }) {
+  onGoToHub(event: MouseEvent, { id }: { id: number; setCode: string }) {
     event.preventDefault();
-    this.appService.id = id;
-    this.appService.setCode = setCode;
     this.router.navigate(['hub', id]);
     this.taskService.setId(id);
   }

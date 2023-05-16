@@ -11,6 +11,7 @@ import { CardMapping, JsonBase } from 'src/entities/entities/json-base.entity';
 import { Repository } from 'typeorm';
 import { URL } from 'url';
 import { Subscriber } from 'rxjs';
+import { JsonBaseRepository } from 'src/repository/json-base.repository';
 
 export interface ScrapeCardsDto {
     cardArray: {
@@ -44,8 +45,7 @@ export class CardScrapperSseService {
     private lastScrapeMap = new Map<string, ScrapeCardsDto>();
 
     constructor(
-        @InjectRepository(JsonBase)
-        private entityRepository: Repository<JsonBase>,
+        private readonly jsonBaseRepository: JsonBaseRepository
     ) {}
 
     async startImageDownload(
@@ -53,7 +53,7 @@ export class CardScrapperSseService {
         subscriber: Subscriber<{ data: string }>,
     ) {
         this.logger.log({ id });
-        const jsonBase = await this.entityRepository.findOneBy({ id });
+        const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(id);
 
         this.scrapeCardsFromMain(jsonBase, subscriber);
     }
@@ -71,9 +71,8 @@ export class CardScrapperSseService {
             await this.downloadImages2(subscriber, imgUrls, json.data.code);
 
         jsonBase.cardMapping = cardMapping;
-        jsonBase.isDownloadImagesF = true;
-
-        await this.entityRepository.save(jsonBase);
+        await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isDownloadImagesF');
+        // It saves too
 
         subscriber.complete();
     }

@@ -58,7 +58,6 @@ export class AwsCardUploadService {
             });
         }
         subscriber.complete();
-        jsonBase.isUploadAwsF = true;
-        this.jsonBaseRepository.save(jsonBase);
+        await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isUploadAwsF');
     }
 }

@@ -14,7 +14,6 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import { AppService } from './app.service';
 import {
     CardScrapperService,
     ScrapeCardsDto,
@@ -22,11 +21,6 @@ import {
 import { DownloadImgDto } from './dto/download-img.dto';
 import { RenameDto } from './dto/rename.dto';
 import fs = require('fs');
-import { AwsCardUploadService } from './services/aws-card-upload.service';
-import {
-    SaveUrlLists,
-    TryJsonSaveService,
-} from './services/try-json-save.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JsonBase } from './entities/entities/json-base.entity';
 import { join } from 'path';
@@ -35,6 +29,7 @@ import { CardMigrationService } from './services/card-migration.service';
 import { Observable, interval, map } from 'rxjs';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 import { CardImgManipulationService } from './services/card-img-manipulation.service';
+import { JsonBaseRepository, SaveUrlLists } from './repository/json-base.repository';
 
 @Controller('/api')
 export class AppController {
@@ -42,15 +37,15 @@ export class AppController {
 
     constructor(
         private readonly cardScrapperService: CardScrapperService,
-        private readonly tryJsonSaveService: TryJsonSaveService,
         private readonly cardMigrationService: CardMigrationService,
         private readonly cardScrapperSseService: CardScrapperSseService,
-        private readonly cardImgManipulationService: CardImgManipulationService
+        private readonly cardImgManipulationService: CardImgManipulationService,
+        private readonly jsonBaseRepository: JsonBaseRepository,
     ) {}
 
     @Post('/upload-url-list')
     async uploadUrlLists(@Body() x: SaveUrlLists) {
-        this.tryJsonSaveService.saveUrlList(x);
+        await this.jsonBaseRepository.saveUrlList(x);
     }
 
     @Sse('image-download')
@@ -67,11 +62,6 @@ export class AppController {
         return this.cardMigrationService.createMigration(
             JSON.parse(file.buffer.toString()),
         );
-    }
-
-    @Get('/json-base')
-    async getJsonBases(): Promise<JsonBase[]> {
-        return await this.tryJsonSaveService.getJsonBase();
     }
 
     @Sse('sse')
@@ -106,11 +96,6 @@ export class AppController {
     getStaticFile(): StreamableFile {
         const file = createReadStream(join(process.cwd(), 'package.json'));
         return new StreamableFile(file);
-    }
-
-    @Get('/updated-urls')
-    async updateUrls() {
-        return await this.tryJsonSaveService.getJsonBase();
     }
 
     @Get('/json')
