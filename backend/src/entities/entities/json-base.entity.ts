@@ -24,6 +24,9 @@ export class JsonBase {
     @Column({ nullable: true })
     icon: string;
 
+    @Column({default: new Date().getTime()})
+    iconModifDate: Date;
+
     @Column('simple-json',{ nullable: true })
     migration: CreatedMigration;
 
@@ -46,13 +49,19 @@ export class JsonBase {
     isCheckNumberF: boolean;
 
     @Column({ default: false })
-    isConvertImgF: boolean;
+    isRenameImgF: boolean;
+    
+    @Column({ default: false })
+    isConvertToWebpF: boolean;
 
     @Column({ default: false })
     isUploadAwsF: boolean;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({ default: false })
+    isEverythingDoneF: boolean;
 }
 
 export interface MtgJson {
@@ -99,3 +108,8 @@ export interface CreatedMigration {
     className: string;
     cardService: string;
 }
+
+export type JsonBaseFlag = keyof Pick<
+  JsonBase,
+  'isCheckNumberF' | 'isDownloadImagesF' | 'isIconUploadF' | 'isJsonUploadF' | 'isUrlUploadF' | 'isMigrationGeneratedF' | 'isUploadAwsF' | 'isRenameImgF' | 'isConvertToWebpF'
+>;

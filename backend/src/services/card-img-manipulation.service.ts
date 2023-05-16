@@ -53,8 +53,7 @@ export class CardImgManipulationService {
             }
         });
 
-        jsonBase.isCheckNumberF= true;
-        await this.jsonBaseRepository.save(jsonBase);
+        await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isCheckNumberF');
     }
 
     async resizeImgs(id: string, quality: string): Promise<string[]> {
@@ -96,8 +95,10 @@ export class CardImgManipulationService {
                 }
             },
         });
+
         if (errArr.length == 0) {
             this.logger.log('The image resizing Finished!');
+            await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isRenameImgF');
         } else {
             this.logger.error(
                 `Problems with the following images: ${errArr.join(', ')}`,
@@ -131,8 +132,7 @@ export class CardImgManipulationService {
             `--END-- ${setCode} Images converted from png to webp`,
         );
 
-        jsonBase.isConvertImgF = true;
-        await this.jsonBaseRepository.save(jsonBase);
+        await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isConvertToWebpF');
     }
 }
 

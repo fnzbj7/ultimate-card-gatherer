@@ -25,7 +25,7 @@ export class HubComponent implements OnInit, OnDestroy {
   isUrlUploadF: boolean = false;
   isDownloadImagesF: boolean = false;
   isCheckNumberF: boolean = false;
-  isConvertImgF: boolean = false;
+  isConvertToWebpF: boolean = false;
   isUploadAwsF: boolean = false;
 
   store$!: Subscription;
@@ -35,16 +35,15 @@ export class HubComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.store$ = this.store.pipe(select((state) => state.tasks)).subscribe((tasks) => {
       this.jsonBase = tasks.jsonBase;
-      console.log('A hubnál', { jb: tasks.jsonBase });
       if (this.jsonBase) {
-        this.isJsonUploadF = this.jsonBase.isJsonUploadF ? true : false;
-        this.isIconUploadF = this.jsonBase.isIconUploadF ? true : false;
-        this.isMigrationGeneratedF = this.jsonBase.isMigrationGeneratedF ? true : false;
-        this.isUrlUploadF = this.jsonBase.isUrlUploadF ? true : false;
-        this.isDownloadImagesF = this.jsonBase.isDownloadImagesF ? true : false;
-        this.isCheckNumberF = this.jsonBase.isCheckNumberF ? true : false;
-        this.isConvertImgF = this.jsonBase.isConvertImgF ? true : false;
-        this.isUploadAwsF = this.jsonBase.isUploadAwsF ? true : false;
+        this.isJsonUploadF = !!this.jsonBase.isJsonUploadF;
+        this.isIconUploadF = !!this.jsonBase.isIconUploadF;
+        this.isMigrationGeneratedF = !!this.jsonBase.isMigrationGeneratedF;
+        this.isUrlUploadF = !!this.jsonBase.isUrlUploadF;
+        this.isDownloadImagesF = !!this.jsonBase.isDownloadImagesF;
+        this.isCheckNumberF = !!this.jsonBase.isCheckNumberF;
+        this.isConvertToWebpF = !!this.jsonBase.isConvertToWebpF;
+        this.isUploadAwsF = !!this.jsonBase.isUploadAwsF;
         this.setCode = this.jsonBase.setCode;
       }
     });

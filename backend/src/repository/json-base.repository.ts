@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
+import { JsonBaseFlag, JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -39,8 +39,7 @@ export class JsonBaseRepository {
     async saveIcon(id: number, icon: string) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
         jsonBase.icon = icon;
-        jsonBase.isIconUploadF = true;
-        this.entityRepository.save(jsonBase);
+        await this.setFlagToTrueAndSave(jsonBase, 'isIconUploadF');
     }
 
     async getThingsForCompare(id: number) {
@@ -64,19 +63,15 @@ export class JsonBaseRepository {
                 name: fileContent.data.name,
                 isJsonUploadF: true
             };
-            const v = await this.entityRepository.save(newJsonBase);
-            return { id: v.id, setCode: newJsonBase.setCode };
+            return await this.entityRepository.save(newJsonBase);
         } else {
             jsonBase.mtgJson = fileContent;
-            const res = await this.entityRepository.save(jsonBase);
-            return {id: res.id, setCode: res.setCode};
+            return await this.entityRepository.save(jsonBase);
         }
-
     }
 
     async updateJson(id: number, fileContent: MtgJson) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
-
 
         const {data: {code}} = fileContent;
         if( jsonBase.setCode != code) {
@@ -88,4 +83,22 @@ export class JsonBaseRepository {
         await this.entityRepository.save(jsonBase);
     }
 
+    async setFlagToTrueAndSave(jsonBase: JsonBase, flag: JsonBaseFlag) {
+        jsonBase[flag] = true;
+        if(jsonBase.isUploadAwsF && jsonBase.isMigrationGeneratedF) {
+            jsonBase.isEverythingDoneF = true;
+        }
+
+        await this.entityRepository.save(jsonBase);
+    }
+
+    async saveUrlList(x: SaveUrlLists) {
+        await this.entityRepository.update(x.id, { urls: x.urlList.join(','), isUrlUploadF: true });
+    }
+
+}
+
+export interface SaveUrlLists {
+    id: number;
+    urlList: string[];
 }
