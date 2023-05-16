@@ -23,7 +23,6 @@ export class AwsCardUploadService {
 
         const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(id);
 
-        // await this.uploadImages(setName, 'png');
         await this.uploadImages(jsonBase, 'webp', subscriber);
     }
 
