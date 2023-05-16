@@ -7,18 +7,18 @@
             <div class="text-lg font-bold mb-2">Group 1</div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json'" [navLovation]="'upload-json'" [isDone]="isJsonUploadF"></div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Set icon'" [navLovation]="'icon-upload'" [isDone]="isIconUploadF"></div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="isMigrationGeneratedF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="isMigrationGeneratedF" [isDisabled]="!isJsonUploadF"></div>
         </div>
         <div class="w-1/2 flex flex-col mt-0 space-y-4 items-center">
             <div class="text-lg font-bold mb-2">Group 2</div>
             <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Urls'" [navLovation]="'url-upload'" [isDone]="isUrlUploadF"></div>
-            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Download Images'" [navLovation]="'image-download'"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Download Images'" [navLovation]="'image-download'" [isDone]="isDownloadImagesF" [isDisabled]="!isUrlUploadF"></div>
         </div>
         <div class="w-full flex flex-col mt-0 space-y-4 items-center">
-            <div class="text-lg font-bold mb-2">Group 2</div>
-            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Check numbers'" [navLovation]="'compare'"></div>
-            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Convert Images'" [navLovation]="'convert'"></div>
-            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'"></div>
+            <div class="text-lg font-bold mb-2">Group 3</div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Check numbers'" [navLovation]="'compare'" [isDone]="isCheckNumberF" [isDisabled]="!isUrlUploadF || !isJsonUploadF"></div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Convert Images'" [navLovation]="'convert'" [isDone]="isConvertImgF" [isDisabled]="!isCheckNumberF"></div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'" [isDone]="isUploadAwsF" [isDisabled]="!isConvertImgF"></div>
         </div>
       </div>
     </div>

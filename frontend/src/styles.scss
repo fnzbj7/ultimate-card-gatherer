@@ -16,24 +16,40 @@ a:not(.no-default) {
 }
 
 
+
 .btn-primary {
     @apply bg-blue-500 text-white;
+    &:not([disabled]):hover {
+        @apply bg-blue-700;
+    }
+    &[disabled] {
+        @apply opacity-50 cursor-not-allowed;
+    }
 }
-.btn-primary:not([disabled]):hover {
-    @apply bg-blue-700;
+
+.btn-success {
+    @apply bg-green-500 text-white;
+    &:not([disabled]):hover {
+        @apply bg-green-700;
+    }
+    &[disabled] {
+        @apply opacity-50 cursor-not-allowed;
+    }
 }
+
 .btn-finished {
     @apply bg-yellow-500 text-white;
 }
 .btn-danger {
     @apply bg-red-500 text-white;
+    &:hover {
+        @apply bg-red-700;
+    }
 }
-.btn-danger:hover {
-    @apply bg-red-700;
-}
+
 .btn-secondary {
     @apply bg-gray-500 text-white;
-}
-.btn-secondary:hover {
-    @apply bg-gray-700;
+    &:hover {
+        @apply bg-gray-700;
+    }
 }

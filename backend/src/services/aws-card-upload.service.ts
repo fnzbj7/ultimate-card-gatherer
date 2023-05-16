@@ -3,6 +3,7 @@ import fs = require('fs');
 import aw = require('aws-cli-js');
 import { JsonBaseRepository } from '../repository/json-base.repository'
 import { Subscriber } from 'rxjs';
+import { JsonBase } from 'src/entities/entities/json-base.entity';
 
 @Injectable()
 export class AwsCardUploadService {
@@ -23,10 +24,11 @@ export class AwsCardUploadService {
         const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(id);
 
         // await this.uploadImages(setName, 'png');
-        await this.uploadImages(jsonBase.setCode, 'webp', subscriber);
+        await this.uploadImages(jsonBase, 'webp', subscriber);
     }
 
-    private async uploadImages(setCode: string, imgType: string, subscriber: Subscriber<{ data: string }>) {
+    private async uploadImages(jsonBase: JsonBase, imgType: string, subscriber: Subscriber<{ data: string }>) {
+        const {setCode} = jsonBase
         this.log.log(`Amazon upload start with ${setCode} and ${imgType}`);
         const imgFolder = `../img-new/${setCode}/finished/${setCode}/${imgType}`;
         const imgArr: string[] = fs.readdirSync(imgFolder);
@@ -57,5 +59,7 @@ export class AwsCardUploadService {
             });
         }
         subscriber.complete();
+        jsonBase.isUploadAwsF = true;
+        this.jsonBaseRepository.save(jsonBase);
     }
 }
