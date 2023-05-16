@@ -131,7 +131,7 @@ export class CardImgManipulationService {
             `--END-- ${setCode} Images converted from png to webp`,
         );
 
-        jsonBase.isConvertImg = true;
+        jsonBase.isConvertImgF = true;
         await this.jsonBaseRepository.save(jsonBase);
     }
 }

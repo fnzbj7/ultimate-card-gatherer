@@ -23,6 +23,10 @@ export class HubComponent implements OnInit, OnDestroy {
   isIconUploadF: boolean = false;
   isMigrationGeneratedF: boolean = false;
   isUrlUploadF: boolean = false;
+  isDownloadImagesF: boolean = false;
+  isCheckNumberF: boolean = false;
+  isConvertImgF: boolean = false;
+  isUploadAwsF: boolean = false;
 
   store$!: Subscription;
 
@@ -37,6 +41,10 @@ export class HubComponent implements OnInit, OnDestroy {
         this.isIconUploadF = this.jsonBase.isIconUploadF ? true : false;
         this.isMigrationGeneratedF = this.jsonBase.isMigrationGeneratedF ? true : false;
         this.isUrlUploadF = this.jsonBase.isUrlUploadF ? true : false;
+        this.isDownloadImagesF = this.jsonBase.isDownloadImagesF ? true : false;
+        this.isCheckNumberF = this.jsonBase.isCheckNumberF ? true : false;
+        this.isConvertImgF = this.jsonBase.isConvertImgF ? true : false;
+        this.isUploadAwsF = this.jsonBase.isUploadAwsF ? true : false;
         this.setCode = this.jsonBase.setCode;
       }
     });

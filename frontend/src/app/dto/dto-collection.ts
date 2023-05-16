@@ -13,6 +13,7 @@ export interface JsonBaseDto {
   isUrlUploadF: boolean;
   isDownloadImagesF: boolean;
   isCheckNumberF: boolean;
+  isConvertImgF: boolean;
   isUploadAwsF: boolean;
   updatedAt: Date;
 }

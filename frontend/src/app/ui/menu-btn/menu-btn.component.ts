@@ -9,4 +9,6 @@ export class MenuBtnComponent {
   @Input() menuText!: string;
   @Input() navLovation!: string;
   @Input() isDone!: boolean;
+  @Input() isDisabled: boolean = false;
+
 }

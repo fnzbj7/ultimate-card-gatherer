@@ -1,2 +1,2 @@
-<a [routerLink]="['/',navLovation, id]"><button class="btn-primary w-full">{{menuText}}</button></a>
+<a [routerLink]="['/',navLovation, id]"><button [disabled]="isDisabled" class="btn-primary w-full" [ngClass]="{'btn-primary': !isDone,'btn-success':isDone}">{{menuText}}</button></a>
 <img *ngIf="isDone" class="w-6 h-6 absolute top-2 -right-8" src="assets/tick.svg" alt="Tick Icon" >
