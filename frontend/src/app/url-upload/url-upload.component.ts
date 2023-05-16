@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Store, select } from '@ngrx/store';
 import { TaskService } from '../store/task.service';
@@ -23,6 +23,7 @@ export class UrlUploadComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private http: HttpClient,
     private store: Store<AppState>,
     private taskService: TaskService,
@@ -35,6 +36,7 @@ export class UrlUploadComponent implements OnInit {
       if (tasks.jsonBase) {
         const { jsonBase } = tasks;
         this.setCode = jsonBase.setCode;
+        this.searchTerm = jsonBase.name.replaceAll(' ', '+')
         if (jsonBase.urls) {
           this.urlList = jsonBase.urls.split(',');
         }
@@ -53,6 +55,7 @@ export class UrlUploadComponent implements OnInit {
   onSendToBackend() {
     this.http.post('/api/upload-url-list', { id: this.id, urlList: this.urlList }).subscribe(() => {
       this.store.dispatch(finishTask({ taskId: 'isUrlUploadF' }));
+      this.router.navigate(['hub', this.id]);
     });
   }
 

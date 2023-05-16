@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { finishTask } from '../store/task.actions';
 import { AppState } from '../store/task.reducer';
@@ -21,6 +21,7 @@ export class IconUploadComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
+    private router: Router,
     private store: Store<AppState>,
     private taskService: TaskService,
   ) {}
@@ -42,11 +43,11 @@ export class IconUploadComponent implements OnInit {
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
-      const id = this.route.snapshot.params['id'];
       const formData = new FormData();
       formData.append('iconSvg', this.selectedFile);
-      this.http.post(`/api/entity/json-base/${id}/upload-svg`, formData).subscribe(() => {
+      this.http.post(`/api/entity/json-base/${this.id}/upload-svg`, formData).subscribe(() => {
         this.store.dispatch(finishTask({ taskId: 'isIconUploadF' }));
+        this.router.navigate(['hub', this.id]);
       });
     }
   }

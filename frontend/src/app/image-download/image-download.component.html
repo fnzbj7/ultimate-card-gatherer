@@ -1,7 +1,7 @@
 <section class="container w-4/6 flex flex-col mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
     <app-breadcumb [id]="id" [setCode]="setCode" subMenu="Download Images"></app-breadcumb>
     <h1 class="mb-4 self-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-5xl dark:text-white">Download Images</h1>  
-    <button class="btn btn-primary self-center" (click)="onStartDownload()">Start Download</button>
+    <button class="btn self-center" [ngClass]="{'btn-primary': !isDownloadImagesF, 'btn-success': isDownloadImagesF}" [disabled]="isStarted" (click)="onStartDownload()">Start Download</button>
     <div *ngIf="isStarted" class="self-center mt-4">
         <app-loading-bar [finishedProcess]="finishedProcess" [maxProcess]="maxProcess"></app-loading-bar>
     </div>
