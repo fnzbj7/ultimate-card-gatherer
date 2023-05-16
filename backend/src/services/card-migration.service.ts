@@ -39,7 +39,7 @@ export class CardMigrationService {
                 mtgJson.data.name,
                 orderedCardArray,
             ),
-            fileName: `${dateTime}-add-${mtgJson.data.code.toLocaleLowerCase()}-cards.migrations.ts`,
+            fileName: `${dateTime}-add-${mtgJson.data.code.toLocaleLowerCase()}-cards.migration.ts`,
             className,
             cardService: `new MagicSet('${mtgJson.data.code}', '${
                 mtgJson.data.name
@@ -77,7 +77,7 @@ export class CardMigrationService {
         import { PossibleCardVariation } from '../card/entity/possible-card-variation.entity';
         import { MigrationHelper } from './helper/migration-helper';
         
-        export class add${className} implements MigrationInterface {
+        export class ${className} implements MigrationInterface {
             shortName = '${shortName}';
             public async up(queryRunner: QueryRunner): Promise<void> {`;
     }

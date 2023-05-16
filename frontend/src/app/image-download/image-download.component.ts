@@ -18,6 +18,7 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
   setCode = '';
 
   isStarted = false;
+  isDownloadImagesF = false;
 
   constructor(private route: ActivatedRoute,
     private store: Store<AppState>,
@@ -30,6 +31,7 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
       if (tasks.jsonBase) {
         const { jsonBase } = tasks;
         this.setCode = jsonBase.setCode;
+        this.isDownloadImagesF = jsonBase.isDownloadImagesF;
       }
     });
     if (!this.taskService.id && this.id) {
