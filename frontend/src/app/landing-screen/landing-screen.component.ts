@@ -20,7 +20,7 @@ export interface MessageData {
   styleUrls: ['landing-screen.component.scss'],
 })
 export class LandingScreenComponent implements OnInit {
-  jsonArr!: JsonBaseDto[];
+  jsonBaseArr!: JsonBaseDto[];
 
   // fullMsg: string = 'START: ';
 
@@ -32,8 +32,8 @@ export class LandingScreenComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.http.get<JsonBaseDto[]>('/api/updated-urls').subscribe((x) => {
-      this.jsonArr = x;
+    this.http.get<JsonBaseDto[]>('/api/entity/json-base/all/cards').subscribe((resp) => {
+      this.jsonBaseArr = resp;
     });
   }
 
