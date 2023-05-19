@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JsonBaseFlag, JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsSelect, Repository } from 'typeorm';
 
 @Injectable()
 export class JsonBaseRepository {
@@ -12,6 +12,12 @@ export class JsonBaseRepository {
 
     async getAllJsonBase() {
         return await this.entityRepository.find({order: {'updatedAt': 'DESC'}});
+    }
+
+    async getAllJsonBaseSelect(select: FindOptionsSelect<JsonBase>) {
+        return await this.entityRepository.find({
+            select,
+        });
     }
 
     async getSingleJsonBase(id: number) {
