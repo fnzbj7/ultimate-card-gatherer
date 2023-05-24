@@ -1,0 +1,55 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input {
+    @apply block p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs outline-none
+}
+
+button {
+    @apply font-bold py-2 px-4 rounded;
+}
+
+a:not(.no-default) {
+    @apply text-blue-600 dark:text-blue-500 hover:underline
+}
+
+
+
+.btn-primary {
+    @apply bg-blue-500 text-white;
+    &:not([disabled]):hover {
+        @apply bg-blue-700;
+    }
+    &[disabled] {
+        @apply opacity-50 cursor-not-allowed;
+    }
+}
+
+.btn-success {
+    @apply bg-green-500 text-white;
+    &:not([disabled]):hover {
+        @apply bg-green-700;
+    }
+    &[disabled] {
+        @apply opacity-50 cursor-not-allowed;
+    }
+}
+
+.btn-finished {
+    @apply bg-yellow-500 text-white;
+}
+.btn-danger {
+    @apply bg-red-500 text-white;
+    &:hover {
+        @apply bg-red-700;
+    }
+}
+
+.btn-secondary {
+    @apply bg-gray-500 text-white;
+    &:hover {
+        @apply bg-gray-700;
+    }
+}

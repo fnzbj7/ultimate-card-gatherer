@@ -1,0 +1,35 @@
+<section class="container w-4/6 flex flex-col mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
+  <app-breadcumb [id]="id" [setCode]="setCode" subMenu="Convert Images"></app-breadcumb>
+  <h1 class="mb-4 self-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-5xl dark:text-white">Convert Images</h1>
+  <div class="self-center flex flex-col">
+    <button class="btn my-4" [disabled]="isRenameLoading" [ngClass]="{'btn-success': isRenameImgF && !renameError, 'btn-primary': !isRenameImgF && !renameError, 'btn-danger': renameError}" 
+    (click)="onResize()">
+      <ng-container *ngIf="!isRenameLoading">
+        Start Resize
+      </ng-container>
+      <ng-container *ngIf="isRenameLoading">
+        Loading
+      </ng-container>
+    </button>
+    <p class="text-red-500" *ngIf="renameError">There was this many error: <b>{{errorCount}}</b></p>
+    <label>
+      Png Quality
+      <input class="w-full" [(ngModel)]="quality">
+    </label>
+    <hr class="mt-5">
+    <div>
+        <button class="btn my-4" [disabled]="!isRenameImgF || isWebpLoading" [ngClass]="{'btn-primary': !isConvertToWebpF, 'btn-success': isConvertToWebpF}" (click)="onConvertToWebp()">
+          <ng-container *ngIf="!isWebpLoading">
+            Start Convert webp
+          </ng-container>
+          <ng-container *ngIf="isWebpLoading">
+            Loading
+          </ng-container>
+        </button>
+    </div>
+  </div>
+  
+  
+  <a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
+</section>
+

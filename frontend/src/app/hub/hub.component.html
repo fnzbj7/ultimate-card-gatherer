@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <app-breadcumb [id]="id" [setCode]="setCode"></app-breadcumb>
+    <h1 class="text-2xl font-bold mb-4">Hub Page</h1>
+    <div class="w-full max-w-2xl">
+      <div class="flex flex-row flex-wrap items-start">
+        <div class="w-1/2 flex flex-col space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 1</div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Json'" [navLovation]="'upload-json'" [isDone]="isJsonUploadF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Set icon'" [navLovation]="'icon-upload'" [isDone]="isIconUploadF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Generate migration'" [navLovation]="'generate-migration'" [isDone]="isMigrationGeneratedF" [isDisabled]="!isJsonUploadF"></div>
+        </div>
+        <div class="w-1/2 flex flex-col mt-0 space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 2</div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Upload Urls'" [navLovation]="'url-upload'" [isDone]="isUrlUploadF"></div>
+            <div app-menu-btn class="relative w-52"  [id]="id" [menuText]="'Download Images'" [navLovation]="'image-download'" [isDone]="isDownloadImagesF" [isDisabled]="!isUrlUploadF"></div>
+        </div>
+        <div class="w-full flex flex-col mt-0 space-y-4 items-center">
+            <div class="text-lg font-bold mb-2">Group 3</div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Check numbers'" [navLovation]="'compare'" [isDone]="isCheckNumberF" [isDisabled]="!isUrlUploadF || !isJsonUploadF"></div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Convert Images'" [navLovation]="'convert'" [isDone]="isConvertToWebpF" [isDisabled]="!isCheckNumberF"></div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'" [isDone]="isUploadAwsF" [isDisabled]="!isConvertToWebpF"></div>
+        </div>
+      </div>
+    </div>
+    <a routerLink="/" class="text-blue-500 mt-4">Back to Landing Page</a>
+  </div>

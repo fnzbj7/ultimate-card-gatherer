@@ -1,4 +1,4 @@
 export class DownloadImgDto {
-  imgUrls: string[];
-  jsonName: string;
+    imgUrls: string[];
+    jsonName: string;
 }

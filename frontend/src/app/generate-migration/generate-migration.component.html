@@ -1,0 +1,24 @@
+<section class="container w-4/6 flex flex-col mx-auto p-4 overflow-hidden rounded-lg bg-white shadow-lg">
+  <app-breadcumb [id]="id" [setCode]="setCode" subMenu="Typeorm Migration"></app-breadcumb>
+  <h1 class="mb-4 self-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-5xl dark:text-white">Typeorm Migration</h1>
+
+  <button (click)="downloadMigrationFile()" class="btn self-center btn-primary w-52">Start migration</button>
+  <ng-container *ngIf="code">
+    <app-code-snipet class="self-center" [code]="code" fileName="magiccollection\src\app\magic\magic-card-list\magic-cards-list.service.ts"></app-code-snipet>
+  </ng-container>
+  <ng-container *ngIf="importCode">
+    <app-code-snipet class="self-center" [code]="importCode" fileName="apps\api\src\config\migration-list.ts"></app-code-snipet>
+  </ng-container>
+  <div *ngIf="code" class="bg-black self-center mt-5 rounded-md mb-4" style="width: 700px;">
+    <div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans justify-between rounded-t-md">
+      <span class="cursor-pointer">apps\api\src\app\migration\</span>
+    </div>
+  </div>
+
+  <div class="self-end">
+    <button *ngIf="text" class="btn btn-primary mr-3" (click)="downloadCurrent()">Download</button>
+    <a class="w-28" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
+  </div>
+
+</section>
+

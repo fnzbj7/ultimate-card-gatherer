@@ -7,27 +7,34 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntitiesModule } from './entities/entities.module';
 import { GenericEntity2 } from './entities/entities/entity.entity';
 import { JsonBase } from './entities/entities/json-base.entity';
-import { TryJsonSaveService } from './services/try-json-save.service';
 import { CardMigrationService } from './services/card-migration.service';
+import { CardScrapperSseService } from './services/card-scrapper-sse.service';
+import { JsonBaseRepository } from './repository/json-base.repository';
+import { JsonBaseController } from './json-base.controller';
+import { CardCompareService } from './services/card-compare.service';
+import { CardImgManipulationService } from './services/card-img-manipulation.service';
 
 @Module({
-  imports: [
-    EntitiesModule,
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'db/db',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-    }),
-    TypeOrmModule.forFeature([GenericEntity2, JsonBase]),
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    CardScrapperService,
-    AwsCardUploadService,
-    TryJsonSaveService,
-    CardMigrationService
-  ],
+    imports: [
+        EntitiesModule,
+        TypeOrmModule.forRoot({
+            type: 'sqlite',
+            database: 'db/db',
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            synchronize: true,
+        }),
+        TypeOrmModule.forFeature([GenericEntity2, JsonBase]),
+    ],
+    controllers: [AppController, JsonBaseController],
+    providers: [
+        AppService,
+        CardScrapperService,
+        CardScrapperSseService,
+        AwsCardUploadService,
+        CardMigrationService,
+        CardCompareService,
+        JsonBaseRepository,
+        CardImgManipulationService,
+    ],
 })
 export class AppModule {}
