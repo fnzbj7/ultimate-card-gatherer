@@ -45,6 +45,7 @@ export class JsonBaseRepository {
     async saveIcon(id: number, icon: string) {
         const jsonBase = await this.entityRepository.findOne({ where: { id } });
         jsonBase.icon = icon;
+        jsonBase.iconModifDate = new Date();
         await this.setFlagToTrueAndSave(jsonBase, 'isIconUploadF');
     }
 

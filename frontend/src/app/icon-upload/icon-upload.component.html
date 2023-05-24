@@ -6,7 +6,7 @@
           <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
       </svg>
       <span class="mt-2 text-base leading-normal">Upload icon (<span class="font-bold" >{{setCode}}</span>)</span>
-      <input type='file' class="hidden" (change)="onFileSelected($event)"/>
+      <input type="file" accept=".svg" class="hidden" (change)="onFileSelected($event)"/>
   </label>
   <p class="self-center text-sm mt-2">Search for icon <a href="https://github.com/andrewgioia/Keyrune" target=”_blank” class="text-blue-600 dark:text-blue-500 hover:underline">here</a></p>
   <a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>

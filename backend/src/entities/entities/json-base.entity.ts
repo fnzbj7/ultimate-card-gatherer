@@ -24,7 +24,7 @@ export class JsonBase {
     @Column({ nullable: true })
     icon: string;
 
-    @Column({default: new Date().getTime()})
+    @Column({ default: () => 'CURRENT_TIMESTAMP' })
     iconModifDate: Date;
 
     @Column('simple-json',{ nullable: true })

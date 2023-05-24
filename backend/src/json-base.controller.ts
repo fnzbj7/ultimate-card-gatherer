@@ -43,7 +43,7 @@ export class JsonBaseController {
 
     @Get('/all/cards')
     async getJsonaFiles(): Promise<JsonBase[]> {
-        return await this.jsonBaseRepository.getAllJsonBaseSelect({id: true, setCode: true, name: true, isEverythingDoneF: true, });
+        return await this.jsonBaseRepository.getAllJsonBaseSelect({id: true, setCode: true, name: true, isEverythingDoneF: true, iconModifDate: true });
     }
 
     @Get('/:id/full')

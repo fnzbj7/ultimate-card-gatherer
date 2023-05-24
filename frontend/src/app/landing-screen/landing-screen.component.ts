@@ -7,6 +7,7 @@ import { JsonBaseDto } from '../dto/dto-collection';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/task.reducer';
 import { setJsonBase } from '../store/task.actions';
+import { map } from 'rxjs';
 
 export interface MessageData {
   status: string;
@@ -32,7 +33,16 @@ export class LandingScreenComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.http.get<JsonBaseDto[]>('/api/entity/json-base/all/cards').subscribe((resp) => {
+    this.http.get<any[]>('/api/entity/json-base/all/cards')
+    .pipe(
+      map((response: {iconModifDate: Date | string }[]) => {
+        for(let r of response) {
+          r.iconModifDate = new Date(r.iconModifDate);
+        }
+        
+        return response as JsonBaseDto[];
+      }))
+    .subscribe((resp) => {
       this.jsonBaseArr = resp;
     });
   }
