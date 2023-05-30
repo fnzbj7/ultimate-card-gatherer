@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { URL } from 'url';
 import { Subscriber } from 'rxjs';
 import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { staticImgPath } from './aws-card-upload.service';
 
 export interface ScrapeCardsDto {
     cardArray: {
@@ -157,7 +158,7 @@ export class CardScrapperSseService {
         }
 
         allowImages = true;
-        const dir = `../img-new/${code}/raw`;
+        const dir = `${staticImgPath}${code}/raw`;
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }

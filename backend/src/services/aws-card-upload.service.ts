@@ -5,6 +5,9 @@ import { JsonBaseRepository } from '../repository/json-base.repository'
 import { Subscriber } from 'rxjs';
 import { JsonBase } from 'src/entities/entities/json-base.entity';
 
+
+export const staticImgPath = 'img-new/';
+
 @Injectable()
 export class AwsCardUploadService {
     private log = new Logger(AwsCardUploadService.name);
@@ -29,7 +32,7 @@ export class AwsCardUploadService {
     private async uploadImages(jsonBase: JsonBase, imgType: string, subscriber: Subscriber<{ data: string }>) {
         const {setCode} = jsonBase
         this.log.log(`Amazon upload start with ${setCode} and ${imgType}`);
-        const imgFolder = `../img-new/${setCode}/finished/${setCode}/${imgType}`;
+        const imgFolder = `${staticImgPath}${setCode}/finished/${setCode}/${imgType}`;
         const imgArr: string[] = fs.readdirSync(imgFolder);
 
         let count = 0;

@@ -19,9 +19,10 @@ A projekt az alábbi technológiákat és eszközöket használja:
 
 1. Klónozd le a projektet a saját gépedre.
 2. Navigálj a projekt gyökérkönyvtárába.
-3. Telepítsd a függőségeket a következő parancs futtatásával: `npm install`.
-4. Állítsd be a konfigurációs fájlokat a szükséges adatokkal.
-5. Indítsd el az alkalmazást a fejlesztői módban a következő parancs futtatásával: `npm run start:dev`.
+3. Telepítsd a függőségeket a *frontend* és a *backend* mappába a következő parancs futtatásával: `npm install`.
+4. Indítsd el az alkalmazást a backend mappába fejlesztői módban a következő parancs futtatásával: `npm run start:dev`.
+4. Indítsd el az alkalmazást a frontend fejlesztői módban a következő parancs futtatásával: `npm run start`.
+
 
 ## Adatgyűjtési folyamat
 
