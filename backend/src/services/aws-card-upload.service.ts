@@ -6,7 +6,7 @@ import { Subscriber } from 'rxjs';
 import { JsonBase } from 'src/entities/entities/json-base.entity';
 
 
-export const staticImgPath = 'img-new/';
+export const staticImgPath = '../img-new/';
 
 @Injectable()
 export class AwsCardUploadService {

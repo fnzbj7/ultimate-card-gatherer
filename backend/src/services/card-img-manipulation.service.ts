@@ -5,12 +5,13 @@ import { JsonBaseRepository } from 'src/repository/json-base.repository';
 import { compress } from 'compress-images/promise';
 import imagemin = require('imagemin');
 import imageminWebp = require('imagemin-webp');
+import { staticImgPath } from './aws-card-upload.service';
 
 @Injectable()
 export class CardImgManipulationService {
 
     private logger = new Logger(CardImgManipulationService.name);
-    mainDir = 'img-new';
+
 
     constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
 
@@ -21,12 +22,12 @@ export class CardImgManipulationService {
         const jsonBase = await this.jsonBaseRepository.getSingleJsonBase(+id);
         const { setCode } = jsonBase
         // Elkészíteni a mappát
-        const dir = `../${this.mainDir}/${setCode}/rename`;
+        const dir = `${staticImgPath}/${setCode}/rename`;
         fs.mkdirSync(dir, { recursive: true });
         this.logger.log(`${dir} is created!`);
 
         cards.forEach(({newNumber, imgName, flipName, isFlip}) => {
-            if (newNumber === '') {
+            if (newNumber === '') { // TODO ezt az üzenetet kijavítani  Was not newNumber set:{"newNumber":null,"imgName":"image-051.png","isFlip":false}
                 return;
             }
             if (!newNumber) {
@@ -36,16 +37,16 @@ export class CardImgManipulationService {
                 return;
             }
             fs.copyFileSync(
-                `../${this.mainDir}/${setCode}/raw/` + imgName,
-                `../${this.mainDir}/${setCode}/rename/${setCode}_${newNumber.padStart(
+                `${staticImgPath}/${setCode}/raw/` + imgName,
+                `${staticImgPath}/${setCode}/rename/${setCode}_${newNumber.padStart(
                     3,
                     '0',
                 )}.png`,
             );
             if (isFlip) {
                 fs.copyFileSync(
-                    `../${this.mainDir}/${setCode}/raw/` + flipName,
-                    `../${this.mainDir}/${setCode}/rename/${setCode}_${newNumber.padStart(
+                    `${staticImgPath}/${setCode}/raw/` + flipName,
+                    `${staticImgPath}/${setCode}/rename/${setCode}_${newNumber.padStart(
                         3,
                         '0',
                     )}_F.png`,
@@ -62,12 +63,12 @@ export class CardImgManipulationService {
         const { setCode } = jsonBase;
 
         // Elkészíteni a mappát
-        const dir = `../${this.mainDir}/${setCode}/png/`;
+        const dir = `${staticImgPath}/${setCode}/png/`;
         fs.mkdirSync(dir, { recursive: true });
         this.logger.log(`${dir} is created!`);
 
-        const inPath = `../${this.mainDir}/${setCode}/rename/*.png`;
-        const outPath = `../${this.mainDir}/${setCode}/png/`;
+        const inPath = `${staticImgPath}/${setCode}/rename/*.png`;
+        const outPath = `${staticImgPath}/${setCode}/png/`;
 
         const errArr: string[] = [];
         let count = 0;
@@ -114,12 +115,12 @@ export class CardImgManipulationService {
 
         this.logger.log(`--START-- ${setCode}Images convert from png to webp`);
         // Elkészíteni a mappát
-        const dir = `../${this.mainDir}/${setCode}/finished/${setCode}/webp`;
+        const dir = `${staticImgPath}/${setCode}/finished/${setCode}/webp`;
         fs.mkdirSync(`${dir}`, { recursive: true });
         this.logger.log(`${dir} is created!`);
 
-        const inPath = `../${this.mainDir}/${setCode}/png/*.png`;
-        const outPath = `../${this.mainDir}/${setCode}/finished/${setCode}/webp`;
+        const inPath = `${staticImgPath}/${setCode}/png/*.png`;
+        const outPath = `${staticImgPath}/${setCode}/finished/${setCode}/webp`;
 
         await imagemin([inPath], {
             destination: outPath,
