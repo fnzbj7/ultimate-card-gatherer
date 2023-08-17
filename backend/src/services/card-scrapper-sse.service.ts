@@ -108,8 +108,10 @@ export class CardScrapperSseService {
             await page.waitForSelector('magic-card', {
                 visible: true,
             });
+            await this.autoScroll(page);
 
             // Get the src attribute of all images on the page
+            
             const imgSrcs = await page.$$eval<
                 'magic-card',
                 [ number],
@@ -190,4 +192,25 @@ export class CardScrapperSseService {
 
         return result;
     }
+
+    // Scroll function
+    async autoScroll(page: puppeteer.Page) {
+        return await page.evaluate(async () => {
+            await new Promise((resolve, reject) => {
+                let totalHeight = 0;
+                const distance = 100; // Change this value based on your requirements.
+                const timer = setInterval(() => {
+                    const scrollHeight = document.body.scrollHeight;
+                    window.scrollBy(0, distance);
+                    totalHeight += distance;
+
+                    // When scrolled to bottom, clear interval and resolve promise
+                    if (totalHeight >= scrollHeight) {
+                        clearInterval(timer);
+                        resolve(true);
+                    }
+                }, 100);  // Change interval time based on your requirements.
+            });
+        });
+    };
 }
