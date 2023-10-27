@@ -20,9 +20,7 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
   isStarted = false;
   isDownloadImagesF = false;
 
-  constructor(private route: ActivatedRoute,
-    private store: Store<AppState>,
-    private taskService: TaskService) {}
+  constructor(private route: ActivatedRoute, private store: Store<AppState>, private taskService: TaskService) {}
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
@@ -52,6 +50,11 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
       this.store.dispatch(finishTask({ taskId: 'isDownloadImagesF' }));
       this.eventSource.close();
     };
+  }
+
+  onDelete() {
+    // Visszacsinálni mindent
+    // Mentett képektől kezdve mindent
   }
 
   ngOnDestroy(): void {

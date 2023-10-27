@@ -13,6 +13,7 @@ import { finishTask } from '../store/task.actions';
 })
 export class UrlUploadComponent implements OnInit {
   setCode?: string;
+  cardGaleryName?: string;
 
   url: string = '';
   urlList: string[] = [];
@@ -36,7 +37,8 @@ export class UrlUploadComponent implements OnInit {
       if (tasks.jsonBase) {
         const { jsonBase } = tasks;
         this.setCode = jsonBase.setCode;
-        this.searchTerm = jsonBase.name.replaceAll(' ', '+')
+        this.cardGaleryName = jsonBase.name.toLowerCase().replaceAll(' ', '-');
+        this.searchTerm = jsonBase.name.replaceAll(' ', '+');
         if (jsonBase.urls) {
           this.urlList = jsonBase.urls.split(',');
         }
