@@ -6,7 +6,7 @@ import { Subscriber } from 'rxjs';
 import { JsonBase } from 'src/entities/entities/json-base.entity';
 
 
-export const staticImgPath = '../img-new/';
+export const staticImgPath = process.env.DIR_PATH || 'img-new'; // Change it in the 
 
 @Injectable()
 export class AwsCardUploadService {
@@ -32,7 +32,7 @@ export class AwsCardUploadService {
     private async uploadImages(jsonBase: JsonBase, imgType: string, subscriber: Subscriber<{ data: string }>) {
         const {setCode} = jsonBase
         this.log.log(`Amazon upload start with ${setCode} and ${imgType}`);
-        const imgFolder = `${staticImgPath}${setCode}/finished/${setCode}/${imgType}`;
+        const imgFolder = `${staticImgPath}/${setCode}/finished/${setCode}/${imgType}`;
         const imgArr: string[] = fs.readdirSync(imgFolder);
 
         let count = 0;
@@ -43,12 +43,12 @@ export class AwsCardUploadService {
             }),
         });
 
-        const currentDirectory = process.cwd().split('\\').filter(x => x != 'backend').join('\\\\');
+        const currentDirectory = process.cwd().split('\\').join('\\\\');
 
         for (const imgFile of imgArr) {
             const destPath = `${setCode}/${imgType}/${imgFile}`;
             this.log.log(`upload start for ${destPath}`);
-            const imgPath = `${currentDirectory}\\img-new\\${setCode}\\finished\\${setCode}\\${imgType}\\${imgFile}`;
+            const imgPath = `${currentDirectory}\\${staticImgPath}\\${setCode}\\finished\\${setCode}\\${imgType}\\${imgFile}`;
             await this.awsCli.command(
                 `s3api put-object --bucket magiccollection --key ${destPath} ` +
                     `--body ${imgPath} ` +

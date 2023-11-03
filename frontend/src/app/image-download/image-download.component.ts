@@ -30,6 +30,7 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
         const { jsonBase } = tasks;
         this.setCode = jsonBase.setCode;
         this.isDownloadImagesF = jsonBase.isDownloadImagesF;
+
       }
     });
     if (!this.taskService.id && this.id) {
@@ -47,6 +48,7 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
     });
     this.eventSource.onerror = (event: any) => {
       console.error('SSE error:', event);
+      this.isStarted = false;
       this.store.dispatch(finishTask({ taskId: 'isDownloadImagesF' }));
       this.eventSource.close();
     };

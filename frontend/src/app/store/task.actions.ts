@@ -8,4 +8,4 @@ type IsFinishedJasonBase = keyof Pick<
 
 export const setJsonBase = createAction('[Task] Set Json Base', props<{ jsonBase: JsonBaseDto }>());
 
-export const finishTask = createAction('[Task] Finish Task', props<{ taskId: IsFinishedJasonBase }>());
+export const finishTask = createAction('[Task] Finish Task', props<{ taskId: IsFinishedJasonBase, urls?: string }>());

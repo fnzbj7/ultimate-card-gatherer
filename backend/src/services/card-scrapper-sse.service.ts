@@ -37,7 +37,8 @@ interface MagicCardElement extends Element {
     faceAlt: string;
     back: string;
     backAlt: string;
-    caption: string;
+    // caption: string;
+    name: string;
 }
 
 @Injectable()
@@ -146,7 +147,7 @@ export class CardScrapperSseService {
                         prevVal.array.push({
                             id: prevVal.index++,
                             src: mc.face,
-                            name: mc.caption,
+                            name: mc.attributes['name'].value,
                             isBack: false,
                             hasBack: false
                         });
@@ -160,7 +161,7 @@ export class CardScrapperSseService {
         }
 
         allowImages = true;
-        const dir = `${staticImgPath}${code}/raw`;
+        const dir = `${staticImgPath}/${code}/raw`;
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -198,7 +199,7 @@ export class CardScrapperSseService {
         return await page.evaluate(async () => {
             await new Promise((resolve, reject) => {
                 let totalHeight = 0;
-                const distance = 100; // Change this value based on your requirements.
+                const distance = 500; // Change this value based on your requirements.
                 const timer = setInterval(() => {
                     const scrollHeight = document.body.scrollHeight;
                     window.scrollBy(0, distance);

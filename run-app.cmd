@@ -13,4 +13,5 @@ IF NOT EXIST %distPath% (
 
 cd /d "%distPath%"
 
+set DIR_PATH=img-new
 node main.js

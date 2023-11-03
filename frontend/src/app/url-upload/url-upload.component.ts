@@ -56,7 +56,7 @@ export class UrlUploadComponent implements OnInit {
 
   onSendToBackend() {
     this.http.post('/api/upload-url-list', { id: this.id, urlList: this.urlList }).subscribe(() => {
-      this.store.dispatch(finishTask({ taskId: 'isUrlUploadF' }));
+      this.store.dispatch(finishTask({ taskId: 'isUrlUploadF', urls: this.urlList.join(',')}));
       this.router.navigate(['hub', this.id]);
     });
   }

@@ -20,11 +20,14 @@ export const taskReducer = createReducer(
     ...state,
     jsonBase,
   })),
-  on(finishTask, (state, { taskId }) => {
+  on(finishTask, (state, { taskId, urls }) => {
     if (state.jsonBase) {
       const jsonBase: JsonBaseDto = { ...state.jsonBase };
       console.log('itt járt');
       jsonBase[taskId] = true;
+      if(urls) {
+        jsonBase.urls = urls;
+      }
       console.log({ jsonBase });
       return { ...state, jsonBase };
     }

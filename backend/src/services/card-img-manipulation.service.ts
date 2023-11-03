@@ -125,7 +125,6 @@ export class CardImgManipulationService {
         await imagemin([inPath], {
             destination: outPath,
             plugins: [(input) => {
-                console.log('Itt voltam');
                 return input;
             },imageminWebp({ quality: 65 })],
         });
@@ -136,5 +135,3 @@ export class CardImgManipulationService {
         await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isConvertToWebpF');
     }
 }
-
-
