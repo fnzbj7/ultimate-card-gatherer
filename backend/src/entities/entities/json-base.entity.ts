@@ -111,5 +111,6 @@ export interface CreatedMigration {
 
 export type JsonBaseFlag = keyof Pick<
   JsonBase,
-  'isCheckNumberF' | 'isDownloadImagesF' | 'isIconUploadF' | 'isJsonUploadF' | 'isUrlUploadF' | 'isMigrationGeneratedF' | 'isUploadAwsF' | 'isRenameImgF' | 'isConvertToWebpF'
+  'isCheckNumberF' | 'isDownloadImagesF' | 'isIconUploadF' | 'isJsonUploadF' |
+  'isUrlUploadF' | 'isMigrationGeneratedF' | 'isUploadAwsF' | 'isRenameImgF' | 'isConvertToWebpF'
 >;

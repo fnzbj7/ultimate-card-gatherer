@@ -41,11 +41,18 @@
             class="mr-4 flex flex-row justify-center"
             style="min-width: 36rem"
           >
+          <div class="group" style="position: relative;">
             <img
               src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}"
               alt="Image 1"
               class="w-72 h-auto"
             />
+            <img
+              src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}"
+              alt="Image 1"
+              class="w-36 h-20 absolute bottom-0 left-0 object-none object-left-bottom hidden group-hover:block"
+            />
+          </div>
             <img
               *ngIf="card.hasBack"
               src="http://localhost:5004/{{ setCode }}/raw/{{

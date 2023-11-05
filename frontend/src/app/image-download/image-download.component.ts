@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { finishTask } from '../store/task.actions';
+import { finishTask, revertTask } from '../store/task.actions';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../store/task.reducer';
 import { TaskService } from '../store/task.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-image-download',
@@ -20,7 +21,13 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
   isStarted = false;
   isDownloadImagesF = false;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>, private taskService: TaskService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private store: Store<AppState>,
+    private taskService: TaskService,
+    private _zone: NgZone,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
@@ -47,16 +54,20 @@ export class ImageDownloadComponent implements OnInit, OnDestroy {
       this.finishedProcess = data.finishedProcess;
     });
     this.eventSource.onerror = (event: any) => {
-      console.error('SSE error:', event);
-      this.isStarted = false;
-      this.store.dispatch(finishTask({ taskId: 'isDownloadImagesF' }));
-      this.eventSource.close();
+      this._zone.run(() => {
+        console.error('SSE error:', event);
+        this.isStarted = false;
+        this.store.dispatch(finishTask({ taskId: 'isDownloadImagesF' }));
+        this.eventSource.close();
+      });
     };
   }
 
   onDelete() {
-    // Visszacsinálni mindent
-    // Mentett képektől kezdve mindent
+    // TODO emeljük már ki servicebe
+    this.http.post('api/revert-download', {id: this.id}).subscribe(() => {
+      this.store.dispatch(revertTask({ taskIds: ['isDownloadImagesF', 'isUploadAwsF', 'isRenameImgF', 'isConvertToWebpF']}));
+    });
   }
 
   ngOnDestroy(): void {

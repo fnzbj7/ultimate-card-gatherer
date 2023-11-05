@@ -13,6 +13,7 @@ import { JsonBaseRepository } from './repository/json-base.repository';
 import { JsonBaseController } from './json-base.controller';
 import { CardCompareService } from './services/card-compare.service';
 import { CardImgManipulationService } from './services/card-img-manipulation.service';
+import { CardDownloadRevertService } from './services/card-download-revert.service';
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { CardImgManipulationService } from './services/card-img-manipulation.ser
         AwsCardUploadService,
         CardMigrationService,
         CardCompareService,
+        CardDownloadRevertService,
         JsonBaseRepository,
         CardImgManipulationService,
     ],

@@ -30,6 +30,7 @@ import { Observable, interval, map } from 'rxjs';
 import { CardScrapperSseService } from './services/card-scrapper-sse.service';
 import { CardImgManipulationService } from './services/card-img-manipulation.service';
 import { JsonBaseRepository, SaveUrlLists } from './repository/json-base.repository';
+import { CardDownloadRevertService } from './services/card-download-revert.service';
 
 @Controller('/api')
 export class AppController {
@@ -41,6 +42,7 @@ export class AppController {
         private readonly cardScrapperSseService: CardScrapperSseService,
         private readonly cardImgManipulationService: CardImgManipulationService,
         private readonly jsonBaseRepository: JsonBaseRepository,
+        private readonly cardDownloadRevertService: CardDownloadRevertService,
     ) {}
 
     @Post('/upload-url-list')
@@ -140,6 +142,11 @@ export class AppController {
     async createWebp(@Body() jsonNameDto: { id: string }) {
         const { id } = jsonNameDto;
         await this.cardImgManipulationService.createWebp(id);
+    }
+
+    @Post('/revert-download')
+    async revertDownload(@Body() jsonNameDto: {id: string}) {
+        this.cardDownloadRevertService.doTheImageRevert(+jsonNameDto.id);
     }
 
     @Get('/:id/generate-migration')

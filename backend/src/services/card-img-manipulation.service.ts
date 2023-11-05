@@ -12,9 +12,7 @@ export class CardImgManipulationService {
 
     private logger = new Logger(CardImgManipulationService.name);
 
-
     constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
-
 
     async renameCards(renameDto: RenameDto) {
         const { id, cards } = renameDto;

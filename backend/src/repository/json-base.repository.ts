@@ -20,7 +20,7 @@ export class JsonBaseRepository {
         });
     }
 
-    async getSingleJsonBase(id: number) {
+    async getSingleJsonBase(id: number): Promise<JsonBase> {
         return await this.entityRepository.findOne({
             where: { id },
         });
@@ -28,6 +28,18 @@ export class JsonBaseRepository {
 
     async deleteJsonBase(id: number) {
         return await this.entityRepository.delete({ id });
+    }
+
+    async revertImageDownload(id: number) {
+        const jsonBase = await this.getSingleJsonBase(id);
+        jsonBase.isDownloadImagesF = false;
+        jsonBase.isCheckNumberF = false;
+        jsonBase.isRenameImgF = false;
+        jsonBase.isConvertToWebpF = false;
+        jsonBase.isUploadAwsF = false;
+        jsonBase.isEverythingDoneF = false;
+        await this.save(jsonBase);
+        return jsonBase;
     }
 
     async getJsonFullName(id: number): Promise<{ fullName: string }> {
