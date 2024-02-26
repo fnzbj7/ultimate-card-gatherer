@@ -72,8 +72,8 @@
                 class="mr-1 mb-4 inline-block"
                 type="radio"
                 formControlName="{{ card.img }}"
-                name="{{ card.img }}"
-                value="{{ cardNum }}"
+                [name]="card.img"
+                [value]="cardNum"
                 id="{{ cardNum + card.img }}"
               />
               <label for="{{ cardNum + card.img }}">{{ cardNum }}</label>

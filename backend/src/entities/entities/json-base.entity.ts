@@ -73,7 +73,7 @@ export interface MtgJson {
         baseSetSize: number;
         cards: {
             name: string;
-            number: number;
+            number: string;
             rarity: string;
             types: string[];
             colors: string[];

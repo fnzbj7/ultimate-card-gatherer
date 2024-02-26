@@ -1,15 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import puppeteer = require('puppeteer');
-import { DownloadImgDto } from '../dto/download-img.dto';
-import { RenameDto } from '../dto/rename.dto';
-import { compress } from 'compress-images/promise';
-import imagemin = require('imagemin');
-import imageminWebp = require('imagemin-webp');
-import { InjectRepository } from '@nestjs/typeorm';
 import { CardMapping, JsonBase } from 'src/entities/entities/json-base.entity';
-import { Repository } from 'typeorm';
-import { URL } from 'url';
+
 import { Subscriber } from 'rxjs';
 import { JsonBaseRepository } from 'src/repository/json-base.repository';
 import { staticImgPath } from './aws-card-upload.service';
@@ -134,45 +127,41 @@ export class CardScrapperSseService {
                     array: CardMapping2[];
                     index: number;
                 }
-            >(
-                'magic-card',
-                (imgs, ind) => {
-                    const initVal: {
-                        array: CardMapping2[];
-                        index: number;
-                    } = { array: [], index: ind };
-                    return imgs.reduce((prevVal, mc) => {
-                        if (mc.faceAlt) {
-                            const frontIndex = prevVal.index++;
-                            prevVal.array.push({
-                                id: frontIndex,
-                                src: mc.face,
-                                name: mc.faceAlt,
-                                isBack: false,
-                                hasBack: true,
-                            });
-                            prevVal.array.push({
-                                id: prevVal.index++,
-                                src: mc.back,
-                                name: mc.backAlt,
-                                isBack: true,
-                                frontId: frontIndex,
-                                hasBack: false,
-                            });
-                        } else {
-                            prevVal.array.push({
-                                id: prevVal.index++,
-                                src: mc.face,
-                                name: mc.attributes['name'].value,
-                                isBack: false,
-                                hasBack: false,
-                            });
-                        }
-                        return prevVal;
-                    }, initVal);
-                },
-                inde,
-            );
+            >('magic-card', ( imgs, ind) => {
+                const initVal: {
+                    array: CardMapping2[],
+                    index: number
+                } = {array: [], index: ind};
+                return imgs.reduce((prevVal, mc) => {
+                    if (mc.back) {
+                        const frontIndex = prevVal.index++
+                        prevVal.array.push({
+                            id: frontIndex,
+                            src: mc.face,
+                            name: mc.attributes['name'].value,
+                            isBack: false,
+                            hasBack: true
+                        });
+                        prevVal.array.push({
+                            id: prevVal.index++,
+                            src: mc.back,
+                            name: mc.attributes['name'].value,
+                            isBack: true,
+                            frontId: frontIndex,
+                            hasBack: false
+                        });
+                    } else {
+                        prevVal.array.push({
+                            id: prevVal.index++,
+                            src: mc.face,
+                            name: mc.attributes['name'].value,
+                            isBack: false,
+                            hasBack: false
+                        });
+                    }
+                    return prevVal;
+                }, initVal);
+            }, inde);
 
             inde = imgSrcs.index;
             images = [...images, ...imgSrcs.array];

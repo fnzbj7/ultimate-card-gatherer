@@ -187,35 +187,49 @@ export class CardMigrationService {
         const cardListJson = json.data.cards;
         const cardList: InsertCardModel[] = [];
 
-        cardListJson.forEach((cardJson) => {
-            if (
-                !(
-                    ('' + cardJson.number).includes('★') &&
-                    this.decideLayoutNeedProcess(cardJson)
-                )
-            ) {
-                const cardModel = new InsertCardModel(
-                    cardJson.name.replace("'", "\\\\\\'"),
-                    cardJson.number,
-                    this.getRarityFromLongName(cardJson.rarity),
-                    this.getCardLayout(cardJson),
-                    cardJson.types,
-                    cardJson.colors,
-                );
+        cardListJson
+        .filter(cardJson => {
+            /* 90% is it gonna be needed, so i leave it here commented out
+            !(
+                ('' + cardJson.number).includes('★') &&
+                this.decideLayoutNeedProcess(cardJson)
+            ) */
+            return !!!cardJson.number.match(/[b-z]$/i); // This check is here because of Ixalan 410a, 410b, 410c etc numbering (Cavern of Souls)
+        })
+        .forEach((cardJson) => {
+            const cardModel = new InsertCardModel(
+                cardJson.name.replaceAll("'", "\\\\\\'"),
+                this.convertCardNumber(cardJson.number),
+                this.getRarityFromLongName(cardJson.rarity),
+                this.getCardLayout(cardJson),
+                cardJson.types,
+                cardJson.colors,
+            );
 
-                // Card number can be null if it is a doubleface card. In this case
-                // we will only process the card 'a' face and skip the 'b' face.
-                if (
-                    cardModel.cardNumber != null &&
-                    !cardList.find((x) => x.cardNumber === cardModel.cardNumber)
-                ) {
-                    cardList.push(cardModel);
-                }
+            // Card number can be null if it is a doubleface card. In this case
+            // we will only process the card 'a' face and skip the 'b' face.
+            if (
+                cardModel.cardNumber != null &&
+                !cardList.find((x) => x.cardNumber === cardModel.cardNumber)
+            ) {
+                cardList.push(cardModel);
             }
         });
 
         return cardList;
     }
+
+    private convertCardNumber(cardNumber: string): number | null {
+        // Check if the card number ends with 'a'
+        if (cardNumber.endsWith('a') || cardNumber.endsWith('A')) {
+          // Remove the last character and convert to number
+          const numberPart = parseInt(cardNumber.slice(0, -1));
+          // return isNaN(numberPart) ? null : numberPart;
+          return numberPart;
+        }
+        return +cardNumber; // Return null if there's no 'a' at the end
+      }
+
     getCardLayout(cardJson: { layout: string; types: string[] }): string {
         if (
             cardJson.layout === 'transform' &&

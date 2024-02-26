@@ -36,7 +36,7 @@ export class CardImgManipulationService {
             }
             fs.copyFileSync(
                 `${staticImgPath}/${setCode}/raw/` + imgName,
-                `${staticImgPath}/${setCode}/rename/${setCode}_${newNumber.padStart(
+                `${staticImgPath}/${setCode}/rename/${setCode}_${("" + newNumber).padStart(
                     3,
                     '0',
                 )}.png`,
@@ -44,7 +44,7 @@ export class CardImgManipulationService {
             if (isFlip) {
                 fs.copyFileSync(
                     `${staticImgPath}/${setCode}/raw/` + flipName,
-                    `${staticImgPath}/${setCode}/rename/${setCode}_${newNumber.padStart(
+                    `${staticImgPath}/${setCode}/rename/${setCode}_${("" + newNumber).padStart(
                         3,
                         '0',
                     )}_F.png`,

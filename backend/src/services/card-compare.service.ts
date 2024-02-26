@@ -15,7 +15,7 @@ export class CardCompareService {
             return {
                 name: <string>card.name.split(' // ')[0],
                 name2: <string>card.name.split(' // ')[1],
-                num: <number>card.number,
+                num: parseInt(card.number),
             };
         }).sort((a, b) => a.num - b.num);
 
