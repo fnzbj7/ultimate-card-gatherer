@@ -6,6 +6,8 @@ import { CardMapping, JsonBase } from 'src/entities/entities/json-base.entity';
 import { Subscriber } from 'rxjs';
 import { JsonBaseRepository } from 'src/repository/json-base.repository';
 import { staticImgPath } from './aws-card-upload.service';
+import { createWorker } from 'tesseract.js';
+import * as Sharp from 'sharp';
 
 export interface ScrapeCardsDto {
     cardArray: {
@@ -109,7 +111,6 @@ export class CardScrapperSseService {
         let inde = 1;
         for (let i = 0; i < imgUrls.length; i++) {
             await page.goto(imgUrls[i], { timeout: 0 });
-            page.screenshot({ path: 'c:\\Projects\\mtg\\screensgot-2.jpeg' });
             await page.waitForSelector('magic-card', {
                 visible: true,
             });
@@ -127,41 +128,45 @@ export class CardScrapperSseService {
                     array: CardMapping2[];
                     index: number;
                 }
-            >('magic-card', ( imgs, ind) => {
-                const initVal: {
-                    array: CardMapping2[],
-                    index: number
-                } = {array: [], index: ind};
-                return imgs.reduce((prevVal, mc) => {
-                    if (mc.back) {
-                        const frontIndex = prevVal.index++
-                        prevVal.array.push({
-                            id: frontIndex,
-                            src: mc.face,
-                            name: mc.attributes['name'].value,
-                            isBack: false,
-                            hasBack: true
-                        });
-                        prevVal.array.push({
-                            id: prevVal.index++,
-                            src: mc.back,
-                            name: mc.attributes['name'].value,
-                            isBack: true,
-                            frontId: frontIndex,
-                            hasBack: false
-                        });
-                    } else {
-                        prevVal.array.push({
-                            id: prevVal.index++,
-                            src: mc.face,
-                            name: mc.attributes['name'].value,
-                            isBack: false,
-                            hasBack: false
-                        });
-                    }
-                    return prevVal;
-                }, initVal);
-            }, inde);
+            >(
+                'magic-card',
+                (imgs, ind) => {
+                    const initVal: {
+                        array: CardMapping2[];
+                        index: number;
+                    } = { array: [], index: ind };
+                    return imgs.reduce((prevVal, mc) => {
+                        if (mc.back) {
+                            const frontIndex = prevVal.index++;
+                            prevVal.array.push({
+                                id: frontIndex,
+                                src: mc.face,
+                                name: mc.attributes['name'].value,
+                                isBack: false,
+                                hasBack: true,
+                            });
+                            prevVal.array.push({
+                                id: prevVal.index++,
+                                src: mc.back,
+                                name: mc.attributes['name'].value,
+                                isBack: true,
+                                frontId: frontIndex,
+                                hasBack: false,
+                            });
+                        } else {
+                            prevVal.array.push({
+                                id: prevVal.index++,
+                                src: mc.face,
+                                name: mc.attributes['name'].value,
+                                isBack: false,
+                                hasBack: false,
+                            });
+                        }
+                        return prevVal;
+                    }, initVal);
+                },
+                inde,
+            );
 
             inde = imgSrcs.index;
             images = [...images, ...imgSrcs.array];
@@ -180,6 +185,22 @@ export class CardScrapperSseService {
             const img = !images[i].isBack
                 ? 'image-' + (images[i].id + '').padStart(3, '0') + '.png'
                 : `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
+
+            // TODO use tessaract
+            const data = await Sharp(imageBuffer)
+                .extract({ left: 60, top: 965, width: 70, height: 25 }) // Adjust these values
+                .toBuffer();
+            const worker = await createWorker();
+            await worker.setParameters({
+                tessedit_char_whitelist:
+                    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+            });
+            const {
+                data: { text },
+            } = await worker.recognize(data);
+            this.logger.log(`Card Number: ${text.trim()}`); // Log the recognized text
+            worker.terminate();
+
             fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
             subscriber.next({
                 data: JSON.stringify({
@@ -187,20 +208,23 @@ export class CardScrapperSseService {
                     maxProcess: images.length,
                 }),
             });
-            this.logger.log({
-                finishedProcess: i + 1,
-                maxProcess: images.length,
-            });
+            // this.logger.log({
+            //     finishedProcess: i + 1,
+            //     maxProcess: images.length,
+            // });
             if (!images[i].isBack) {
                 result.push({
                     img,
                     name: images[i].name,
                     hasBack: images[i].hasBack,
+                    ocrNumber: text.trim()
                 });
             }
         }
 
         await browser.close();
+
+        result.sort((a,b) => a.ocrNumber.localeCompare(b.ocrNumber));
 
         return result;
     }

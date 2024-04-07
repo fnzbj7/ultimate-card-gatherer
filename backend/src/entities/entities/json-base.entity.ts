@@ -91,7 +91,8 @@ export interface MtgJson {
 export interface CardMapping {
     img: string;
     name: string;
-    hasBack: boolean
+    hasBack: boolean;
+    ocrNumber: string;
 }
 
 export interface CardMapping2 {

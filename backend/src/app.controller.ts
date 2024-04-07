@@ -22,7 +22,6 @@ import { DownloadImgDto } from './dto/download-img.dto';
 import { RenameDto } from './dto/rename.dto';
 import fs = require('fs');
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JsonBase } from './entities/entities/json-base.entity';
 import { join } from 'path';
 import { createReadStream } from 'fs';
 import { CardMigrationService } from './services/card-migration.service';
