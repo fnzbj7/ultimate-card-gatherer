@@ -34,7 +34,9 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "sharp": "^0.29.0",
     "sqlite3": "^5.1.6",
+    "tesseract.js": "^5.0.4",
     "typeorm": "^0.3.0"
   },
   "devDependencies": {

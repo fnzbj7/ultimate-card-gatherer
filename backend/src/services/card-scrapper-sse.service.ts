@@ -26,10 +26,10 @@ export interface ScrapeCardsDto {
 export interface CardMapping2 {
     id: number;
     src: string;
-    name: string,
+    name: string;
     isBack: boolean;
-    frontId?: number
-    hasBack: boolean
+    frontId?: number;
+    hasBack: boolean;
 }
 
 interface MagicCardElement extends Element {
@@ -46,9 +46,7 @@ export class CardScrapperSseService {
     private logger = new Logger(CardScrapperSseService.name);
     private lastScrapeMap = new Map<string, ScrapeCardsDto>();
 
-    constructor(
-        private readonly jsonBaseRepository: JsonBaseRepository
-    ) {}
+    constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
 
     async startImageDownload(
         id: number,
@@ -69,11 +67,17 @@ export class CardScrapperSseService {
         this.logger.log({ imgUrls });
         this.logger.log('getImages');
 
-        const cardMapping: CardMapping[] =
-            await this.downloadImages2(subscriber, imgUrls, json.data.code);
+        const cardMapping: CardMapping[] = await this.downloadImages2(
+            subscriber,
+            imgUrls,
+            json.data.code,
+        );
 
         jsonBase.cardMapping = cardMapping;
-        await this.jsonBaseRepository.setFlagToTrueAndSave(jsonBase, 'isDownloadImagesF');
+        await this.jsonBaseRepository.setFlagToTrueAndSave(
+            jsonBase,
+            'isDownloadImagesF',
+        );
         // It saves too
 
         subscriber.complete();
@@ -84,7 +88,13 @@ export class CardScrapperSseService {
         imgUrls: string[],
         code: string,
     ): Promise<CardMapping[]> {
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            defaultViewport: {
+                width: 1920,
+                height: 1080,
+            },
+        });
         const page = await browser.newPage();
 
         let allowImages = false;
@@ -93,11 +103,11 @@ export class CardScrapperSseService {
             if (request.resourceType() === 'image') {
                 if (allowImages) {
                     request.continue();
-                  } else {
+                } else {
                     request.abort();
-                  }
+                }
             } else {
-            request.continue();
+                request.continue();
             }
         });
 
@@ -106,57 +116,65 @@ export class CardScrapperSseService {
         let inde = 1;
         for (let i = 0; i < imgUrls.length; i++) {
             await page.goto(imgUrls[i], { timeout: 0 });
+            page.screenshot({ path: 'c:\\Projects\\mtg\\screensgot-2.jpeg' });
             await page.waitForSelector('magic-card', {
                 visible: true,
             });
             await this.autoScroll(page);
 
             // Get the src attribute of all images on the page
-            
+
             const imgSrcs = await page.$$eval<
                 'magic-card',
-                [ number],
-                (imgs: MagicCardElement[], ind: number) => {
-                    array: CardMapping2[],
-                    index: number
+                [number],
+                (
+                    imgs: MagicCardElement[],
+                    ind: number,
+                ) => {
+                    array: CardMapping2[];
+                    index: number;
                 }
-            >('magic-card', ( imgs, ind) => {
-                const initVal: {
-                    array: CardMapping2[],
-                    index: number
-                } = {array: [], index: ind};
-                return imgs.reduce((prevVal, mc) => {
-                    if (mc.faceAlt) {
-                        const frontIndex = prevVal.index++
-                        prevVal.array.push({
-                            id: frontIndex,
-                            src: mc.face,
-                            name: mc.faceAlt,
-                            isBack: false,
-                            hasBack: true
-                        });
-                        prevVal.array.push({
-                            id: prevVal.index++,
-                            src: mc.back,
-                            name: mc.backAlt,
-                            isBack: true,
-                            frontId: frontIndex,
-                            hasBack: false
-                        });
-                    } else {
-                        prevVal.array.push({
-                            id: prevVal.index++,
-                            src: mc.face,
-                            name: mc.attributes['name'].value,
-                            isBack: false,
-                            hasBack: false
-                        });
-                    }
-                    return prevVal;
-                }, initVal);
-            }, inde);
+            >(
+                'magic-card',
+                (imgs, ind) => {
+                    const initVal: {
+                        array: CardMapping2[];
+                        index: number;
+                    } = { array: [], index: ind };
+                    return imgs.reduce((prevVal, mc) => {
+                        if (mc.faceAlt) {
+                            const frontIndex = prevVal.index++;
+                            prevVal.array.push({
+                                id: frontIndex,
+                                src: mc.face,
+                                name: mc.faceAlt,
+                                isBack: false,
+                                hasBack: true,
+                            });
+                            prevVal.array.push({
+                                id: prevVal.index++,
+                                src: mc.back,
+                                name: mc.backAlt,
+                                isBack: true,
+                                frontId: frontIndex,
+                                hasBack: false,
+                            });
+                        } else {
+                            prevVal.array.push({
+                                id: prevVal.index++,
+                                src: mc.face,
+                                name: mc.attributes['name'].value,
+                                isBack: false,
+                                hasBack: false,
+                            });
+                        }
+                        return prevVal;
+                    }, initVal);
+                },
+                inde,
+            );
 
-            inde = imgSrcs.index; 
+            inde = imgSrcs.index;
             images = [...images, ...imgSrcs.array];
         }
 
@@ -170,9 +188,9 @@ export class CardScrapperSseService {
             const imageBuffer = await page
                 .goto(images[i].src)
                 .then((response) => response.buffer());
-            const img = !images[i].isBack ? 
-            'image-' + (images[i].id + '').padStart(3, '0') + '.png' :
-            `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
+            const img = !images[i].isBack
+                ? 'image-' + (images[i].id + '').padStart(3, '0') + '.png'
+                : `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
             fs.writeFileSync(`${dir}/${img}`, imageBuffer, 'base64');
             subscriber.next({
                 data: JSON.stringify({
@@ -184,8 +202,12 @@ export class CardScrapperSseService {
                 finishedProcess: i + 1,
                 maxProcess: images.length,
             });
-            if(!images[i].isBack) {
-                result.push({ img, name: images[i].name, hasBack: images[i].hasBack });
+            if (!images[i].isBack) {
+                result.push({
+                    img,
+                    name: images[i].name,
+                    hasBack: images[i].hasBack,
+                });
             }
         }
 
@@ -210,8 +232,8 @@ export class CardScrapperSseService {
                         clearInterval(timer);
                         resolve(true);
                     }
-                }, 100);  // Change interval time based on your requirements.
+                }, 100); // Change interval time based on your requirements.
             });
         });
-    };
+    }
 }
