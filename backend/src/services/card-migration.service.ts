@@ -89,9 +89,9 @@ export class CardMigrationService {
             orderedCardArray
                 .map((cardModel) => {
                     // TODO cardModel.getRarity
-                    return `{ cardNumber: ${cardModel.cardNumber}, name: '${
+                    return `{ cardNumber: ${cardModel.cardNumber}, name: "${
                         cardModel.cardName
-                    }', rarity: '${cardModel.rarity
+                    }", rarity: '${cardModel.rarity
                         .charAt(0)
                         .toUpperCase()}', layout: '${
                         cardModel.layout
@@ -198,7 +198,7 @@ export class CardMigrationService {
         })
         .forEach((cardJson) => {
             const cardModel = new InsertCardModel(
-                cardJson.name.replaceAll("'", "\\\\\\'"),
+                cardJson.name,
                 this.convertCardNumber(cardJson.number),
                 this.getRarityFromLongName(cardJson.rarity),
                 this.getCardLayout(cardJson),
