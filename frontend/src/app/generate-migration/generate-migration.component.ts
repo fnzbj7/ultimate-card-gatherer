@@ -83,7 +83,7 @@ export class GenerateMigrationComponent implements OnInit {
     });
   }
   private createImportCode(fileName: string, className: string) {
-    return `import { ${className} } from '../app/migration/${fileName.split('.ts')[0]}'`
+    return `import { ${className} } from '../app/migration/${fileName.split('.ts')[0]}';`
   }
 
   downloadCurrent() {
