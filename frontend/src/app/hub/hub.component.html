@@ -18,7 +18,7 @@
             <div class="text-lg font-bold mb-2">Group 3</div>
             <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Check numbers'" [navLovation]="'compare'" [isDone]="isCheckNumberF" [isDisabled]="!isUrlUploadF || !isJsonUploadF"></div>
             <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Convert Images'" [navLovation]="'convert'" [isDone]="isConvertToWebpF" [isDisabled]="!isCheckNumberF"></div>
-            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'" [isDone]="isUploadAwsF" [isDisabled]="!isConvertToWebpF"></div>
+            <div app-menu-btn class="relative w-11/12"  [id]="id" [menuText]="'Upload to AWS'" [navLovation]="'aws-upload'" [isDone]="isUploadAwsF" [isDisabled]="!isCheckNumberF"></div>
         </div>
       </div>
     </div>

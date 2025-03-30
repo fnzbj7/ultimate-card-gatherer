@@ -29,11 +29,34 @@ export class AwsCardUploadService {
         await this.uploadImages(jsonBase, 'webp', subscriber);
     }
 
+    private getImageFiles(setCode: string, imgType: string): string[] {
+        const primaryFolder = `${staticImgPath}/${setCode}/finished/${setCode}/${imgType}`;
+        const fallbackFolder = `${staticImgPath}/${setCode}/rename`;
+    
+        try {
+            // Try to read files from the primary folder
+            const files = fs.readdirSync(primaryFolder);
+            if (files.length > 0) {
+                return files;
+            }
+        } catch (error) {
+            this.log.warn(`Primary folder not found or empty: ${primaryFolder}`);
+        }
+    
+        try {
+            // Fallback to the renamed folder and filter for .webp files
+            const fallbackFiles = fs.readdirSync(fallbackFolder);
+            return fallbackFiles.filter(file => file.endsWith('.webp'));
+        } catch (error) {
+            this.log.error(`Fallback folder not found or empty: ${fallbackFolder}`);
+            return [];
+        }
+    }
+
     private async uploadImages(jsonBase: JsonBase, imgType: string, subscriber: Subscriber<{ data: string }>) {
         const {setCode} = jsonBase
         this.log.log(`Amazon upload start with ${setCode} and ${imgType}`);
-        const imgFolder = `${staticImgPath}/${setCode}/finished/${setCode}/${imgType}`;
-        const imgArr: string[] = fs.readdirSync(imgFolder);
+        const imgArr: string[] = this.getImageFiles(setCode, imgType);
 
         let count = 0;
         subscriber.next({
@@ -44,11 +67,18 @@ export class AwsCardUploadService {
         });
 
         const currentDirectory = process.cwd().split('\\').join('\\\\');
+        const primaryFolder = `${currentDirectory}\\${staticImgPath}\\${setCode}\\finished\\${setCode}\\${imgType}`;
+        const fallbackFolder = `${currentDirectory}\\${staticImgPath}\\${setCode}\\rename`;
+
+        // Check if the primary folder exists
+        const isPrimaryFolderAvailable = fs.existsSync(primaryFolder);
 
         for (const imgFile of imgArr) {
             const destPath = `${setCode}/${imgType}/${imgFile}`;
             this.log.log(`upload start for ${destPath}`);
-            const imgPath = `${currentDirectory}\\${staticImgPath}\\${setCode}\\finished\\${setCode}\\${imgType}\\${imgFile}`;
+            const imgPath = isPrimaryFolderAvailable
+            ? `${primaryFolder}\\${imgFile}`
+            : `${fallbackFolder}\\${imgFile}`;
             await this.awsCli.command(
                 `s3api put-object --bucket magiccollection --key ${destPath} ` +
                     `--body ${imgPath} ` +

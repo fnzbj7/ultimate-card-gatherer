@@ -13,8 +13,9 @@ export class CardCompareService {
 
         const cardNameArray = jsonBase.mtgJson.data.cards.map((card) => {
             return {
-                name: <string>card.name.split(' // ')[0],
-                name2: <string>card.name.split(' // ')[1],
+                // name: <string>card.name.split(' // ')[0],
+                // name2: <string>card.name.split(' // ')[1],
+                name: card.name,
                 num: parseInt(card.number),
             };
         }).sort((a, b) => a.num - b.num);

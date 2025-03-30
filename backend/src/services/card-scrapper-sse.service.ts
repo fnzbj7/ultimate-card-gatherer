@@ -187,9 +187,19 @@ export class CardScrapperSseService {
                 : `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
 
             // TODO use tessaract
-            const data = await Sharp(imageBuffer)
-                .extract({ left: 60, top: 965, width: 70, height: 25 }) // Adjust these values
+            const sharpImg = Sharp(imageBuffer);
+            const metadata = await sharpImg.metadata();
+            // this.logger.log(metadata);
+            let data; // 744 x 1039
+            // 9,28 = 1%    
+            if(metadata.height == 1039) {
+                data = await sharpImg.extract({ left: 60, top: 965, width: 70, height: 25 }) // Adjust these values
                 .toBuffer();
+            } else { // 650 x 908
+                data = await sharpImg.extract({ left: 52, top: 843, width: 61, height: 22 }) // Adjust these values
+                .toBuffer();
+            }
+                
             const worker = await createWorker();
             await worker.setParameters({
                 tessedit_char_whitelist:
