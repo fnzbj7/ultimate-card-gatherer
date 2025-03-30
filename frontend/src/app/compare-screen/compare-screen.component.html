@@ -56,8 +56,8 @@
             <img
               *ngIf="card.hasBack"
               src="http://localhost:5004/{{ setCode }}/raw/{{
-                card.img.split('.png')[0]
-              }}_F.png"
+                card.img.split('.')[0]
+              }}_F.{{card.img.split('.')[1]}}"
               alt="Image 2"
               class="w-72 h-auto"
             />

@@ -115,10 +115,12 @@ export class CardScrapperService {
 
             let imgName = '' + (isNormal ? num : num - 1);
             imgName = imgName.padStart(3, '0');
-            imgName += isNormal ? `.png` : '_F.png';
+            imgName += isNormal ? `` : '_F';
+            const imgPath = `../img/${jsonName}/raw/${imgName}`;
+            const finalImgPath = await this.download(cardNameWithUrl[i].src, imgPath);
             if (isNormal) {
                 actualCard = {
-                    imgName: imgName,
+                    imgName: finalImgPath,
                     cardName: foundCard.name,
                     isFlip: false,
                 };
@@ -129,8 +131,6 @@ export class CardScrapperService {
                     actualCard.isFlip = true;
                 }
             }
-            const imgPath = `../img/${jsonName}/raw/${imgName}`;
-            await this.download(cardNameWithUrl[i].src, imgPath);
             if (isNormal) num++;
         }
 
@@ -182,22 +182,35 @@ export class CardScrapperService {
         return datas;
     }
 
-    private async download(url, destination): Promise<void> {
+    private async download(url, destination): Promise<string> {
         return new Promise((resolve, _reject) => {
-            const file = fs.createWriteStream(destination);
-
             https
                 .get(url, (response) => {
+                    const contentType = response.headers['content-type'];
+                    let extension = 'png'; // Default to .png if no content type is found
+
+                    if (contentType) {
+                        if (contentType.includes('image/webp')) {
+                            extension = 'webp';
+                        } else if (contentType.includes('image/png')) {
+                            extension = 'png';
+                        } else if (contentType.includes('image/jpeg')) {
+                            extension = 'jpg';
+                        }
+                    }
+
+                    const finalDestination = `${destination}.${extension}`; // Append the correct extension
+                    const file = fs.createWriteStream(finalDestination);
                     response.pipe(file);
 
                     file.on('finish', function () {
                         file.close();
-                        resolve();
+                        resolve(finalDestination);
                     });
                 })
                 .on('error', (_error) => {
                     this.logger.warn('Nem tudta letölteni elsőre');
-                    this.redownload(url, destination, file, resolve);
+                    // this.redownload(url, destination, file, resolve);
                 });
         });
     }

@@ -179,12 +179,28 @@ export class CardScrapperSseService {
         }
         // Download each image and save it to a file
         for (let i = 0; i < images.length; i++) {
-            const imageBuffer = await page
+            const {imageBuffer, extension} = await page
                 .goto(images[i].src)
-                .then((response) => response.buffer());
+                .then( async (response) =>{
+                    const contentType = response.headers()['content-type'];
+                    let extension = 'png'; // Default to .png if no content type is found
+
+                    if (contentType) {
+                        if (contentType.includes('image/webp')) {
+                            extension = 'webp';
+                        } else if (contentType.includes('image/png')) {
+                            extension = 'png';
+                        } else if (contentType.includes('image/jpeg')) {
+                            extension = 'jpg';
+                        }
+                    }
+                    const imageBuffer = await response.buffer();
+                    return {imageBuffer, extension};
+                });
+
             const img = !images[i].isBack
-                ? 'image-' + (images[i].id + '').padStart(3, '0') + '.png'
-                : `image-${(images[i].frontId + '').padStart(3, '0')}_F.png`;
+                ? 'image-' + (images[i].id + '').padStart(3, '0') + `.${extension}`
+                : `image-${(images[i].frontId + '').padStart(3, '0')}_F.${extension}`;
 
             // TODO use tessaract
             const sharpImg = Sharp(imageBuffer);

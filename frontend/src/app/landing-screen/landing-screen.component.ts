@@ -22,6 +22,8 @@ export interface MessageData {
 })
 export class LandingScreenComponent implements OnInit {
   jsonBaseArr!: JsonBaseDto[];
+  private lastDeleteClickTime: number | null = null;
+  private lastDeleteId: number | null = null;
 
   // fullMsg: string = 'START: ';
 
@@ -70,5 +72,28 @@ export class LandingScreenComponent implements OnInit {
     event.preventDefault();
     this.router.navigate(['hub', id]);
     this.taskService.setId(id);
+  }
+
+  onDelete(event: Event,id: number) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentTime = Date.now();
+
+    if (this.lastDeleteId === id && this.lastDeleteClickTime && currentTime - this.lastDeleteClickTime < 1000) {
+      // If the second click happens within 1 second and the ID matches, proceed with deletion
+      console.log(`Deleting item with ID: ${id}`);
+      this.lastDeleteClickTime = null; // Reset the timer
+      this.lastDeleteId = null; // Reset the ID
+      // Add your delete logic here
+      this.http.delete(`/api/entity/json-base/${id}`).subscribe(() => {
+        this.jsonBaseArr = this.jsonBaseArr.filter((item) => item.id !== id);
+      });
+    } else {
+      // First click or different ID: warn the user
+      console.log('Click again within 1 second to confirm deletion.');
+      this.lastDeleteClickTime = currentTime; // Set the timer
+      this.lastDeleteId = id; // Set the ID
+    }
   }
 }
