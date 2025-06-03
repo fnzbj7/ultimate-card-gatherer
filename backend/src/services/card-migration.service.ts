@@ -1,6 +1,6 @@
-﻿import { Injectable } from '@nestjs/common';
-import { JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
-import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { Injectable } from '@nestjs/common';
+import { JsonBase, MtgJson } from '../entities/entities/json-base.entity';
+import { JsonBaseRepository } from '../repository/json-base.repository';
 
 
 @Injectable()

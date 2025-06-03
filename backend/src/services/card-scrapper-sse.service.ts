@@ -1,10 +1,10 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import puppeteer = require('puppeteer');
-import { CardMapping, JsonBase } from 'src/entities/entities/json-base.entity';
+import { CardMapping, JsonBase } from '../entities/entities/json-base.entity';
 
 import { Subscriber } from 'rxjs';
-import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { JsonBaseRepository } from '../repository/json-base.repository';
 import { staticImgPath } from './aws-card-upload.service';
 import { createWorker } from 'tesseract.js';
 import * as Sharp from 'sharp';

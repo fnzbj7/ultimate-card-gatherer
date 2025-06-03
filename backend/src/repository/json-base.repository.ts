@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JsonBaseFlag, JsonBase, MtgJson } from 'src/entities/entities/json-base.entity';
+import { JsonBaseFlag, JsonBase, MtgJson } from '../entities/entities/json-base.entity';
 import { FindOptionsSelect, Repository } from 'typeorm';
 
 @Injectable()

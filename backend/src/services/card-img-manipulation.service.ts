@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RenameDto } from 'src/dto/rename.dto';
+import { RenameDto } from '../dto/rename.dto';
 import * as fs from 'fs';
-import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { JsonBaseRepository } from '../repository/json-base.repository';
 import { compress } from 'compress-images/promise';
 import imagemin = require('imagemin');
 import imageminWebp = require('imagemin-webp');
@@ -11,6 +11,7 @@ import { staticImgPath } from './aws-card-upload.service';
 export class CardImgManipulationService {
 
     private logger = new Logger(CardImgManipulationService.name);
+    extension = 'webp';
 
     constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
 
@@ -39,7 +40,7 @@ export class CardImgManipulationService {
                 `${staticImgPath}/${setCode}/rename/${setCode}_${("" + newNumber).padStart(
                     3,
                     '0',
-                )}.png`,
+                )}.${this.extension}`,
             );
             if (isFlip) {
                 fs.copyFileSync(
@@ -47,7 +48,7 @@ export class CardImgManipulationService {
                     `${staticImgPath}/${setCode}/rename/${setCode}_${("" + newNumber).padStart(
                         3,
                         '0',
-                    )}_F.png`,
+                    )}_F.${this.extension}`,
                 );
             }
         });
@@ -86,11 +87,9 @@ export class CardImgManipulationService {
                 autoupdate: true,
               },
             onProgress: (error, statistic, completed) => {
-                console.log('Itt volt', ++count);
-                console.log({error, statistic, completed});
                 if (error) {
-                    const splt = error.input.split();
-                    errArr.push(splt[splt.length - 1]);
+                    const parts = error.input.split(/[\\/]/);
+                    errArr.push(parts[parts.length - 1]);
                 }
             },
         });

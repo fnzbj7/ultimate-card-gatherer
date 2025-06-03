@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { JsonBaseRepository } from '../repository/json-base.repository';
 import { staticImgPath } from './aws-card-upload.service';
 import * as fs from 'fs';
 

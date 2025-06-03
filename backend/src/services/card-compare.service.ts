@@ -15,7 +15,7 @@ export class CardCompareService {
             return {
                 // name: <string>card.name.split(' // ')[0],
                 // name2: <string>card.name.split(' // ')[1],
-                name: card.name,
+                name: card.faceName ?? card.name,
                 num: parseInt(card.number),
             };
         }).sort((a, b) => a.num - b.num);
@@ -34,6 +34,7 @@ export class CardCompareService {
                         uniqueFoundCard.nums.push(actual.num);
                     }
                 } else {
+                    // Ha forduló akkor másik értékből kell szedni a nevet
                     uniqueCardWithNums.push({
                         name: actual.name,
                         nums: [actual.num],

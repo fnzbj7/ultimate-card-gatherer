@@ -116,7 +116,7 @@ export class CompareScreenComponent implements OnInit {
       let isFlip = this.compareList?.cardMapping.find((x) => x.img === key)?.hasBack ?? false;
       let flipName = undefined;
       if (isFlip) {
-        flipName = key.split('.png')[0] + '_F.png';
+        flipName = key.substring(0, key.lastIndexOf('.')) + '_F' + key.substring(key.lastIndexOf('.'));
       }
 
       cards.push({ imgName: key, flipName, isFlip, newNumber: value.value });
