@@ -10,4 +10,17 @@
     </label>
     <p class="self-center text-sm mt-2">Search for json <a href="https://mtgjson.com/downloads/all-sets/" target="_blank" class="text-blue-600 dark:text-blue-500 hover:underline">here</a></p>
     <a class="w-28 self-end" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
+    <h3>Uploaded Cards</h3>
+    <div *ngIf="missingNumbers.length" class="mt-4 p-2 bg-yellow-100 border border-yellow-400 rounded">
+      <strong>Missing card numbers: </strong>
+      <span>{{ missingNumbers.join(', ') }}</span>
+    </div>
+    <div *ngIf="cards.length" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <ul *ngFor="let chunk of getCardChunks(cards, 3)">
+        <li *ngFor="let card of chunk">
+          {{ card.number }} - {{ card.name }}
+        </li>
+      </ul>
+    </div>
+    <p *ngIf="!cards.length">No cards loaded.</p>
   </section>
