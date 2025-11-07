@@ -4,7 +4,7 @@
     ><button class="btn-secondary">Back</button></a
   >
   <form *ngIf="compareList?.cardMapping" [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
-    <div class="sticky top-4 self-end z-10 mb-4 flex items-center gap-2">
+    <div class="sticky top-4 self-end z-10 mb-4 flex items-center gap-2 bg-white p-3 rounded-lg shadow-md">
       <button
         [disabled]="renameState === 'finished'"
         class="w-28 mr-2"
@@ -21,8 +21,8 @@
       <a class="w-28" [routerLink]="['/', 'hub', id]"><button class="btn-secondary">Back</button></a>
       <div class="ml-4 flex items-center gap-2 px-4 py-2 bg-gray-100 rounded">
         <span class="text-sm font-semibold">
-          Issues: <span [class.text-red-600]="getIssueCount() > 0">{{ getIssueCount() }}</span> /
-          {{ compareList.cardMapping.length }}
+          {{ getProgressText() }} | Issues:
+          <span [class.text-red-600]="getIssueCount() > 0">{{ getIssueCount() }}</span>
         </span>
         <button
           type="button"
@@ -32,11 +32,115 @@
         >
           {{ showOnlyIssues ? '✓ Show Only Issues' : 'Show All' }}
         </button>
+        <button
+          type="button"
+          (click)="showKeyboardHelp = !showKeyboardHelp"
+          class="px-3 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600"
+          title="Keyboard Shortcuts (Press ?)"
+        >
+          ⌨️
+        </button>
       </div>
     </div>
-    <div class="flex flex-wrap -mx-4 justify-center" *ngFor="let card of getFilteredCards()">
-      <div>
-        <div class="flex items-center mb-4 border-2 p-4 rounded-lg" [ngClass]="getIssueClass(card)">
+
+    <!-- Keyboard Shortcuts Overlay -->
+    <div
+      *ngIf="showKeyboardHelp"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      (click)="showKeyboardHelp = false"
+    >
+      <div class="bg-white rounded-lg shadow-2xl p-8 max-w-2xl" (click)="$event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">⌨️ Keyboard Shortcuts</h2>
+          <button type="button" (click)="showKeyboardHelp = false" class="text-gray-500 hover:text-gray-700 text-2xl">
+            ×
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-semibold text-lg mb-3 text-blue-600">Navigation</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">↓ or J</span>
+                <span>Next card</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">↑ or K</span>
+                <span>Previous card</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">Shift+↓</span>
+                <span>Next issue</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">Shift+↑</span>
+                <span>Prev issue</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">Home</span>
+                <span>First card</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">End</span>
+                <span>Last card</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-lg mb-3 text-green-600">Selection</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">0 or Space</span>
+                <span>Accept suggested</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">1-9</span>
+                <span>Select Nth option</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">X or S</span>
+                <span>Skip this card</span>
+              </div>
+            </div>
+
+            <h3 class="font-semibold text-lg mt-6 mb-3 text-purple-600">Actions</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">Enter</span>
+                <span>Submit form</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">?</span>
+                <span>Toggle this help</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-blue-50 rounded text-sm text-blue-800">
+          <strong>💡 Pro Tip:</strong> Press <kbd class="font-mono bg-white px-2 py-1 rounded">0</kbd> to accept the
+          suggested number and auto-advance to the next card for rapid processing!
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-wrap -mx-4 justify-center" *ngFor="let card of getFilteredCards(); let i = index">
+      <div [id]="'card-' + i" class="transition-all duration-200 relative">
+        <!-- Green Checkmark Badge for Checked Cards -->
+        <div
+          *ngIf="isCardChecked(card)"
+          class="absolute -top-3 -right-3 z-20 bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg border-2 border-white font-bold text-xl"
+          title="Card number selected"
+        >
+          ✓
+        </div>
+
+        <div
+          class="flex items-center mb-4 border-2 p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg"
+          [ngClass]="getCardClasses(card, i)"
+          (click)="onCardClick(i)"
+        >
           <div class="mr-4 flex flex-row justify-center" style="min-width: 36rem">
             <div class="group" style="position: relative">
               <img src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}" alt="Image 1" class="w-72 h-auto" />
@@ -54,7 +158,9 @@
             />
           </div>
           <div class="d-inline-block ml-3 w-64">
-            <b>{{ card.name }}</b>
+            <div class="flex items-center justify-between mb-2">
+              <b>{{ card.name }}</b>
+            </div>
             <div
               *ngIf="card.hasIssue"
               class="text-sm font-semibold mb-2 p-2 rounded"
@@ -67,38 +173,49 @@
               {{ getIssueText(card) }}
             </div>
             <div class="text-xs text-gray-600 mb-2">
-              OCR: {{ card.ocrNumber || 'N/A' }}
-              <span *ngIf="card.suggestedNumber" class="ml-2 text-blue-600 font-semibold">
-                → Suggested: {{ card.suggestedNumber }}
+              OCR: <span class="font-mono">{{ card.ocrNumber || 'N/A' }}</span>
+              <span
+                *ngIf="isDifferentFromOcr(card)"
+                class="ml-2 text-orange-600 font-semibold"
+                title="Selected value differs from OCR"
+              >
+                ⚠ Different from OCR
               </span>
             </div>
-            <ng-container *ngFor="let cardNum of findPossibleCardNumbers(card.name)">
+            <ng-container *ngFor="let cardNum of findPossibleCardNumbers(card.name); let numIndex = index">
+              <div class="relative">
+                <span *ngIf="isActiveCard(i)" class="absolute -left-8 top-0 text-xs text-gray-400"
+                  >[{{ numIndex + 1 }}]</span
+                >
+                <input
+                  class="mr-1 mb-4 inline-block"
+                  type="radio"
+                  formControlName="{{ card.img }}"
+                  [name]="card.img"
+                  [value]="cardNum"
+                  id="{{ cardNum + card.img }}"
+                />
+                <label
+                  for="{{ cardNum + card.img }}"
+                  [class.font-bold]="cardNum === card.suggestedNumber"
+                  [class.text-blue-600]="cardNum === card.suggestedNumber"
+                >
+                  {{ cardNum }}
+                </label>
+              </div>
+            </ng-container>
+            <div class="relative">
+              <span *ngIf="isActiveCard(i)" class="absolute -left-8 top-0 text-xs text-gray-400">[X]</span>
               <input
-                class="mr-1 mb-4 inline-block"
+                class="mr-1 inline-block"
                 type="radio"
                 formControlName="{{ card.img }}"
-                [name]="card.img"
-                [value]="cardNum"
-                id="{{ cardNum + card.img }}"
+                name="{{ card.img }}"
+                value="{{ null }}"
+                id="{{ 'nope' + card.img }}"
               />
-              <label
-                for="{{ cardNum + card.img }}"
-                [class.font-bold]="cardNum === card.suggestedNumber"
-                [class.text-blue-600]="cardNum === card.suggestedNumber"
-              >
-                {{ cardNum }}
-              </label>
-              <br />
-            </ng-container>
-            <input
-              class="mr-1 inline-block"
-              type="radio"
-              formControlName="{{ card.img }}"
-              name="{{ card.img }}"
-              value="{{ null }}"
-              id="{{ 'nope' + card.img }}"
-            />
-            <label for="{{ 'nope' + card.img }}">Nope</label>
+              <label for="{{ 'nope' + card.img }}">Nope</label>
+            </div>
             <br />
           </div>
         </div>

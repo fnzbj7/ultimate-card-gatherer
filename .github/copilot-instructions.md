@@ -11,6 +11,17 @@ This is a full-stack **desktop application** for managing Magic: The Gathering c
 -   Database: SQLite
 -   Target: Desktop browsers (no mobile optimization required)
 
+## Interaction Guidelines
+
+### When to Provide Explanations vs. Make Changes
+
+-   **If the user asks "what does X do?" or "what does X represent?"** → Provide ONLY an explanation. Do NOT make code changes.
+-   **If the user asks "explain how X works"** → Provide ONLY an explanation. Do NOT make code changes.
+-   **If the user asks to "fix", "change", "update", "modify", "add", "remove", or "implement"** → Make the requested code changes.
+-   **When in doubt**, ask for clarification before making changes to code.
+
+This ensures you understand the user's intent and avoid making unwanted modifications when they're simply seeking to understand the codebase.
+
 ## General Coding Standards
 
 ### TypeScript
