@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../store/task.reducer';
 import { TaskService } from '../store/task.service';
+import { setJsonBase } from '../store/task.actions';
+import { JsonBaseDto } from '../dto/dto-collection';
 
 @Component({
   selector: 'app-upload-json',
@@ -80,7 +82,15 @@ export class UploadJsonComponent implements OnInit {
       const id = this.route.snapshot.params['id'];
       const formData = new FormData();
       formData.append('json', this.selectedFile);
-      this.http.post(`/api/entity/json-base/${id}/update-json`, formData).subscribe();
+      this.http.post<JsonBaseDto>(`/api/entity/json-base/${id}/update-json`, formData).subscribe({
+        next: (jsonBase: any) => {
+          // Assuming the backend returns the updated jsonBase object
+          if (jsonBase && jsonBase.mtgJson && jsonBase.mtgJson.data && jsonBase.mtgJson.data.cards) {
+            // Dispatch an action to update the store with the new JSON
+            this.store.dispatch(setJsonBase({ jsonBase }));
+          }
+        }
+      });
     }
   }
 

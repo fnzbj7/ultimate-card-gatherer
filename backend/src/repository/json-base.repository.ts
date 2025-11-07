@@ -99,7 +99,7 @@ export class JsonBaseRepository {
 
         jsonBase.mtgJson = fileContent;
 
-        await this.entityRepository.save(jsonBase);
+        return await this.entityRepository.save(jsonBase);
     }
 
     async setFlagToTrueAndSave(jsonBase: JsonBase, flag: JsonBaseFlag) {

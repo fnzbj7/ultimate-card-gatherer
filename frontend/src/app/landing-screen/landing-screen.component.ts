@@ -45,7 +45,7 @@ export class LandingScreenComponent implements OnInit {
         return response as JsonBaseDto[];
       }))
     .subscribe((resp) => {
-      this.jsonBaseArr = resp;
+      this.jsonBaseArr = resp.reverse();
     });
   }
 

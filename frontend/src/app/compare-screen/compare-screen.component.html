@@ -15,7 +15,7 @@
     [formGroup]="myFormGroup"
     (ngSubmit)="onSubmit()"
   >
-    <div class="sticky top-4 self-end">
+    <div class="sticky top-4 self-end z-10">
       <button [disabled]="renameState === 'finished'" class="w-28 mr-2" [ngClass]="{'btn-primary': renameState === 'init' || renameState === 'load', 'btn-finished': renameState === 'finished'}" type="submit">
         <ng-container *ngIf="renameState === 'init'">
           Save

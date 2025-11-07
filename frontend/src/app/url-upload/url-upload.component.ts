@@ -37,7 +37,7 @@ export class UrlUploadComponent implements OnInit {
       if (tasks.jsonBase) {
         const { jsonBase } = tasks;
         this.setCode = jsonBase.setCode;
-        this.cardGaleryName = jsonBase.name.toLowerCase().replaceAll(' ', '-');
+        this.cardGaleryName = jsonBase.name.toLowerCase().replaceAll(' ', '-').replaceAll(":", '');
         this.searchTerm = jsonBase.name.replaceAll(' ', '+');
         if (jsonBase.urls) {
           this.urlList = jsonBase.urls.split(',');

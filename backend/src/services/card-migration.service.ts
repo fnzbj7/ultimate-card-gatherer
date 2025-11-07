@@ -106,10 +106,11 @@ export class CardMigrationService {
     }
 
     private generateSetSQLNextJsFooterV2(fullExtension: string) {
+        const repaced = fullExtension.replaceAll('\'', '\\\'');
         return `
         await MigrationHelper.cardSetUp(
             queryRunner,
-            '${fullExtension}',
+            '${repaced}',
             this.shortName,
             cardValues,
             [\`id\`, \`cardNumber\`, \`name\`, \`rarity\`, \`layout\`, \`cardSet\`, \`colors\`, \`types\`],
