@@ -1,12 +1,12 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { CompareCardDto, CompareCardService } from './compare-card.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { Store, select } from '@ngrx/store';
-import { TaskService } from '../store/task.service';
-import { AppState } from '../store/task.reducer';
 import { finishTask } from '../store/task.actions';
+import { AppState } from '../store/task.reducer';
+import { TaskService } from '../store/task.service';
+import { CompareCardDto, CompareCardService } from './compare-card.service';
 
 type BestNum = {
   [key: string]: number;
@@ -28,6 +28,7 @@ export class CompareScreenComponent implements OnInit {
   isConvertWebpDone = false;
   id!: string;
   setCode: string = '';
+  showOnlyIssues = false;
 
   constructor(
     private compareCardService: CompareCardService,
@@ -35,7 +36,7 @@ export class CompareScreenComponent implements OnInit {
     private http: HttpClient,
     private route: ActivatedRoute,
     private store: Store<AppState>,
-    private taskService: TaskService
+    private taskService: TaskService,
   ) {}
 
   ngOnInit() {
@@ -52,20 +53,11 @@ export class CompareScreenComponent implements OnInit {
       this.taskService.setId(+this.id);
     }
 
-    // this.jsonName = this.route.snapshot.params.jsonName;
-
     if (this.compareList) {
       let group: { [key: string]: FormControl } = {};
-      let bestNum: BestNum = {};
-      let bestNumMap = new Map<string, number>();
-      this.compareList.cardMapping.forEach((input_template) => {
-        if (!bestNum[input_template.name]) {
-          bestNum[input_template.name] = 0;
-          bestNumMap.set(input_template.name, 0);
-        }
-        group[input_template.img] = new FormControl(
-          this.findPossibleCardNumbers(input_template.name)[bestNum[input_template.name]++],
-        );
+      this.compareList.cardMapping.forEach((card) => {
+        // Use suggested number if available, otherwise null
+        group[card.img] = new FormControl(card.suggestedNumber);
       });
       this.myFormGroup = new FormGroup(group);
     } else {
@@ -73,14 +65,9 @@ export class CompareScreenComponent implements OnInit {
         this.compareList = x;
         this.setCode = this.compareList.setCode;
         let group: { [key: string]: FormControl } = {};
-        let bestNum: BestNum = {};
-        this.compareList.cardMapping.forEach((input_template) => {
-          if (!bestNum[input_template.name]) {
-            bestNum[input_template.name] = 0;
-          }
-          group[input_template.img] = new FormControl(
-            this.findPossibleCardNumbers(input_template.name)[bestNum[input_template.name]++],
-          );
+        this.compareList.cardMapping.forEach((card) => {
+          // Use suggested number if available, otherwise null
+          group[card.img] = new FormControl(card.suggestedNumber);
         });
         this.myFormGroup = new FormGroup(group);
       });
@@ -94,6 +81,55 @@ export class CompareScreenComponent implements OnInit {
     } else {
       return [];
     }
+  }
+
+  getIssueClass(card: any): string {
+    if (!card.hasIssue) return '';
+
+    switch (card.issueType) {
+      case 'missing_ocr':
+        return 'border-yellow-500 bg-yellow-50';
+      case 'duplicate':
+        return 'border-orange-500 bg-orange-50';
+      case 'ocr_mismatch':
+        return 'border-red-500 bg-red-50';
+      case 'no_available_numbers':
+        return 'border-red-700 bg-red-100';
+      default:
+        return 'border-gray-500';
+    }
+  }
+
+  getIssueText(card: any): string {
+    if (!card.hasIssue) return '';
+
+    switch (card.issueType) {
+      case 'missing_ocr':
+        return '⚠ Missing OCR number';
+      case 'duplicate':
+        return '⚠ Duplicate - OCR already used';
+      case 'ocr_mismatch':
+        return `⚠ OCR mismatch (OCR: ${card.ocrNumber})`;
+      case 'no_available_numbers':
+        return '❌ No available numbers for this card';
+      default:
+        return '⚠ Issue detected';
+    }
+  }
+
+  getFilteredCards() {
+    if (!this.compareList) return [];
+    if (!this.showOnlyIssues) return this.compareList.cardMapping;
+    return this.compareList.cardMapping.filter((card) => card.hasIssue);
+  }
+
+  getIssueCount(): number {
+    if (!this.compareList) return 0;
+    return this.compareList.cardMapping.filter((card) => card.hasIssue).length;
+  }
+
+  toggleIssueFilter() {
+    this.showOnlyIssues = !this.showOnlyIssues;
   }
 
   onSubmit() {

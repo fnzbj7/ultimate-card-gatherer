@@ -1,73 +1,78 @@
-<section
-  *ngIf="compareList"
-  class="container w-3/4 flex flex-col mx-auto px-4 h-full rounded-lg bg-white shadow-lg"
->
-  <app-breadcumb
-    [id]="id"
-    [setCode]="setCode"
-    [subMenu]="'Compare Screen'"
-  ></app-breadcumb>
+<section *ngIf="compareList" class="container w-3/4 flex flex-col mx-auto px-4 h-full rounded-lg bg-white shadow-lg">
+  <app-breadcumb [id]="id" [setCode]="setCode" [subMenu]="'Compare Screen'"></app-breadcumb>
   <a *ngIf="!compareList?.cardMapping" class="w-28" [routerLink]="['/', 'hub', id]"
-        ><button class="btn-secondary">Back</button></a
-      >
-  <form
-    *ngIf="compareList?.cardMapping"
-    [formGroup]="myFormGroup"
-    (ngSubmit)="onSubmit()"
+    ><button class="btn-secondary">Back</button></a
   >
-    <div class="sticky top-4 self-end z-10">
-      <button [disabled]="renameState === 'finished'" class="w-28 mr-2" [ngClass]="{'btn-primary': renameState === 'init' || renameState === 'load', 'btn-finished': renameState === 'finished'}" type="submit">
-        <ng-container *ngIf="renameState === 'init'">
-          Save
-        </ng-container>
-        <ng-container *ngIf="renameState === 'load'">
-          Load
-        </ng-container>
-        <ng-container *ngIf="renameState === 'finished'">
-          Finished
-        </ng-container>
-      </button>
-      <a class="w-28" [routerLink]="['/', 'hub', id]"
-        ><button class="btn-secondary">Back</button></a
+  <form *ngIf="compareList?.cardMapping" [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
+    <div class="sticky top-4 self-end z-10 mb-4 flex items-center gap-2">
+      <button
+        [disabled]="renameState === 'finished'"
+        class="w-28 mr-2"
+        [ngClass]="{
+          'btn-primary': renameState === 'init' || renameState === 'load',
+          'btn-finished': renameState === 'finished'
+        }"
+        type="submit"
       >
+        <ng-container *ngIf="renameState === 'init'"> Save </ng-container>
+        <ng-container *ngIf="renameState === 'load'"> Load </ng-container>
+        <ng-container *ngIf="renameState === 'finished'"> Finished </ng-container>
+      </button>
+      <a class="w-28" [routerLink]="['/', 'hub', id]"><button class="btn-secondary">Back</button></a>
+      <div class="ml-4 flex items-center gap-2 px-4 py-2 bg-gray-100 rounded">
+        <span class="text-sm font-semibold">
+          Issues: <span [class.text-red-600]="getIssueCount() > 0">{{ getIssueCount() }}</span> /
+          {{ compareList.cardMapping.length }}
+        </span>
+        <button
+          type="button"
+          (click)="toggleIssueFilter()"
+          class="px-3 py-1 text-sm rounded"
+          [ngClass]="showOnlyIssues ? 'bg-orange-500 text-white' : 'bg-white border border-gray-300'"
+        >
+          {{ showOnlyIssues ? '✓ Show Only Issues' : 'Show All' }}
+        </button>
+      </div>
     </div>
-    <div
-      class="flex flex-wrap -mx-4 justify-center"
-      *ngFor="let card of compareList.cardMapping"
-    >
+    <div class="flex flex-wrap -mx-4 justify-center" *ngFor="let card of getFilteredCards()">
       <div>
-        <div class="flex items-center mb-4 border border-gray-300 p-4">
-          <div
-            class="mr-4 flex flex-row justify-center"
-            style="min-width: 36rem"
-          >
-          <div class="group" style="position: relative;">
-            <img
-              src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}"
-              alt="Image 1"
-              class="w-72 h-auto"
-            />
-            <img
-              src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}"
-              alt="Image 1"
-              class="w-36 h-20 absolute bottom-0 left-0 object-none object-left-bottom hidden group-hover:block"
-            />
-          </div>
+        <div class="flex items-center mb-4 border-2 p-4 rounded-lg" [ngClass]="getIssueClass(card)">
+          <div class="mr-4 flex flex-row justify-center" style="min-width: 36rem">
+            <div class="group" style="position: relative">
+              <img src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}" alt="Image 1" class="w-72 h-auto" />
+              <img
+                src="http://localhost:5004/{{ setCode }}/raw/{{ card.img }}"
+                alt="Image 1"
+                class="w-36 h-20 absolute bottom-0 left-0 object-none object-left-bottom hidden group-hover:block"
+              />
+            </div>
             <img
               *ngIf="card.hasBack"
-              src="http://localhost:5004/{{ setCode }}/raw/{{
-                card.img.split('.')[0]
-              }}_F.{{card.img.split('.')[1]}}"
+              src="http://localhost:5004/{{ setCode }}/raw/{{ card.img.split('.')[0] }}_F.{{ card.img.split('.')[1] }}"
               alt="Image 2"
               class="w-72 h-auto"
             />
           </div>
           <div class="d-inline-block ml-3 w-64">
-            <b>{{ card.name }}</b
-            ><br />
-            <ng-container
-              *ngFor="let cardNum of findPossibleCardNumbers(card.name)"
+            <b>{{ card.name }}</b>
+            <div
+              *ngIf="card.hasIssue"
+              class="text-sm font-semibold mb-2 p-2 rounded"
+              [ngClass]="{
+                'text-yellow-700': card.issueType === 'missing_ocr',
+                'text-orange-700': card.issueType === 'duplicate',
+                'text-red-700': card.issueType === 'ocr_mismatch' || card.issueType === 'no_available_numbers'
+              }"
             >
+              {{ getIssueText(card) }}
+            </div>
+            <div class="text-xs text-gray-600 mb-2">
+              OCR: {{ card.ocrNumber || 'N/A' }}
+              <span *ngIf="card.suggestedNumber" class="ml-2 text-blue-600 font-semibold">
+                → Suggested: {{ card.suggestedNumber }}
+              </span>
+            </div>
+            <ng-container *ngFor="let cardNum of findPossibleCardNumbers(card.name)">
               <input
                 class="mr-1 mb-4 inline-block"
                 type="radio"
@@ -76,7 +81,13 @@
                 [value]="cardNum"
                 id="{{ cardNum + card.img }}"
               />
-              <label for="{{ cardNum + card.img }}">{{ cardNum }}</label>
+              <label
+                for="{{ cardNum + card.img }}"
+                [class.font-bold]="cardNum === card.suggestedNumber"
+                [class.text-blue-600]="cardNum === card.suggestedNumber"
+              >
+                {{ cardNum }}
+              </label>
               <br />
             </ng-container>
             <input

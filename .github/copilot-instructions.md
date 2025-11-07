@@ -2,13 +2,14 @@
 
 ## Project Overview
 
-This is a full-stack application for managing Magic: The Gathering card collections with image processing capabilities.
+This is a full-stack **desktop application** for managing Magic: The Gathering card collections with image processing capabilities. The application is designed to run on desktop computers only as a helper/utility program.
 
 **Stack:**
 
 -   Frontend: Angular with Tailwind CSS
 -   Backend: NestJS
 -   Database: SQLite
+-   Target: Desktop browsers (no mobile optimization required)
 
 ## General Coding Standards
 
