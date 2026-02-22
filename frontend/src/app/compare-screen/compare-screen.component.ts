@@ -197,6 +197,10 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
         this.selectNumberByIndex(command.value);
         break;
 
+      case 'selectNope':
+        this.selectNopeOption();
+        break;
+
       case 'skip':
         this.skipCurrentCard();
         break;
@@ -286,6 +290,20 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       });
 
       // Auto-advance to next card
+      setTimeout(() => {
+        this.navigateToCard(this.activeCardIndex + 1);
+      }, 150);
+    }
+  }
+
+  private selectNopeOption(): void {
+    const filteredCards = this.getFilteredCards();
+    const activeCard = filteredCards[this.activeCardIndex];
+
+    if (activeCard) {
+      this.myFormGroup.patchValue({
+        [activeCard.img]: null,
+      });
       setTimeout(() => {
         this.navigateToCard(this.activeCardIndex + 1);
       }, 150);

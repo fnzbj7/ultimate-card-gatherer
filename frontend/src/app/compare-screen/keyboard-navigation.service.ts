@@ -9,6 +9,7 @@ export interface KeyboardCommand {
     | 'prevIssue'
     | 'selectNumber'
     | 'selectSuggested'
+    | 'selectNope'
     | 'skip'
     | 'submit'
     | 'first'
@@ -36,9 +37,12 @@ export class KeyboardNavigationService {
         return;
       }
 
-      // Ignore if user is typing in an input/textarea
+      // Ignore if user is typing in an input/textarea (but allow radio buttons)
       const target = event.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      if (target.tagName === 'TEXTAREA') {
+        return;
+      }
+      if (target.tagName === 'INPUT' && (target as HTMLInputElement).type !== 'radio') {
         return;
       }
 
@@ -75,7 +79,10 @@ export class KeyboardNavigationService {
       } else if (key >= '1' && key <= '9') {
         event.preventDefault();
         this.commandSubject.next({ action: 'selectNumber', value: parseInt(key, 10) });
-      } else if (key === 'x' || key === 's') {
+      } else if (key === 'x') {
+        event.preventDefault();
+        this.commandSubject.next({ action: 'selectNope' });
+      } else if (key === 's') {
         event.preventDefault();
         this.commandSubject.next({ action: 'skip' });
       }

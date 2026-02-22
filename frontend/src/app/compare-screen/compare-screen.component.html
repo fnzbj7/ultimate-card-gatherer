@@ -4,7 +4,7 @@
     ><button class="btn-secondary">Back</button></a
   >
   <form *ngIf="compareList?.cardMapping" [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
-    <div class="sticky top-4 self-end z-10 mb-4 flex items-center gap-2 bg-white p-3 rounded-lg shadow-md">
+    <div class="sticky top-0 self-end z-10 mb-4 flex items-center gap-2 bg-white p-3 rounded-lg shadow-md">
       <button
         [disabled]="renameState === 'finished'"
         class="w-28 mr-2"
@@ -100,8 +100,12 @@
                 <span>Select Nth option</span>
               </div>
               <div class="flex justify-between">
-                <span class="font-mono bg-gray-100 px-2 py-1 rounded">X or S</span>
-                <span>Skip this card</span>
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">X</span>
+                <span>Select "Nope"</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="font-mono bg-gray-100 px-2 py-1 rounded">S</span>
+                <span>Skip & advance</span>
               </div>
             </div>
 
@@ -194,6 +198,7 @@
                   [name]="card.img"
                   [value]="cardNum"
                   id="{{ cardNum + card.img }}"
+                  (change)="$any($event.target).blur()"
                 />
                 <label
                   for="{{ cardNum + card.img }}"
@@ -211,8 +216,9 @@
                 type="radio"
                 formControlName="{{ card.img }}"
                 name="{{ card.img }}"
-                value="{{ null }}"
+                [value]="null"
                 id="{{ 'nope' + card.img }}"
+                (change)="$any($event.target).blur()"
               />
               <label for="{{ 'nope' + card.img }}">Nope</label>
             </div>

@@ -6,35 +6,171 @@
     Url Uploads
   </h1>
 
-  <p class="self-center text-sm mt-2">
+  <p class="self-center text-sm mt-2 text-gray-600">
     Search images
-    <a [href]="'https://magic.wizards.com/en/news/card-image-gallery?search=' + searchTerm" target="_blank">here</a> or
-    <a [href]="'https://magic.wizards.com/en/products/' + cardGaleryName + '/card-image-gallery'" target="_blank"
+    <a
+      [href]="'https://magic.wizards.com/en/news/card-image-gallery?search=' + searchTerm"
+      target="_blank"
+      class="text-blue-600 hover:text-blue-800 underline"
+      >here</a
+    >
+    or
+    <a
+      [href]="'https://magic.wizards.com/en/products/' + cardGaleryName + '/card-image-gallery'"
+      target="_blank"
+      class="text-blue-600 hover:text-blue-800 underline"
       >here</a
     >!
   </p>
-  <div class="self-center" style="width: 850px">
-    <div>
-      <label for="small-input" class="block mb-2 text-sm font-medium text-gray-900">Adding Url</label>
-      <input class="input inline-block" [(ngModel)]="url" />
-      <button class="btn btn-primary" (click)="onAddingUrl()">Add</button>
+
+  <div class="self-center w-full max-w-4xl mt-6">
+    <!-- Add URL Input Section -->
+    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+      <label for="url-input" class="block mb-2 text-sm font-medium text-gray-900">Add Image URL</label>
+      <div class="flex gap-2">
+        <input
+          id="url-input"
+          class="input flex-1"
+          [(ngModel)]="url"
+          placeholder="Paste image URL here..."
+          (keyup.enter)="onAddingUrl()"
+        />
+        <button class="btn btn-primary whitespace-nowrap" (click)="onAddingUrl()" [disabled]="!url.trim()">
+          <span class="mr-1">+</span> Add URL
+        </button>
+      </div>
     </div>
 
-    <div class="flex w-full justify-between" *ngFor="let url of urlList">
-      <p style="display: inline-block">{{ url }}</p>
-      <button class="btn btn-danger" (click)="onDeleteUrl(url)" style="margin-left: 10px">Delete</button>
+    <!-- URL List Section -->
+    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden" *ngIf="urlList.length > 0">
+      <div class="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">
+          Uploaded URLs
+          <span class="ml-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">{{ urlList.length }}</span>
+        </h3>
+        <button
+          class="text-xs text-red-600 hover:text-red-800 font-medium"
+          (click)="onClearAll()"
+          *ngIf="urlList.length > 0"
+        >
+          Clear All
+        </button>
+      </div>
+
+      <div class="max-h-96 overflow-y-auto">
+        <div
+          class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group"
+          *ngFor="let url of urlList; let i = index"
+        >
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <span class="text-xs font-mono text-gray-400 flex-shrink-0">{{ i + 1 }}</span>
+            <div class="flex-1 min-w-0">
+              <a
+                [href]="url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2 group/link"
+                [title]="url"
+              >
+                <svg
+                  class="w-4 h-4 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  ></path>
+                </svg>
+                <span class="truncate group-hover/link:underline">
+                  <span class="text-gray-500">{{ getUrlBase(url) }}</span
+                  ><span class="font-semibold text-blue-700">{{ getUrlParams(url) }}</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 ml-4 flex-shrink-0">
+            <button
+              class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+              (click)="onCopyUrl(url)"
+              title="Copy URL"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                ></path>
+              </svg>
+            </button>
+            <button
+              class="p-2 text-gray-400 hover:text-red-600 transition-colors"
+              (click)="onDeleteUrl(url)"
+              title="Delete URL"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
+      *ngIf="urlList.length === 0"
+    >
+      <svg
+        class="w-12 h-12 mx-auto text-gray-400 mb-3"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+        ></path>
+      </svg>
+      <p class="text-gray-500 text-sm">No URLs added yet. Paste image URLs above to get started.</p>
     </div>
   </div>
 
-  <div class="self-end">
+  <div class="self-end mt-6">
     <button
-      class=""
       [disabled]="setCode === undefined || this.urlList.length === 0"
-      class="btn btn-primary mr-3 mt-5"
+      class="btn btn-primary mr-3"
       (click)="onSendToBackend()"
     >
-      Send To Backend
+      <span class="mr-1">✓</span> Send To Backend
     </button>
-    <a class="w-28" [routerLink]="['/', 'hub', id]"><button class="btn-secondary">back</button></a>
+    <a class="w-28" [routerLink]="['/', 'hub', id]"><button class="btn-secondary">← Back</button></a>
   </div>
 </section>
