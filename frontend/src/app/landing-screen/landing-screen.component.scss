@@ -1,3 +1,15 @@
-.parent:hover .set-svg {
+.parent {
+  position: relative;
+
+  &:hover .set-svg {
     filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(106deg) brightness(102%) contrast(102%);
+  }
+
+  .set-svg {
+    max-height: 70%;
+    max-width: 70%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
