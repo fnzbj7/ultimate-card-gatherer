@@ -41,12 +41,7 @@ export class CardMigrationService {
             ),
             fileName: `${dateTime}-add-${mtgJson.data.code.toLocaleLowerCase()}-cards.migration.ts`,
             className,
-            cardService: `new MagicSet('${mtgJson.data.code}', '${
-                mtgJson.data.name
-            }', ${mtgJson.data.totalSetSize}, ${mtgJson.data.releaseDate.slice(
-                0,
-                4,
-            )}),`,
+            cardService: `new MagicSet(${JSON.stringify(mtgJson.data.code)}, ${JSON.stringify(mtgJson.data.name)}, ${mtgJson.data.totalSetSize}, ${mtgJson.data.releaseDate.slice(0, 4)}),`,
         };
 
         jsonBase.migration = result;
@@ -78,7 +73,7 @@ export class CardMigrationService {
         import { MigrationHelper } from './helper/migration-helper';
         
         export class ${className} implements MigrationInterface {
-            shortName = '${shortName}';
+            shortName = ${JSON.stringify(shortName)};
             public async up(queryRunner: QueryRunner): Promise<void> {`;
     }
 
@@ -89,15 +84,14 @@ export class CardMigrationService {
             orderedCardArray
                 .map((cardModel) => {
                     // TODO cardModel.getRarity
-                    return `{ cardNumber: ${cardModel.cardNumber}, name: "${
-                        cardModel.cardName
-                    }", rarity: '${cardModel.rarity
-                        .charAt(0)
-                        .toUpperCase()}', layout: '${
-                        cardModel.layout
-                    }', types: '${cardModel.types.join(
-                        ',',
-                    )}', colors: '${cardModel.colors.join(',')}'},`;
+                    return JSON.stringify({
+                        cardNumber: cardModel.cardNumber,
+                        name: cardModel.cardName,
+                        rarity: cardModel.rarity.charAt(0).toUpperCase(),
+                        layout: cardModel.layout,
+                        types: cardModel.types.join(','),
+                        colors: cardModel.colors.join(','),
+                    }) + ',';
                 })
                 .join(''),
         );
@@ -106,11 +100,10 @@ export class CardMigrationService {
     }
 
     private generateSetSQLNextJsFooterV2(fullExtension: string) {
-        const repaced = fullExtension.replaceAll('\'', '\\\'');
         return `
         await MigrationHelper.cardSetUp(
             queryRunner,
-            '${repaced}',
+            ${JSON.stringify(fullExtension)},
             this.shortName,
             cardValues,
             [\`id\`, \`cardNumber\`, \`name\`, \`rarity\`, \`layout\`, \`cardSet\`, \`colors\`, \`types\`],

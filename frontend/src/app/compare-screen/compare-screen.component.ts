@@ -7,12 +7,18 @@ import { Subscription } from 'rxjs';
 import { finishTask } from '../store/task.actions';
 import { AppState } from '../store/task.reducer';
 import { TaskService } from '../store/task.service';
-import { CompareCardDto, CompareCardService } from './compare-card.service';
-import { KeyboardNavigationService } from './keyboard-navigation.service';
+import { CompareCardDto, CompareCardService, EnhancedCardMapping } from './compare-card.service';
+import { KeyboardCommand, KeyboardNavigationService } from './keyboard-navigation.service';
 
-type BestNum = {
-  [key: string]: number;
-};
+type FilterMode = 'all' | 'issues';
+
+type NumberAuditStatus = 'mapped' | 'missing' | 'duplicate';
+
+interface NumberAuditRow {
+  number: number;
+  mappedCards: EnhancedCardMapping[];
+  status: NumberAuditStatus;
+}
 
 @Component({
   selector: 'app-compare-screen',
@@ -30,9 +36,15 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
   isConvertWebpDone = false;
   id!: string;
   setCode: string = '';
-  showOnlyIssues = false;
+  filterMode: FilterMode = 'all';
   activeCardIndex = 0;
   showKeyboardHelp = false;
+  showMissingNumbers = false;
+  showAutoTagged = true;
+  showExcluded = true;
+  includeExcludedInAudit = false;
+  decisionSaveState: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
+  decisionSaveError = '';
   private keyboardSubscription?: Subscription;
 
   constructor(
@@ -60,22 +72,12 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     }
 
     if (this.compareList) {
-      let group: { [key: string]: FormControl } = {};
-      this.compareList.cardMapping.forEach((card) => {
-        // Use suggested number if available, otherwise null
-        group[card.img] = new FormControl(card.suggestedNumber);
-      });
-      this.myFormGroup = new FormGroup(group);
+      this.initializeForm(this.compareList);
     } else {
       this.http.get<CompareCardDto>(`/api/entity/json-base/${this.id}/compare`).subscribe((x) => {
         this.compareList = x;
         this.setCode = this.compareList.setCode;
-        let group: { [key: string]: FormControl } = {};
-        this.compareList.cardMapping.forEach((card) => {
-          // Use suggested number if available, otherwise null
-          group[card.img] = new FormControl(card.suggestedNumber);
-        });
-        this.myFormGroup = new FormGroup(group);
+        this.initializeForm(this.compareList);
       });
     }
 
@@ -91,6 +93,14 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     }
   }
 
+  private initializeForm(compareList: CompareCardDto): void {
+    const group: { [key: string]: FormControl } = {};
+    compareList.cardMapping.forEach((card) => {
+      group[card.img] = new FormControl(card.selectedNumber);
+    });
+    this.myFormGroup = new FormGroup(group);
+  }
+
   findPossibleCardNumbers(cardName: string): number[] {
     if (this.compareList) {
       const f = this.compareList.reducedCardArray.find((x) => x.name === cardName);
@@ -100,7 +110,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  getIssueClass(card: any): string {
+  getIssueClass(card: EnhancedCardMapping): string {
     if (!card.hasIssue) return '';
 
     switch (card.issueType) {
@@ -117,15 +127,16 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  getCardClasses(card: any, index: number): string {
+  getCardClasses(card: EnhancedCardMapping, index: number): string {
     const issueClass = this.getIssueClass(card);
     const activeClass = this.isActiveCard(index)
       ? 'ring-4 ring-blue-500 ring-opacity-50 border-blue-500 shadow-xl scale-[1.02]'
       : '';
-    return `${issueClass} ${activeClass}`.trim();
+    const excludedClass = card.isExcluded ? 'opacity-70 border-dashed border-gray-500 bg-gray-50' : '';
+    return `${issueClass} ${activeClass} ${excludedClass}`.trim();
   }
 
-  getIssueText(card: any): string {
+  getIssueText(card: EnhancedCardMapping): string {
     if (!card.hasIssue) return '';
 
     switch (card.issueType) {
@@ -142,10 +153,18 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFilteredCards() {
+  getFilteredCards(): EnhancedCardMapping[] {
     if (!this.compareList) return [];
-    if (!this.showOnlyIssues) return this.compareList.cardMapping;
-    return this.compareList.cardMapping.filter((card) => card.hasIssue);
+
+    const cards = this.filterMode === 'issues'
+      ? this.compareList.cardMapping.filter((card) => card.hasIssue)
+      : this.compareList.cardMapping;
+
+    return cards.filter(
+      (card) =>
+        (this.showAutoTagged || card.autoTagType === null) &&
+        (this.showExcluded || !card.isExcluded),
+    );
   }
 
   getIssueCount(): number {
@@ -153,11 +172,23 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     return this.compareList.cardMapping.filter((card) => card.hasIssue).length;
   }
 
-  toggleIssueFilter() {
-    this.showOnlyIssues = !this.showOnlyIssues;
+  setFilterMode(mode: FilterMode): void {
+    this.filterMode = mode;
+    this.keepActiveCardInRange();
   }
 
-  private handleKeyboardCommand(command: any): void {
+  setCardVisibility(): void {
+    this.keepActiveCardInRange();
+  }
+
+  private keepActiveCardInRange(): void {
+    const filteredCards = this.getFilteredCards();
+    if (this.activeCardIndex >= filteredCards.length) {
+      this.activeCardIndex = Math.max(filteredCards.length - 1, 0);
+    }
+  }
+
+  private handleKeyboardCommand(command: KeyboardCommand): void {
     if (!this.compareList?.cardMapping) {
       return;
     }
@@ -194,7 +225,9 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
         break;
 
       case 'selectNumber':
-        this.selectNumberByIndex(command.value);
+        if (command.value !== undefined) {
+          this.selectNumberByIndex(command.value);
+        }
         break;
 
       case 'selectNope':
@@ -266,6 +299,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       this.myFormGroup.patchValue({
         [activeCard.img]: activeCard.suggestedNumber,
       });
+      activeCard.selectedNumber = activeCard.suggestedNumber;
 
       // Auto-advance to next card
       setTimeout(() => {
@@ -288,6 +322,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       this.myFormGroup.patchValue({
         [activeCard.img]: selectedNumber,
       });
+      activeCard.selectedNumber = selectedNumber;
 
       // Auto-advance to next card
       setTimeout(() => {
@@ -304,6 +339,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       this.myFormGroup.patchValue({
         [activeCard.img]: null,
       });
+      activeCard.selectedNumber = null;
       setTimeout(() => {
         this.navigateToCard(this.activeCardIndex + 1);
       }, 150);
@@ -318,6 +354,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       this.myFormGroup.patchValue({
         [activeCard.img]: null,
       });
+      activeCard.selectedNumber = null;
 
       // Auto-advance to next card
       setTimeout(() => {
@@ -330,13 +367,13 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     return index === this.activeCardIndex;
   }
 
-  isCardChecked(card: any): boolean {
-    const value = this.myFormGroup.get(card.img)?.value;
+  isCardChecked(card: EnhancedCardMapping): boolean {
+    const value = this.getCardControlValue(card.img);
     return value !== undefined && value !== null && value !== '';
   }
 
-  isDifferentFromOcr(card: any): boolean {
-    const selectedValue = this.myFormGroup.get(card.img)?.value;
+  isDifferentFromOcr(card: EnhancedCardMapping): boolean {
+    const selectedValue = this.getCardControlValue(card.img);
     if (!selectedValue || !card.ocrNumber || card.ocrNumber.trim() === '') {
       return false;
     }
@@ -350,7 +387,142 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
 
   getProgressText(): string {
     const filteredCards = this.getFilteredCards();
+    if (filteredCards.length === 0) {
+      return 'Card 0/0';
+    }
     return `Card ${this.activeCardIndex + 1}/${filteredCards.length}`;
+  }
+
+  private getCardControlValue(img: string): unknown {
+    return this.myFormGroup.controls[img]?.value;
+  }
+
+  toggleExcludeForCard(card: EnhancedCardMapping): void {
+    if (card.excludeState === 'unset') {
+      card.excludeState = 'exclude';
+      card.excludeReason = 'manual';
+      card.isExcluded = true;
+      return;
+    }
+
+    if (card.excludeState === 'exclude') {
+      card.excludeState = 'include';
+      card.excludeReason = 'manual';
+      card.isExcluded = false;
+      return;
+    }
+
+    card.excludeState = 'unset';
+    card.excludeReason =
+      card.autoTagType === 'art' ? 'auto_keyword_art' : card.autoTagType === 'token' ? 'auto_keyword_token' : undefined;
+    card.isExcluded = card.autoTagType !== null;
+  }
+
+  getExcludeButtonClass(card: EnhancedCardMapping): string {
+    if (card.excludeState === 'exclude') {
+      return 'bg-red-100 text-red-700 border border-red-300';
+    }
+    if (card.excludeState === 'include') {
+      return 'bg-green-100 text-green-700 border border-green-300';
+    }
+    if (card.autoTagType !== null) {
+      return 'bg-yellow-100 text-yellow-800 border border-yellow-300';
+    }
+    return 'bg-white text-gray-700 border border-gray-300';
+  }
+
+  getExcludeButtonText(card: EnhancedCardMapping): string {
+    if (card.excludeState === 'exclude') {
+      return 'Excluded';
+    }
+    if (card.excludeState === 'include') {
+      return 'Included';
+    }
+    if (card.autoTagType !== null) {
+      return card.autoTagType;
+    }
+    return 'Neutral';
+  }
+
+  saveDecisions(): void {
+    if (!this.compareList) {
+      return;
+    }
+
+    this.decisionSaveState = 'saving';
+    this.decisionSaveError = '';
+
+    const decisions = this.compareList.cardMapping.map((card) => ({
+      img: card.img,
+      selectedNumber: this.normalizeControlValue(this.getCardControlValue(card.img)),
+      excludeState: card.excludeState,
+      excludeReason: card.excludeReason,
+    }));
+
+    this.http
+      .patch<{ saved: number }>(`/api/entity/json-base/${this.id}/compare-decisions`, {
+        decisions,
+      })
+      .subscribe({
+        next: () => {
+          this.decisionSaveState = 'saved';
+        },
+        error: () => {
+          this.decisionSaveState = 'error';
+          this.decisionSaveError = 'Unable to save compare decisions.';
+        },
+      });
+  }
+
+  getNumberAuditRows(): NumberAuditRow[] {
+    if (!this.compareList) {
+      return [];
+    }
+
+    const maxNumber = this.compareList.maxExpectedNumber ?? 0;
+    const rows: NumberAuditRow[] = [];
+    for (let num = 1; num <= maxNumber; num++) {
+      const mappedCards = this.compareList.cardMapping.filter((card) => {
+        if (!this.includeExcludedInAudit && card.isExcluded) {
+          return false;
+        }
+        return this.normalizeControlValue(this.getCardControlValue(card.img)) === num;
+      });
+
+      let status: NumberAuditStatus = 'mapped';
+      if (mappedCards.length === 0) {
+        status = 'missing';
+      } else if (mappedCards.length > 1) {
+        status = 'duplicate';
+      }
+
+      rows.push({
+        number: num,
+        mappedCards,
+        status,
+      });
+    }
+
+    return rows;
+  }
+
+  getMissingNumberRows(): NumberAuditRow[] {
+    return this.getNumberAuditRows().filter((row) => row.status === 'missing');
+  }
+
+  getDuplicateNumberRows(): NumberAuditRow[] {
+    return this.getNumberAuditRows().filter((row) => row.status === 'duplicate');
+  }
+
+  private normalizeControlValue(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+    return parsed;
   }
 
   onSubmit() {
@@ -361,7 +533,7 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
       imgName: string;
       flipName?: string;
       isFlip: boolean;
-      newNumber: string;
+      newNumber: string | null;
     }[] = [];
 
     let renameDto = {
@@ -370,13 +542,20 @@ export class CompareScreenComponent implements OnInit, OnDestroy {
     };
 
     for (const [key, value] of Object.entries(this.myFormGroup.controls)) {
-      let isFlip = this.compareList?.cardMapping.find((x) => x.img === key)?.hasBack ?? false;
+      const card = this.compareList?.cardMapping.find((x) => x.img === key);
+      if (card?.isExcluded) {
+        continue;
+      }
+
+      const isFlip = card?.hasBack ?? false;
       let flipName = undefined;
       if (isFlip) {
         flipName = key.substring(0, key.lastIndexOf('.')) + '_F' + key.substring(key.lastIndexOf('.'));
       }
 
-      cards.push({ imgName: key, flipName, isFlip, newNumber: value.value });
+      const normalizedValue = this.normalizeControlValue(value.value);
+
+      cards.push({ imgName: key, flipName, isFlip, newNumber: normalizedValue === null ? null : `${normalizedValue}` });
     }
 
     this.http.post<void>('api/rename', renameDto).subscribe(() => {

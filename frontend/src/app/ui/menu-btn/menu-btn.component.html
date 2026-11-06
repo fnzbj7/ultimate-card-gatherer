@@ -1,2 +1,26 @@
-<a [routerLink]="['/',navLovation, id]"><button [disabled]="isDisabled" class="btn-primary w-full" [ngClass]="{'btn-primary': !isDone,'btn-success':isDone}">{{menuText}}</button></a>
-<img *ngIf="isDone" class="w-6 h-6 absolute top-2 -right-8" src="assets/tick.svg" alt="Tick Icon" >
+<a [routerLink]="['/', navLovation, id]"
+  ><button
+    [disabled]="isDisabled"
+    class="btn-primary w-full"
+    [ngClass]="{ 'btn-primary': !isDone, 'btn-success': isDone }"
+  >
+    {{ menuText }}
+  </button></a
+>
+<svg
+  *ngIf="isDone"
+  class="w-6 h-6 absolute top-2 -right-8"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="green"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-label="Completed"
+>
+  <circle cx="12" cy="12" r="10" fill="white" />
+  <path d="M9 12l2 2 4-4" />
+</svg>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as parserTypeScript from 'prettier/parser-typescript';
@@ -32,6 +32,8 @@ export class GenerateMigrationComponent implements OnInit {
   className?: string;
 
   copy = true;
+  errorMessage = '';
+  isLoading = false;
 
   constructor(
     private http: HttpClient,
@@ -53,33 +55,37 @@ export class GenerateMigrationComponent implements OnInit {
       this.taskService.setId(+this.id);
     }
 
-    this.http.get<MigrationDto>(`/api/${this.id}/generate-migration`).subscribe((x) => {
-      // TODO ez is benne van a store-ba
-      if (x) {
-        this.code = x.cardService;
-        this.text = x.text;
-        this.fileName = x.fileName;
-        this.className = x.className;
-
-        this.importCode = this.createImportCode(this.fileName, this.className);
-      }
-    });
+    this.loadMigration(false);
   }
 
   downloadMigrationFile() {
-    this.http.get<MigrationDto>(`/api/${this.id}/generate-migration?create=yes`).subscribe((x) => {
-      this.store.dispatch(finishTask({ taskId: 'isMigrationGeneratedF' }));
-      this.code = x.cardService;
+    this.loadMigration(true);
+  }
 
-      this.text = x.text;
-      this.fileName = x.fileName;
-      this.className = x.className;
-
-      this.importCode = this.createImportCode(this.fileName, this.className);
-
-      if (this.text && this.fileName) {
-        this.generateDownload(this.text, this.fileName);
-      }
+  private loadMigration(create: boolean) {
+    this.errorMessage = '';
+    this.isLoading = true;
+    this.http.get<MigrationDto>(`/api/${this.id}/generate-migration${create ? '?create=yes' : ''}`).subscribe({
+      next: (migration) => {
+        this.isLoading = false;
+        if (!migration) {
+          if (create) this.errorMessage = 'The server returned no migration. Try generating it again.';
+          return;
+        }
+        this.code = migration.cardService;
+        this.text = migration.text;
+        this.fileName = migration.fileName;
+        this.className = migration.className;
+        this.importCode = this.createImportCode(migration.fileName, migration.className);
+        if (create && this.text && this.fileName && this.generateDownload(this.text, this.fileName)) {
+          this.store.dispatch(finishTask({ taskId: 'isMigrationGeneratedF' }));
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoading = false;
+        const detail = error.error?.message || error.error || error.message;
+        this.errorMessage = `Could not ${create ? 'generate' : 'load'} migration (HTTP ${error.status}): ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`;
+      },
     });
   }
   private createImportCode(fileName: string, className: string) {
@@ -93,16 +99,31 @@ export class GenerateMigrationComponent implements OnInit {
   }
 
   private generateDownload(text: string, fileName: string) {
-    let fileContent = format(text, {
-      parser: 'typescript',
-      plugins: [parserTypeScript],
-    });
-    const file = new Blob([fileContent], { type: 'text/plain' });
-
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(file);
-    link.download = fileName;
-    link.click();
-    link.remove();
+    this.errorMessage = '';
+    try {
+      const fileContent = format(text, {
+        parser: 'typescript',
+        plugins: [parserTypeScript],
+        // Match the destination pointless workspace's root .prettierrc.
+        singleQuote: true,
+        trailingComma: 'all',
+        tabWidth: 4,
+        printWidth: 100,
+        arrowParens: 'avoid',
+      });
+      const file = new Blob([fileContent], { type: 'text/plain' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(file);
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return true;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      this.errorMessage = `Could not format/download ${fileName}: ${detail}\nTry Start migration to regenerate a previously saved migration.`;
+      return false;
+    }
   }
 }

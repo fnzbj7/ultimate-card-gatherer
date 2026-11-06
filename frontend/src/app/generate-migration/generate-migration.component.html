@@ -2,7 +2,8 @@
   <app-breadcumb [id]="id" [setCode]="setCode" subMenu="Typeorm Migration"></app-breadcumb>
   <h1 class="mb-4 self-center text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-5xl dark:text-white">Typeorm Migration</h1>
 
-  <button (click)="downloadMigrationFile()" class="btn self-center btn-primary w-52">Start migration</button>
+  <button (click)="downloadMigrationFile()" [disabled]="isLoading" class="btn self-center btn-primary w-52">Start migration</button>
+  <pre *ngIf="errorMessage" role="alert" class="my-4 p-4 bg-red-100 text-red-900 rounded whitespace-pre-wrap break-words">{{ errorMessage }}</pre>
   <ng-container *ngIf="code">
     <app-code-snipet class="self-center" [code]="code" fileName="magiccollection\src\app\magic\magic-card-list\magic-cards-list.service.ts"></app-code-snipet>
   </ng-container>
@@ -16,7 +17,7 @@
   </div>
 
   <div class="self-end">
-    <button *ngIf="text" class="btn btn-primary mr-3" (click)="downloadCurrent()">Download</button>
+    <button *ngIf="text" [disabled]="isLoading" class="btn btn-primary mr-3" (click)="downloadCurrent()">Download</button>
     <a class="w-28" [routerLink]="['/','hub', id]"><button class="btn-secondary">back</button></a>
   </div>
 
