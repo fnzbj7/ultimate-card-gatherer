@@ -1,9 +1,11 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
     Logger,
     Param,
+    Patch,
     Post,
     Res,
     Sse,
@@ -17,6 +19,7 @@ import { Response } from 'express';
 import { CardCompareService } from './services/card-compare.service';
 import { AwsCardUploadService } from './services/aws-card-upload.service';
 import { Observable } from 'rxjs';
+import { UpdateCompareDecisionsDto } from './dto/compare-decisions.dto';
 
 @Controller('/api/entity/json-base')
 export class JsonBaseController {
@@ -96,6 +99,18 @@ export class JsonBaseController {
     @Get('/:id/compare')
     getCompare(@Param('id') id: string) {
         return this.cardCompareService.generateCompareDto(+id);
+    }
+
+    @Patch('/:id/compare-decisions')
+    async updateCompareDecisions(
+        @Param('id') id: string,
+        @Body() body: UpdateCompareDecisionsDto,
+    ) {
+        await this.jsonBaseRepository.updateCardMappingDecisions(
+            +id,
+            body?.decisions ?? [],
+        );
+        return { saved: body?.decisions?.length ?? 0 };
     }
 
     @Post('/:id/update-json')

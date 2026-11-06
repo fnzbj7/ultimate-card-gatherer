@@ -1,4 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class JsonBase {
@@ -27,7 +32,7 @@ export class JsonBase {
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     iconModifDate: Date;
 
-    @Column('simple-json',{ nullable: true })
+    @Column('simple-json', { nullable: true })
     migration: CreatedMigration;
 
     @Column({ default: false })
@@ -50,7 +55,7 @@ export class JsonBase {
 
     @Column({ default: false })
     isRenameImgF: boolean;
-    
+
     @Column({ default: false })
     isConvertToWebpF: boolean;
 
@@ -94,14 +99,24 @@ export interface CardMapping {
     name: string;
     hasBack: boolean;
     ocrNumber: string;
+    selectedNumber?: number | null;
+    excludeState?: ExcludeState;
+    excludeReason?: ExcludeReason;
 }
+
+export type ExcludeState = 'unset' | 'include' | 'exclude';
+
+export type ExcludeReason =
+    | 'manual'
+    | 'auto_keyword_art'
+    | 'auto_keyword_token';
 
 export interface CardMapping2 {
     id: number;
     src: string;
-    name: string,
+    name: string;
     isBack: boolean;
-    frontId?: number
+    frontId?: number;
 }
 
 export interface CreatedMigration {
@@ -112,7 +127,14 @@ export interface CreatedMigration {
 }
 
 export type JsonBaseFlag = keyof Pick<
-  JsonBase,
-  'isCheckNumberF' | 'isDownloadImagesF' | 'isIconUploadF' | 'isJsonUploadF' |
-  'isUrlUploadF' | 'isMigrationGeneratedF' | 'isUploadAwsF' | 'isRenameImgF' | 'isConvertToWebpF'
+    JsonBase,
+    | 'isCheckNumberF'
+    | 'isDownloadImagesF'
+    | 'isIconUploadF'
+    | 'isJsonUploadF'
+    | 'isUrlUploadF'
+    | 'isMigrationGeneratedF'
+    | 'isUploadAwsF'
+    | 'isRenameImgF'
+    | 'isConvertToWebpF'
 >;

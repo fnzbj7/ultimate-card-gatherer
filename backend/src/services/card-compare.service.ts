@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JsonBaseRepository } from 'src/repository/json-base.repository';
+import { CardMapping, ExcludeReason, ExcludeState } from 'src/entities/entities/json-base.entity';
+
+type AutoTagType = 'art' | 'token' | null;
 
 export interface EnhancedCardMapping {
     img: string;
@@ -13,6 +16,11 @@ export interface EnhancedCardMapping {
         | 'ocr_mismatch'
         | 'duplicate'
         | 'no_available_numbers';
+    selectedNumber: number | null;
+    excludeState: ExcludeState;
+    excludeReason?: ExcludeReason;
+    autoTagType: AutoTagType;
+    isExcluded: boolean;
 }
 
 @Injectable()
@@ -20,6 +28,65 @@ export class CardCompareService {
     private logger = new Logger(CardCompareService.name);
 
     constructor(private readonly jsonBaseRepository: JsonBaseRepository) {}
+
+    private getAutoTagType(name: string): AutoTagType {
+        const normalizedName = (name || '').toLowerCase();
+        if (normalizedName.includes('art card')) {
+            return 'art';
+        }
+        if (normalizedName.includes('token')) {
+            return 'token';
+        }
+        return null;
+    }
+
+    private resolveExcludeState(
+        card: CardMapping,
+        autoTagType: AutoTagType,
+    ): {
+        excludeState: ExcludeState;
+        excludeReason?: ExcludeReason;
+        isExcluded: boolean;
+    } {
+        const explicitState: ExcludeState = card.excludeState ?? 'unset';
+        if (explicitState === 'include') {
+            return {
+                excludeState: explicitState,
+                excludeReason: card.excludeReason,
+                isExcluded: false,
+            };
+        }
+
+        if (explicitState === 'exclude') {
+            return {
+                excludeState: explicitState,
+                excludeReason: card.excludeReason ?? 'manual',
+                isExcluded: true,
+            };
+        }
+
+        if (autoTagType === 'art') {
+            return {
+                excludeState: 'unset',
+                excludeReason: 'auto_keyword_art',
+                isExcluded: true,
+            };
+        }
+
+        if (autoTagType === 'token') {
+            return {
+                excludeState: 'unset',
+                excludeReason: 'auto_keyword_token',
+                isExcluded: true,
+            };
+        }
+
+        return {
+            excludeState: 'unset',
+            excludeReason: card.excludeReason,
+            isExcluded: false,
+        };
+    }
 
     async generateCompareDto(id: number) {
         const jsonBase = await this.jsonBaseRepository.getThingsForCompare(id);
@@ -54,6 +121,10 @@ export class CardCompareService {
             },
             init,
         );
+
+        const maxExpectedNumber = cardNameArray.length
+            ? cardNameArray[cardNameArray.length - 1].num
+            : 0;
 
         // TWO-PASS APPROACH:
         // Pass 1: Process cards WITH OCR numbers first to claim their numbers
@@ -124,6 +195,13 @@ export class CardCompareService {
                 usedForThisCard.add(suggestedNumber);
             }
 
+            const autoTagType = this.getAutoTagType(card.name);
+            const resolvedExclude = this.resolveExcludeState(card, autoTagType);
+            const hasPersistedSelection = card.selectedNumber !== undefined;
+            const selectedNumber = hasPersistedSelection
+                ? (card.selectedNumber ?? null)
+                : suggestedNumber;
+
             enhancedCardMapping[index] = {
                 img: card.img,
                 name: card.name,
@@ -132,6 +210,11 @@ export class CardCompareService {
                 suggestedNumber,
                 hasIssue,
                 issueType,
+                selectedNumber,
+                excludeState: resolvedExclude.excludeState,
+                excludeReason: resolvedExclude.excludeReason,
+                autoTagType,
+                isExcluded: resolvedExclude.isExcluded,
             };
         }
 
@@ -162,6 +245,13 @@ export class CardCompareService {
                 }
             }
 
+            const autoTagType = this.getAutoTagType(card.name);
+            const resolvedExclude = this.resolveExcludeState(card, autoTagType);
+            const hasPersistedSelection = card.selectedNumber !== undefined;
+            const selectedNumber = hasPersistedSelection
+                ? (card.selectedNumber ?? null)
+                : suggestedNumber;
+
             enhancedCardMapping[index] = {
                 img: card.img,
                 name: card.name,
@@ -170,13 +260,30 @@ export class CardCompareService {
                 suggestedNumber,
                 hasIssue,
                 issueType,
+                selectedNumber,
+                excludeState: resolvedExclude.excludeState,
+                excludeReason: resolvedExclude.excludeReason,
+                autoTagType,
+                isExcluded: resolvedExclude.isExcluded,
             };
         }
+
+        const issueCount = enhancedCardMapping.filter((card) => card.hasIssue).length;
+        const autoArtCount = enhancedCardMapping.filter((card) => card.autoTagType === 'art').length;
+        const autoTokenCount = enhancedCardMapping.filter((card) => card.autoTagType === 'token').length;
+        const excludedCount = enhancedCardMapping.filter((card) => card.isExcluded).length;
 
         return {
             cardMapping: enhancedCardMapping,
             reducedCardArray,
             setCode: jsonBase.setCode,
+            maxExpectedNumber,
+            summary: {
+                issueCount,
+                autoArtCount,
+                autoTokenCount,
+                excludedCount,
+            },
         };
     }
 }
